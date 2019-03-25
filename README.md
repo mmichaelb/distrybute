@@ -1,4 +1,5 @@
 # gosharexserver [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![stability-beta](https://img.shields.io/badge/stability-beta-33bbff.svg)](https://github.com/mkenney/software-guides/blob/master/STABILITY-BADGES.md#beta) [![GoDoc](https://godoc.org/github.com/mmichaelb/gosharexserver?status.svg)](https://godoc.org/github.com/mmichaelb/gosharexserver) [![Build Status](https://travis-ci.org/mmichaelb/gosharexserver.svg?branch=master)](https://travis-ci.org/mmichaelb/gosharexserver) [![Go Report Card](https://goreportcard.com/badge/github.com/mmichaelb/gosharexserver)](https://goreportcard.com/report/github.com/mmichaelb/gosharexserver)
-Lightweight upload server for the ShareX client (https://getsharex.com/).
+
+Lightweight upload server for the ShareX client (<https://getsharex.com/>).
 
 This repository will be filled with updated code soon.
