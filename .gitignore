@@ -18,3 +18,6 @@ bin/*
 
 # vendor folder from golang/dep
 vendor/
+
+# Visual Studio Code settings directory
+.vs
