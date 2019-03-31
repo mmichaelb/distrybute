@@ -24,14 +24,11 @@ type Storage interface {
 	// Request searches for an entry by using the specified callReference. It returns an error if
 	// something went wrong.
 	Request(callReference string) (entry *FileEntry, err error)
-	// DeleteByCallReference tries to search for the entries by using the specified callReferences and
-	// then deletes it if the search was successful. It returns an error (err) if something went wrong
-	// and the total number of deleted file entries).
-	DeleteByCallReference(callReference []string) (err error, deleted int64)
-	// DeleteByDeleteReference tries to search for the entries using the specified deleteReferences and
-	// then deletes it if the search was successful. It returns an error (err) if something went wrong
-	// and the total number of deleted file entries).
-	DeleteByDeleteReference(deleteReference []string) (err error, deleted int64)
+	// Delete tries to search for the entries by using any of the following values set in the entry
+	// instance: CallReference or DeleteReference. The entries are deleted if the search was
+	// successful. It returns an error (err) if something went wrong and the total number of deleted
+	// file entries).
+	Delete(entries []*FileEntry) (err error, deleted int64)
 	// ListEntries lists up all matched entries by searching for all entries by the given uuids and
 	// returns the matched ones. It also accepts a various number of parameters to modify the search
 	// results. It returns an error (err) if something went wrong.
