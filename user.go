@@ -2,6 +2,7 @@ package gosharexserver
 
 import (
 	"github.com/google/uuid"
+	"time"
 )
 
 // DefaultUserId is used for old file entries with no specified author.
@@ -52,7 +53,6 @@ func (user User) IsUsingLatestPasswordHashAlgorithm() bool {
 	return user.PasswordHashAlgorithm == LatestPasswordHashAlgorithm
 }
 
-// TODO login/logout functions
 // UserService contains the basic functions for interacting with the user database and their passwords.
 type UserService interface {
 	// CreateNewUser creates a new user by using the specified Username and role within the user
@@ -84,4 +84,49 @@ type UserService interface {
 	CheckPassword(user *User, password []byte) (ok bool, err error)
 	// UpdatePasssword updates the user`s password. It returns an error (err) if something went wrong.
 	UpdatePasssword(user *User, password []byte) (err error)
+}
+
+var (
+	// SessionExpiryPermanent is the value for the ExpiresOn field which represents a permanent session.
+	SessionExpiryPermanent = time.Unix(-1, 0)
+	// SessionExpiryOnyTimeOnly is the value for the ExpiresOn field which represents a one-time-only
+	// session.
+	SessionExpiryOnyTimeOnly = time.Unix(0, 0)
+)
+
+// SessionService contains the basic functions to manage sessions and serialize/deserialize them.
+type SessionService interface {
+	// NewUserSession returns a new session and saves it to the database. It returns an error if something
+	NewUserSession(user *User, expiresOn time.Time) (session *UserSession, err error)
+}
+
+// UserSession contains the basic information needed within a session object. It does not contain any
+// serialization functions - these belong to the SessionService implementation.
+type UserSession struct {
+	// ExpiresOn holds the date when the session should expire. If ExpiresOn#Unix is equals to -1,
+	// the session should be permanent and if its equals to 0, it should be one session only.
+	ExpiresOn time.Time
+	// UserId holds the user`s id inside the database.
+	UserId uuid.UUID
+	// Username holds the user`s username.
+	Username string
+	// Role holds the user`s role.
+	Role Role
+	// Valid indicates whether the session is stilled marked as valid. This field is only used if
+	// the session should be invalidated manually.
+	Valid bool
+}
+
+// GetUserInstance returns a new instantiated instance of the User type by using the given data.
+func (session UserSession) GetUserInstance() (user *User) {
+	return &User{
+		Id:       session.UserId,
+		Username: session.Username,
+		Role:     session.Role,
+	}
+}
+
+// IsActive indicates whether the session is still active and marked as valid.
+func (session UserSession) IsActiveAndValid() bool {
+	return session.Valid && (session.ExpiresOn.Unix() == -1 || time.Now().Before(session.ExpiresOn))
 }
