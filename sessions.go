@@ -21,10 +21,12 @@ type SessionService interface {
 	// InvalidateUserSessions invalidates all used user sessions and therefore automatically logs
 	// the user out of his account.
 	InvalidateUserSessions(user *User) (err error)
-	// ParseSessionFromRequest parses the user session from the given http request and returns an
-	// error if something went wrong. If the error is an ErrSessionInvalid, the session will still
-	// be parsed but it is not valid anymore.
-	ParseSessionFromRequest(req *http.Request) (session *UserSession, err error)
+	// DeserializeSession deserializes the user session by using the given raw session string. If
+	// the returned error is an ErrSessionInvalid, the session will still be parsed but it is not
+	// valid anymore.
+	DeserializeSession(rawSession string) (session *UserService, err error)
+	// SerializeSession serializes the session and returns the raw serialized session as a string.
+	SerializeSession(resp *http.Response, session *UserSession) (rawSession string, err error)
 }
 
 // UserSession contains the basic information needed within a session object. It does not contain any
