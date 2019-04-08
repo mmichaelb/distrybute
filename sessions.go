@@ -2,7 +2,6 @@ package gosharexserver
 
 import (
 	"errors"
-	"net/http"
 	"time"
 
 	"github.com/google/uuid"
@@ -23,10 +22,11 @@ type SessionService interface {
 	InvalidateUserSessions(user *User) (err error)
 	// DeserializeSession deserializes the user session by using the given raw session string. If
 	// the returned error is an ErrSessionInvalid, the session will still be parsed but it is not
-	// valid anymore.
+	// valid anymore. It returns an error (err) if something went wrong.
 	DeserializeSession(rawSession string) (session *UserService, err error)
-	// SerializeSession serializes the session and returns the raw serialized session as a string.
-	SerializeSession(resp *http.Response, session *UserSession) (rawSession string, err error)
+	// SerializeSession serializes the session and returns the raw serialized session as a string. It
+	// returns an error (err) if something went wrong.
+	SerializeSession(session *UserSession) (rawSession string, err error)
 }
 
 // UserSession contains the basic information needed within a session object. It does not contain any
