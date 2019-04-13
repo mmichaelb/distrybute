@@ -13,12 +13,12 @@ type PasswordHashAlgorithm string
 
 const (
 	// Unique strings for all password hashing algorithms.
-	HashingArgon2ID PasswordHashAlgorithm = "argon2id"
+	PasswordHashArgon2ID PasswordHashAlgorithm = "argon2id"
 	// LatestPasswordHashAlgorithm declares the default used and latest password hash algorithm.
-	LatestPasswordHashAlgorithm PasswordHashAlgorithm = HashingArgon2ID
+	LatestPasswordHashAlgorithm PasswordHashAlgorithm = PasswordHashArgon2ID
 )
 
-// Role wraps the type of roles
+// Role is the string wrapper for user roles.
 type Role string
 
 const (
@@ -38,8 +38,7 @@ type User struct {
 	Role Role
 	// AuthorizationToken holds the auth token for the user to use when uploading file entries.
 	AuthorizationToken string
-	// HashingAlgorithm indicates the hashing algorithm by providing an identical and unique number
-	// to match the algorithm.
+	// PasswordHashAlgorithm indicates the hashing algorithm which this user entry is using.
 	PasswordHashAlgorithm PasswordHashAlgorithm
 }
 
