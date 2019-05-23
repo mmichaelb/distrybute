@@ -33,11 +33,11 @@ type Storage interface {
 	// ListEntries lists up all matched entries by searching for all entries by the given uuids and
 	// returns the matched ones. It also accepts a various number of parameters to modify the search
 	// results. It returns an error (err) if something went wrong.
-	ListEntries(limit int, offset int, sortBy FileEntrySortElem, sortOrder SortOrder, uid []uuid.UUID) (
+	ListEntries(limit int, offset int, sortBy FileEntrySortElem, sortOrder SortSequence, uid []uuid.UUID) (
 		err error, entries []*FileEntry)
 	// SearchEntries searches for specific entries by using the parameters and returns the matched
 	// ones. It returns an error (err) if something went wrong.
-	SearchEntries(query string, limit int, offset int, sortBy FileEntrySortElem, sortOrder SortOrder, uid []uuid.UUID) (
+	SearchEntries(query string, limit int, offset int, sortBy FileEntrySortElem, sortOrder SortSequence, uid []uuid.UUID) (
 		err error, entries []*FileEntry)
 	// ContentTypeStatistics returns the content type statistics for the given uuids. The
 	// MapBasedStatistics (stats) instance contains the content types as keys and the number of
