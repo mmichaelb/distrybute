@@ -1,14 +1,14 @@
 package gosharexserver
 
-// SortOrder represents general sort sequences for all searches.
-type SortOrder int
+// SortSequence represents general sort sequences for all searches.
+type SortSequence int
 
 const (
 	// SortAscending sets the sort sequence to ascending.
-	SortAscending SortOrder = iota
-	// SortDescending sets the sort order to descending.
+	SortAscending SortSequence = iota
+	// SortDescending sets the sort sequence to descending.
 	SortDescending
-	// SortUnsorted sets the sort order to unsorted.
+	// SortUnsorted sets the sort sequence to unsorted.
 	SortUnsorted
 )
 
