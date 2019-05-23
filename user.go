@@ -4,8 +4,8 @@ import (
 	"github.com/google/uuid"
 )
 
-// DefaultUserId is used for old file entries with no specified author.
-var DefaultUserId, _ = uuid.FromBytes(make([]byte, 16))
+// DefaultUserID is used for old file entries with no specified author.
+var DefaultUserID, _ = uuid.FromBytes(make([]byte, 16))
 
 // PasswordHashAlgorithm is used to represent a password hashing algorithm in order to allow
 // multiple different hashing implementations.
@@ -13,6 +13,8 @@ type PasswordHashAlgorithm string
 
 const (
 	// Unique strings for all password hashing algorithms.
+
+	// PasswordHashArgon2ID is the identical name for the expensive key derivation function Argon2Id.
 	PasswordHashArgon2ID PasswordHashAlgorithm = "argon2id"
 	// LatestPasswordHashAlgorithm declares the default used and latest password hash algorithm.
 	LatestPasswordHashAlgorithm PasswordHashAlgorithm = PasswordHashArgon2ID
@@ -22,15 +24,16 @@ const (
 type Role string
 
 const (
-	// Role constants
+	// RoleAdmin represents the constant for the admin role.
 	RoleAdmin Role = "ADMIN"
-	RoleUser  Role = "USER"
+	// RoleUser represents the constant for the user role.
+	RoleUser Role = "USER"
 )
 
 // User contains the basic user data.
 type User struct {
-	// Id is a unqiue id which can be used to identify the user.
-	Id uuid.UUID
+	// ID is a unqiue id which can be used to identify the user.
+	ID uuid.UUID
 	// Username is the name of the user to e.g. login with.
 	Username string
 	// Role indicates the status of the user inside the system and whether he has extended access to

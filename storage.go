@@ -1,14 +1,15 @@
 package gosharexserver
 
 import (
-	"github.com/google/uuid"
 	"io"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 const (
-	// MinimumEntryNumberContentTypeStats indicates the minimum of entries which must have the
-	// content in order to be listed in the content type statistic call.
+	// ContentTypeStatsMinimum holds the minimum of entries which must have the same content type
+	// in order to be listed in the content type statistic call as a separate part.
 	// TODO: change to dynamic configuration value
 	ContentTypeStatsMinimum = 10
 )
