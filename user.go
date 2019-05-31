@@ -32,7 +32,7 @@ const (
 
 // User contains the basic user data.
 type User struct {
-	// ID is a unqiue id which can be used to identify the user.
+	// ID is a unqiue ID which can be used to identify the user.
 	ID uuid.UUID
 	// Username is the name of the user to e.g. login with.
 	Username string
@@ -76,7 +76,7 @@ type UserService interface {
 	// UpdateAuthorizationToken updates the user`s authorization token and sets the value of the
 	// user instance. It returns an error (err) if something went wrong.
 	UpdateAuthorizationToken(user *User) (err error)
-	// DeleteUser deletes the user by searching for the user`s id. It returns an error (err) if
+	// DeleteUser deletes the user by searching for the user`s ID. It returns an error (err) if
 	// something went wrong.
 	DeleteUser(id uuid.UUID) (err error)
 	// CheckPassword checks the user`s password and whether the username is existent inside the

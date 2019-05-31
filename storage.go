@@ -55,10 +55,10 @@ type FileManager interface {
 }
 
 var (
-	// ErrDuplicateStorageID indicates that the provided id is already present in the file storage.
-	ErrDuplicateStorageID = errors.New("the given id is already present in the file storage")
-	// ErrIDNotFound indicates that there is no such file with this id in the file storage.
-	ErrIDNotFound = errors.New("the given id was not found in the file storage")
+	// ErrDuplicateStorageID indicates that the provided ID is already present in the file storage.
+	ErrDuplicateStorageID = errors.New("the given ID is already present in the file storage")
+	// ErrIDNotFound indicates that there is no such file with this ID in the file storage.
+	ErrIDNotFound = errors.New("the given ID was not found in the file storage")
 )
 
 // Storage holds functions which are only being called by a file manager and this interface is used
@@ -66,15 +66,15 @@ var (
 type Storage interface {
 	// PutFile stores input in the given file storage. It returns a io.WriteCloser in order to
 	// allow a streamable saving process. In addition to that, it needs an identical string which
-	// is used to identify the object in further retrievals. If the id is already present in the
+	// is used to identify the object in further retrievals. If the ID is already present in the
 	// file storage, ErrDuplicateStorageID is returned - if different errors occur, they are returned
 	// without wrapping.
 	PutFile(id string) (*io.WriteCloser, error)
-	// GetFile first searches for the given id and if found, returns the content by handing over a
-	// ReadCloseSeeker. If the given id cannot be found in the file entry, ErrIDNotFound is
+	// GetFile first searches for the given ID and if found, returns the content by handing over a
+	// ReadCloseSeeker. If the given ID cannot be found in the file entry, ErrIDNotFound is
 	// returned - if different errors occur, they are returned without wrapping.
 	GetFile(id string) (*ReadCloseSeeker, error)
-	// DeleteFile tries to delete the file associated with the given id. If the given id cannot be
+	// DeleteFile tries to delete the file associated with the given ID. If the given ID cannot be
 	// found in the file entry, ErrIDNotFound is returned - if different errors occur, they are
 	// returned without wrapping.
 	DeleteFile(id string) error
