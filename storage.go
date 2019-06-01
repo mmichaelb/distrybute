@@ -64,16 +64,15 @@ var (
 // Storage holds functions which are only being called by a file manager and this interface is used
 // as a helper to separate the storing and managing process of files.
 type Storage interface {
-	// PutFile stores input in the given file storage. It returns a io.WriteCloser in order to
-	// allow a streamable saving process. In addition to that, it needs an identical string which
-	// is used to identify the object in further retrievals. If the ID is already present in the
-	// file storage, ErrDuplicateStorageID is returned - if different errors occur, they are returned
-	// without wrapping.
-	PutFile(id string) (*io.WriteCloser, error)
+	// PutFile stores input in the given file storage. It accepts an io.Reader instance to allow a
+	// streamable saving process. In addition to that, it needs an identical string which is used to
+	// identify the object in further retrievals. If the ID is already present in the file storage,
+	// ErrDuplicateStorageID is returned - if different errors occur, they are returned without wrapping.
+	PutFile(id string, reader io.Reader) error
 	// GetFile first searches for the given ID and if found, returns the content by handing over a
 	// ReadCloseSeeker. If the given ID cannot be found in the file entry, ErrIDNotFound is
 	// returned - if different errors occur, they are returned without wrapping.
-	GetFile(id string) (*ReadCloseSeeker, error)
+	GetFile(id string) (ReadCloseSeeker, error)
 	// DeleteFile tries to delete the file associated with the given ID. If the given ID cannot be
 	// found in the file entry, ErrIDNotFound is returned - if different errors occur, they are
 	// returned without wrapping.
