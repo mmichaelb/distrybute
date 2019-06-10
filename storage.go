@@ -77,6 +77,8 @@ type Storage interface {
 	// found in the file entry, ErrIDNotFound is returned - if different errors occur, they are
 	// returned without wrapping.
 	DeleteFile(id string) error
+	// DeleteMultipleFiles does the same like DeleteFile but is able to delete multiple files at once.
+	DeleteMultipleFiles(ids ...string) error
 }
 
 // MapBasedStatistics contains the key-based statistics needed for the statistics endpoint.

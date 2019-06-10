@@ -3,7 +3,6 @@ package miniostorage
 import (
 	"errors"
 	"github.com/minio/minio-go"
-	"io"
 )
 
 // Instance contains the functions needed to implement the Storage interface declares inside the
@@ -30,10 +29,4 @@ func New(client *minio.Client, bucketName string, bucketLocation string) (*Insta
 		}
 	}
 	return &Instance{client: client, bucketName: bucketName}, nil
-}
-
-// PutFile is the minio client based implentation of the Storage interface PutFile function.
-func (instance *Instance) PutFile(id string, reader io.Reader) (err error) {
-	_, err = instance.client.PutObject(instance.bucketName, id, reader, -1, minio.PutObjectOptions{})
-	return
 }
