@@ -23,7 +23,7 @@ type FileManager interface {
 	// to the storage. If something went wrong, an error (err) is returned.
 	// In addition to that the entry`s ID and callReference fields are manipulated after the
 	// function has finished.
-	Store(entry *FileEntry) (writer io.WriteCloser, err error)
+	Store(entry *FileEntry, reader io.Reader) (err error)
 	// Request searches for an entry by using the specified callReference. It returns an error if
 	// something went wrong.
 	Request(callReference string) (entry *FileEntry, err error)
