@@ -8,11 +8,24 @@ import (
 	"github.com/google/uuid"
 )
 
+// Period is used when passing a period of time e.g. when retrieving statistics.
+type Period string
+
 const (
-	// ContentTypeStatsMinimum holds the minimum of entries which must have the same content type
-	// in order to be listed in the content type statistic call as a separate part.
-	// TODO: change to dynamic configuration value
-	ContentTypeStatsMinimum = 10
+	// TODO make limits dynamic
+
+	// PeriodHour indicates the number of uploaded files per hour (last 24h) -> return number: 24
+	PeriodHour = Period("HOUR")
+	// PeriodDay indicates the number of uploaded files per day (last 30 days) -> return number: 30
+	PeriodDay = Period("DAY")
+	// PeriodMonth indicates the number of uploaded files per month (last 12 months) -> return number: 12
+	PeriodMonth = Period("MONTH")
+	// PeriodYear indicates the number of uploaded files per year (last 10 years) -> return number: 10
+	PeriodYear = Period("YEAR")
+	// PeriodHourOfDay indicates the average number of uploaded files per hour within a day (00-23h) -> return number: 24
+	PeriodHourOfDay = Period("HOUR_OF_DAY")
+	// PeriodDayOfWeek indicates the average number of uploaded files per day within a week (Monday - Sunday) -> return number: 7
+	PeriodDayOfWeek = Period("DAY_OF_WEEK")
 )
 
 // FileManager holds all functions needed for a useable file manager implementation. It contains
@@ -41,18 +54,23 @@ type FileManager interface {
 	// ones. It returns an error (err) if something went wrong.
 	SearchEntries(query string, limit int, offset int, sortBy FileEntrySortElem, sortOrder SortSequence, uid []uuid.UUID) (
 		err error, entries []*FileEntry)
-	// ContentTypeStatistics returns the content type statistics for the given uuids. The
-	// MapBasedStatistics (stats) instance contains the content types as keys and the number of
-	// matched file entries as values. For all content types falling below the
-	// ContentTypeStatsMinimum the key "other" is used. It returns an error (err) if something went
-	// wrong.
-	ContentTypeStatistics(uid []uuid.UUID) (err error, stats *MapBasedStatistics)
-	// UploadStatistics returns the upload statistics for a given period of time specified as a
-	// parameter. The MapBasedStatistics (stats) instance contains the time stamps as strings
-	// according to ISO 8601 in a simplified version which is YYYYMMDDThhmmssZ and UTC.
-	// TODO: use the int64 unix time as a key.
-	UploadStatistics(uid []uuid.UUID, period time.Duration) (err error, stats *MapBasedStatistics)
+	// ResolveMIMETypeStatistic resolves the MIME type statistic for the given uuids. The
+	// MIMETypeStatistic instance contains the MIME types as keys and the number of matched file
+	// entries as values. The parameter uids indicates whose uploaded files should be included. It
+	//  returns an error (err) if something went wrong.
+	ResolveMIMETypeStatistic(uids []uuid.UUID) (err error, totalEntries int64, statistic MIMETypeStatistic)
+	// ResolveUserUploadPeriodStatistic resolves the user upload statistic and sets the total number
+	// of uploaded files in the UserUploadStatistic return parameter. The parameter uid indicates
+	// whose uploaded files should be used. It  returns an error (err) if something went wrong.
+	ResolveUserUploadPeriodStatistic(uid uuid.UUID, period Period) (err error, statistic *UserUploadPeriodStatistic)
 }
+
+// MIMETypeStatistic contains the Content-Type/MIME Type as a key and the total number of files
+// using this MIME Type.
+type MIMETypeStatistic map[string]int64
+
+// UserUploadPeriodStatistic contains the values when retrieving period based upload statistics.
+type UserUploadPeriodStatistic []int64
 
 var (
 	// ErrDuplicateStorageID indicates that the provided ID is already present in the file storage.
@@ -79,12 +97,4 @@ type Storage interface {
 	DeleteFile(id string) error
 	// DeleteMultipleFiles does the same like DeleteFile but is able to delete multiple files at once.
 	DeleteMultipleFiles(ids ...string) error
-}
-
-// MapBasedStatistics contains the key-based statistics needed for the statistics endpoint.
-type MapBasedStatistics struct {
-	// TotalEntryAmount holds the total amount of files matched.
-	TotalEntryAmount int64
-	// StatisticMap contains the key-based statistics - varies depending on the context.
-	StatisticMap map[string]int64
 }
