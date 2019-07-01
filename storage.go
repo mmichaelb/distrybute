@@ -28,7 +28,7 @@ type FileManager interface {
 	// something went wrong.
 	Request(callReference string) (entry *FileEntry, err error)
 	// Delete tries to search for the entries by using any of the following values set in the entry
-	// instance: CallReference or DeleteReference. The entries are deleted if the search was
+	// instance: ID, CallReference or DeleteReference. The entries are deleted if the search was
 	// successful. It returns an error (err) if something went wrong and the total number of deleted
 	// file entries.
 	Delete(entries []*FileEntry) (err error, deleted int64)
