@@ -21,10 +21,10 @@ const (
 type FileManager interface {
 	// Store saves the entry data to the storage and returns the writer in order to write the file
 	// to the storage. If something went wrong, an error (err) is returned.
-	// In addition to that the entry`s ID and callReference fields are manipulated after the
+	// In addition to that the entry`s ID, CallReference and (maybe) DeleteReference fields are manipulated after the
 	// function has finished.
 	Store(entry *FileEntry, reader io.Reader) (err error)
-	// Request searches for an entry by using the specified callReference. It returns an error if
+	// Request searches for an entry by using the specified CallReference. It returns an error if
 	// something went wrong.
 	Request(callReference string) (entry *FileEntry, err error)
 	// Delete tries to search for the entries by using any of the following values set in the entry
