@@ -3,7 +3,6 @@ package gosharexserver
 import (
 	"errors"
 	"io"
-	"time"
 
 	"github.com/google/uuid"
 )
