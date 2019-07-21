@@ -2,10 +2,7 @@ package postgres
 
 import (
 	"database/sql"
-	"github.com/google/uuid"
 	"github.com/mmichaelb/gosharexserver"
-	"io"
-	"time"
 
 	// import postgres driver
 	_ "github.com/lib/pq"
@@ -30,7 +27,7 @@ func New(db *sql.DB, storage gosharexserver.Storage) *Manager {
 }
 
 // NewWithConnectionString instantiates a new instance by using the given data source name (aka
-// connect url)
+// connect url).
 func NewWithConnectionString(connectionString string, storage gosharexserver.Storage) (manager *Manager, err error) {
 	manager = &Manager{}
 	manager.db, err = sql.Open("postgresql", connectionString)
