@@ -43,7 +43,7 @@ type FileManager interface {
 	// instance: ID, CallReference or DeleteReference. The entries are deleted if the search was
 	// successful. It returns an error (err) if something went wrong and the total number of deleted
 	// file entries.
-	Delete(entries []*FileEntry) (err error, deleted int64)
+	Delete(entries []*FileEntry) (deleted int64, err error)
 	// ListEntries lists up all matched entries by searching for all entries by the given uuids and
 	// returns the matched ones. It also accepts a various number of parameters to modify the search
 	// results. It returns an error (err) if something went wrong.
