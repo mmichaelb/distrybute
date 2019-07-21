@@ -6,10 +6,12 @@ import (
 	"time"
 )
 
-func (manager *Manager) ContentTypeStatistics(uid []uuid.UUID) (err error, stats *gosharexserver.MapBasedStatistics) {
+// ResolveMIMETypeStatistic is the Postgres based implementation of the Manager interface ResolveMIMETypeStatistic function.
+func (manager *Manager) ResolveMIMETypeStatistic(uid []uuid.UUID) (totalEntries int64, statistic gosharexserver.MIMETypeStatistic, err error) {
 	panic("not implemented")
 }
 
-func (manager *Manager) UploadStatistics(uid []uuid.UUID, period time.Duration) (err error, stats *gosharexserver.MapBasedStatistics) {
+// UploadStatistics is the Postgres based implementation of the Manager interface UploadStatistics function.
+func (manager *Manager) UploadStatistics(uid []uuid.UUID, period time.Duration) (statistic gosharexserver.UserUploadPeriodStatistic, err error) {
 	panic("not implemented")
 }

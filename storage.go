@@ -48,20 +48,20 @@ type FileManager interface {
 	// returns the matched ones. It also accepts a various number of parameters to modify the search
 	// results. It returns an error (err) if something went wrong.
 	ListEntries(limit int, offset int, sortBy FileEntrySortElem, sortOrder SortSequence, uid []uuid.UUID) (
-		err error, entries []*FileEntry)
+		entries []*FileEntry, err error)
 	// SearchEntries searches for specific entries by using the parameters and returns the matched
 	// ones. It returns an error (err) if something went wrong.
 	SearchEntries(query string, limit int, offset int, sortBy FileEntrySortElem, sortOrder SortSequence, uid []uuid.UUID) (
-		err error, entries []*FileEntry)
+		entries []*FileEntry, err error)
 	// ResolveMIMETypeStatistic resolves the MIME type statistic for the given uuids. The
 	// MIMETypeStatistic instance contains the MIME types as keys and the number of matched file
 	// entries as values. The parameter uids indicates whose uploaded files should be included. It
 	//  returns an error (err) if something went wrong.
-	ResolveMIMETypeStatistic(uids []uuid.UUID) (err error, totalEntries int64, statistic MIMETypeStatistic)
+	ResolveMIMETypeStatistic(uids []uuid.UUID) (totalEntries int64, statistic MIMETypeStatistic, err error)
 	// ResolveUserUploadPeriodStatistic resolves the user upload statistic and sets the total number
 	// of uploaded files in the UserUploadStatistic return parameter. The parameter uid indicates
 	// whose uploaded files should be used. It  returns an error (err) if something went wrong.
-	ResolveUserUploadPeriodStatistic(uid uuid.UUID, period Period) (err error, statistic *UserUploadPeriodStatistic)
+	ResolveUserUploadPeriodStatistic(uid uuid.UUID, period Period) (statistic UserUploadPeriodStatistic, err error)
 }
 
 // MIMETypeStatistic contains the Content-Type/MIME Type as a key and the total number of files
