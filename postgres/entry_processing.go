@@ -5,10 +5,12 @@ import (
 	"github.com/mmichaelb/gosharexserver"
 )
 
-func (manager *Manager) ListEntries(limit int, offset int, sortBy gosharexserver.FileEntrySortElem, sortOrder gosharexserver.SortSequence, uid []uuid.UUID) (err error, entries []*gosharexserver.FileEntry) {
+// ListEntries is the Postgres based implementation of the Manager interface ListEntries function.
+func (manager *Manager) ListEntries(limit int, offset int, sortBy gosharexserver.FileEntrySortElem, sortOrder gosharexserver.SortSequence, uid []uuid.UUID) (entries []*gosharexserver.FileEntry, err error) {
 	panic("not implemented")
 }
 
-func (manager *Manager) SearchEntries(query string, limit int, offset int, sortBy gosharexserver.FileEntrySortElem, sortOrder gosharexserver.SortSequence, uid []uuid.UUID) (err error, entries []*gosharexserver.FileEntry) {
+// SearchEntries is the Postgres based implementation of the Manager interface SearchEntries function.
+func (manager *Manager) SearchEntries(query string, limit int, offset int, sortBy gosharexserver.FileEntrySortElem, sortOrder gosharexserver.SortSequence, uid []uuid.UUID) (entries []*gosharexserver.FileEntry, err error) {
 	panic("not implemented")
 }
