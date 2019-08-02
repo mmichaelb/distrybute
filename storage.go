@@ -27,10 +27,10 @@ const (
 	PeriodDayOfWeek = Period("DAY_OF_WEEK")
 )
 
-// FileManager holds all functions needed for a useable file manager implementation. It contains
+// FileService holds all functions needed for a useable file service implementation. It contains
 // statistic functions and the upload and deletion of file entries. It may uses a storage helper
 // implementation in order to separate the storage and metadata saving process.
-type FileManager interface {
+type FileService interface {
 	// Store saves the entry data to the storage and returns the writer in order to write the file
 	// to the storage. If something went wrong, an error (err) is returned.
 	// In addition to that the entry`s ID, CallReference and (maybe) DeleteReference fields are manipulated after the
@@ -78,7 +78,7 @@ var (
 	ErrIDNotFound = errors.New("the given ID was not found in the file storage")
 )
 
-// Storage holds functions which are only being called by a file manager and this interface is used
+// Storage holds functions which are only being called by a file service and this interface is used
 // as a helper to separate the storing and managing process of files.
 type Storage interface {
 	// PutFile stores input in the given file storage. It accepts an io.Reader instance to allow a
