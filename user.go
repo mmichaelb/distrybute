@@ -83,6 +83,6 @@ type UserService interface {
 	// database. It returns the User instance (user) with all values filled except for both password
 	// fields if the check was successful. It returns an error (err) if something went wrong.
 	CheckPassword(user *User, password []byte) (ok bool, err error)
-	// UpdatePasssword updates the user`s password. It returns an error (err) if something went wrong.
-	UpdatePasssword(user *User, password []byte) (err error)
+	// UpdatePassword updates the user`s password. It returns an error (err) if something went wrong.
+	UpdatePassword(user *User, password []byte) (err error)
 }
