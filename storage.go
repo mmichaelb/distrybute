@@ -11,8 +11,6 @@ import (
 type Period string
 
 const (
-	// TODO make limits dynamic
-
 	// PeriodHour indicates the number of uploaded files per hour (last 24h) -> return number: 24
 	PeriodHour = Period("HOUR")
 	// PeriodDay indicates the number of uploaded files per day (last 30 days) -> return number: 30
@@ -38,26 +36,26 @@ type FileService interface {
 	Store(entry *FileEntry, reader io.Reader) (err error)
 	// Request searches for an entry by using the specified CallReference. It returns an error if
 	// something went wrong.
-	Request(callReference string) (entry *FileEntry, err error)
+	Request(callReference string) (entry FileEntry, err error)
 	// Delete tries to search for the entries by using any of the following values set in the entry
 	// instance: ID, CallReference or DeleteReference. The entries are deleted if the search was
 	// successful. It returns an error (err) if something went wrong and the total number of deleted
 	// file entries.
-	Delete(entries []*FileEntry) (deleted int64, err error)
+	Delete(entries ...FileEntry) (deleted int64, err error)
 	// ListEntries lists up all matched entries by searching for all entries by the given uuids and
 	// returns the matched ones. It also accepts a various number of parameters to modify the search
 	// results. It returns an error (err) if something went wrong.
-	ListEntries(limit int, offset int, sortBy FileEntrySortElem, sortOrder SortSequence, uid []uuid.UUID) (
-		entries []*FileEntry, err error)
+	ListEntries(limit int, offset int, sortBy FileEntrySortElem, sortOrder SortSequence, uid ...uuid.UUID) (
+		entries []FileEntry, err error)
 	// SearchEntries searches for specific entries by using the parameters and returns the matched
 	// ones. It returns an error (err) if something went wrong.
-	SearchEntries(query string, limit int, offset int, sortBy FileEntrySortElem, sortOrder SortSequence, uid []uuid.UUID) (
-		entries []*FileEntry, err error)
+	SearchEntries(query string, limit int, offset int, sortBy FileEntrySortElem, sortOrder SortSequence, uid ...uuid.UUID) (
+		entries []FileEntry, err error)
 	// ResolveMIMETypeStatistic resolves the MIME type statistic for the given uuids. The
 	// MIMETypeStatistic instance contains the MIME types as keys and the number of matched file
 	// entries as values. The parameter uids indicates whose uploaded files should be included. It
 	//  returns an error (err) if something went wrong.
-	ResolveMIMETypeStatistic(uids []uuid.UUID) (totalEntries int64, statistic MIMETypeStatistic, err error)
+	ResolveMIMETypeStatistic(uids ...uuid.UUID) (totalEntries int64, statistic MIMETypeStatistic, err error)
 	// ResolveUserUploadPeriodStatistic resolves the user upload statistic and sets the total number
 	// of uploaded files in the UserUploadStatistic return parameter. The parameter uid indicates
 	// whose uploaded files should be used. It  returns an error (err) if something went wrong.

@@ -5,17 +5,12 @@ import (
 	"io"
 )
 
-// Store is the Postgres based implementation of the Manager interface Store function.
-func (manager *Manager) Store(entry *gosharexserver.FileEntry, reader io.Reader) (err error) {
+// Store is the Postgres based implementation of the Service interface Store function.
+func (service *Service) Store(entry *gosharexserver.FileEntry, reader io.Reader) (err error) {
 	panic("not implemented")
 }
 
-// Request is the Postgres based implementation of the Manager interface Request function.
-func (manager *Manager) Request(callReference string) (entry *gosharexserver.FileEntry, err error) {
-	panic("not implemented")
-}
-
-// Delete is the Postgres based implementation of the Manager interface Delete function.
-func (manager *Manager) Delete(entries []*gosharexserver.FileEntry) (deleted int64, err error) {
+// Delete is the Postgres based implementation of the Service interface Delete function.
+func (service *Service) Delete(entries ...gosharexserver.FileEntry) (deleted int64, err error) {
 	panic("not implemented")
 }

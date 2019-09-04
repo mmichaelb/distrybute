@@ -8,19 +8,20 @@ import (
 	_ "github.com/lib/pq"
 )
 
-// Manager is the Postgres based implementation of both, the gosharexserver.FileManager and the
-// gosharexserver.UserService
-type Manager struct {
+// Service is the Postgres based implementation of three, the gosharexserver.FileService, the
+// gosharexserver.UserService and gosharexserver.SessionService.
+type Service struct {
 	// implemented interfaces
-	gosharexserver.FileManager
+	gosharexserver.FileService
 	gosharexserver.UserService
+	gosharexserver.SessionService
 	db      *sql.DB
 	storage gosharexserver.Storage
 }
 
-// New instantiates a new instance of the Postgres based Manager.
-func New(db *sql.DB, storage gosharexserver.Storage) *Manager {
-	return &Manager{
+// New instantiates a new instance of the Postgres based Service.
+func New(db *sql.DB, storage gosharexserver.Storage) *Service {
+	return &Service{
 		db:      db,
 		storage: storage,
 	}
@@ -28,8 +29,10 @@ func New(db *sql.DB, storage gosharexserver.Storage) *Manager {
 
 // NewWithConnectionString instantiates a new instance by using the given data source name (aka
 // connect url).
-func NewWithConnectionString(connectionString string, storage gosharexserver.Storage) (manager *Manager, err error) {
-	manager = &Manager{}
-	manager.db, err = sql.Open("postgresql", connectionString)
+func NewWithConnectionString(connectionString string, storage gosharexserver.Storage) (service *Service, err error) {
+	service = &Service{
+		storage:storage,
+	}
+	service.db, err = sql.Open("postgresql", connectionString)
 	return
 }
