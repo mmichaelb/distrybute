@@ -16,7 +16,7 @@
 # Other binaries stored in a `bin` folder
 bin/*
 
-# vendor folder from golang/dep
+# vendor folder from go modules
 vendor/
 
 # Visual Studio Code settings directory
