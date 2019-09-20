@@ -45,11 +45,11 @@ type FileService interface {
 	// ListEntries lists up all matched entries by searching for all entries by the given uuids and
 	// returns the matched ones. It also accepts a various number of parameters to modify the search
 	// results. It returns an error (err) if something went wrong.
-	ListEntries(limit int, offset int, sortBy FileEntrySortElem, sortOrder SortSequence, uid ...uuid.UUID) (
+	ListEntries(limit int, offset int, sortBy FileEntrySortElem, sortOrder SortSequence, uuids ...uuid.UUID) (
 		entries []FileEntry, err error)
 	// SearchEntries searches for specific entries by using the parameters and returns the matched
 	// ones. It returns an error (err) if something went wrong.
-	SearchEntries(query string, limit int, offset int, sortBy FileEntrySortElem, sortOrder SortSequence, uid ...uuid.UUID) (
+	SearchEntries(query string, limit int, offset int, sortBy FileEntrySortElem, sortOrder SortSequence, uuids ...uuid.UUID) (
 		entries []FileEntry, err error)
 	// ResolveMIMETypeStatistic resolves the MIME type statistic for the given uuids. The
 	// MIMETypeStatistic instance contains the MIME types as keys and the number of matched file

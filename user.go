@@ -80,8 +80,9 @@ type UserService interface {
 	// something went wrong.
 	DeleteUser(id uuid.UUID) (err error)
 	// CheckPassword checks the user`s password and whether the username is existent inside the
-	// database. It returns the User instance (user) with all values filled except for both password
-	// fields if the check was successful. It returns an error (err) if something went wrong.
+	// database. It returns the User instance (user) with all values filled except for both, the
+	// authorization token and  password field if the check was successful. It returns an error
+	// (err) if something went wrong.
 	CheckPassword(user *User, password []byte) (ok bool, err error)
 	// UpdatePassword updates the user`s password. It returns an error (err) if something went wrong.
 	UpdatePassword(user *User, password []byte) (err error)
