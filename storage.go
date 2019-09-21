@@ -70,8 +70,6 @@ type MIMETypeStatistic map[string]int64
 type UserUploadPeriodStatistic []int64
 
 var (
-	// ErrDuplicateStorageID indicates that the provided ID is already present in the file storage.
-	ErrDuplicateStorageID = errors.New("the given ID is already present in the file storage")
 	// ErrIDNotFound indicates that there is no such file with this ID in the file storage.
 	ErrIDNotFound = errors.New("the given ID was not found in the file storage")
 )

@@ -23,6 +23,10 @@ type FileEntry struct {
 	// DeleteReference is a unique string which can be used to delete the file entry with a simple
 	// GET request to allow simple deletion links.
 	DeleteReference string
+	// Active indicates whether the entry is still active and available to request. This value should
+	// normally be set to true - the only case why it is set to false is when the backend storage could
+	// not delete the file entry.
+	Active bool
 	// Author holds a unique UserId which can be used to identify the uploader.
 	Author uuid.UUID
 	// Filename is the name of the file with its extension (e.g. no-virus.exe).
