@@ -25,6 +25,20 @@ const (
 	PeriodDayOfWeek = Period("DAY_OF_WEEK")
 )
 
+var (
+	// ErrEntryNotFound indicates that there is no such file in the file storage.
+	ErrEntryNotFound = errors.New("the given entry was not found in the file storage")
+)
+
+// DeleteResponse is used within the deletion process of multiple entries. It provides information
+// about all entries to delete and their current deletion state.
+type DeleteResponse struct {
+	// EntryID is the entry`s Id within the database.
+	EntryID string
+	// Err is non-nil if something failed during the deletion process - otherwise it is a nil value.
+	Err error
+}
+
 // FileService holds all functions needed for a usable file service implementation. It contains
 // statistic functions and the upload and deletion of file entries. It may uses a storage helper
 // implementation in order to separate the storage and metadata saving process.
@@ -37,11 +51,10 @@ type FileService interface {
 	// Request searches for an entry by using the specified CallReference. It returns an error if
 	// something went wrong.
 	Request(callReference string) (entry FileEntry, err error)
-	// Delete tries to search for the entries by using any of the following values set in the entry
-	// instance: ID, CallReference or DeleteReference. The entries are deleted if the search was
-	// successful. It returns an error (err) if something went wrong and the total number of deleted
-	// file entries.
-	Delete(entries ...FileEntry) (deleted int64, err error)
+	// Delete deletes all entries by using the specified entry ids. It returns a responseChan so that the
+	// requesting party can keep track of failed/successful deletions.
+	// You should read permanently from the channel because it otherwise will block the deletion process.
+	Delete(entries chan string) (responseChan chan DeleteResponse)
 	// ListEntries lists up all matched entries by searching for all entries by the given uuids and
 	// returns the matched ones. It also accepts a various number of parameters to modify the search
 	// results. It returns an error (err) if something went wrong.
@@ -68,28 +81,3 @@ type MIMETypeStatistic map[string]int64
 
 // UserUploadPeriodStatistic contains the values when retrieving period based upload statistics.
 type UserUploadPeriodStatistic []int64
-
-var (
-	// ErrIDNotFound indicates that there is no such file with this ID in the file storage.
-	ErrIDNotFound = errors.New("the given ID was not found in the file storage")
-)
-
-// Storage holds functions which are only being called by a file service and this interface is used
-// as a helper to separate the storing and managing process of files.
-type Storage interface {
-	// PutFile stores input in the given file storage. It accepts an io.Reader instance to allow a
-	// streamable saving process. In addition to that, it needs an identical string which is used to
-	// identify the object in further retrievals. If the ID is already present in the file storage,
-	// ErrDuplicateStorageID is returned - if different errors occur, they are returned without wrapping.
-	PutFile(id string, reader io.Reader) error
-	// GetFile first searches for the given ID and if found, returns the content by handing over a
-	// ReadCloseSeeker. If the given ID cannot be found in the file entry, ErrIDNotFound is
-	// returned - if different errors occur, they are returned without wrapping.
-	GetFile(id string) (ReadCloseSeeker, error)
-	// DeleteFile tries to delete the file associated with the given ID. If the given ID cannot be
-	// found in the file entry, ErrIDNotFound is returned - if different errors occur, they are
-	// returned without wrapping.
-	DeleteFile(id string) error
-	// DeleteMultipleFiles does the same like DeleteFile but is able to delete multiple files at once.
-	DeleteMultipleFiles(ids ...string) error
-}
