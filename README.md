@@ -1,5 +1,8 @@
-# gosharexserver [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![stability-beta](https://img.shields.io/badge/stability-beta-33bbff.svg)](https://github.com/mkenney/software-guides/blob/master/STABILITY-BADGES.md#beta) [![GoDoc](https://godoc.org/github.com/mmichaelb/gosharexserver?status.svg)](https://godoc.org/github.com/mmichaelb/gosharexserver) [![Build Status](https://travis-ci.org/mmichaelb/gosharexserver.svg?branch=master)](https://travis-ci.org/mmichaelb/gosharexserver) [![Go Report Card](https://goreportcard.com/badge/github.com/mmichaelb/gosharexserver)](https://goreportcard.com/report/github.com/mmichaelb/gosharexserver)
+![Logo](https://s.mmichaelb.pw/giEq2p)
+# [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![stability-wip](https://img.shields.io/badge/stability-wip-lightgrey.svg)](https://github.com/mkenney/software-guides/blob/master/STABILITY-BADGES.md#work-in-progress)
 
-Lightweight upload server for the ShareX client (<https://getsharex.com/>).
+## About this project
+
+Lightweight upload server for the ShareX client (<https://getsharex.com/>) - more clients will follow.
 
 This repository will be filled with updated code soon.

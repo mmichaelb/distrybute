@@ -1,4 +1,4 @@
-# Contributing to the gosharexserver project
+# Contributing to the distrybute project
 
 I am glad you are reading this because contributors are always welcomed :).
 

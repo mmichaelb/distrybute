@@ -1,4 +1,4 @@
-module github.com/mmichaelb/gosharexserver
+module github.com/mmichaelb/distrybute
 
 go 1.12
 
