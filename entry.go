@@ -17,6 +17,9 @@ type ReadCloseSeeker interface {
 // FileEntry represents an uploaded file and its metadata inside the storage. It has extra fields to
 // resolve the file`s content.
 type FileEntry struct {
+	// Id holds a unique ID which identifies the Entry inside the backend. This is mandatory because the CallReference
+	// can be changed by the user.
+	Id uuid.UUID
 	// CallReference is a unique string identifying the entry inside the database and resolving it
 	// via web.
 	CallReference string
