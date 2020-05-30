@@ -1,4 +1,4 @@
-package gosharexserver
+package distrybute
 
 import (
 	"github.com/google/uuid"

@@ -1,4 +1,4 @@
-package gosharexserver
+package distrybute
 
 import (
 	"errors"

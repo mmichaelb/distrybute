@@ -1,4 +1,4 @@
-package gosharexserver
+package distrybute
 
 // SortSequence represents general sort sequences for all searches.
 type SortSequence int
