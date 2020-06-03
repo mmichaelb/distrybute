@@ -2,7 +2,7 @@ package miniostorage
 
 import (
 	"github.com/minio/minio-go"
-	"github.com/mmichaelb/gosharexserver"
+	"github.com/mmichaelb/distrybute/internal"
 	"io"
 )
 
@@ -13,7 +13,7 @@ func (instance *Instance) PutFile(id string, reader io.Reader) (err error) {
 }
 
 // GetFile is the minio client based implementation of the Storage interface GetFile function.
-func (instance *Instance) GetFile(id string) (gosharexserver.ReadCloseSeeker, error) {
+func (instance *Instance) GetFile(id string) (distrybute.ReadCloseSeeker, error) {
 	obj, err := instance.client.GetObject(instance.bucketName, id, minio.GetObjectOptions{})
 	return obj, err
 }
@@ -24,8 +24,7 @@ func (instance *Instance) DeleteFile(id string) (err error) {
 	return
 }
 
-// DeleteMultipleFiles is the minio client based implementation of the Storage interface DeleteMultipleFiles
-// function.
+// DeleteMultipleFiles is the minio client based implementation of the Storage interface DeleteMultipleFiles function.
 func (instance *Instance) DeleteMultipleFiles(ids ...string) (errors []error) {
 	objectsChan := make(chan string, len(ids))
 	for _, id := range ids {
@@ -35,8 +34,8 @@ func (instance *Instance) DeleteMultipleFiles(ids ...string) (errors []error) {
 	errorChan := instance.client.RemoveObjects(instance.bucketName, objectsChan)
 	// Print errors received from RemoveObjects API
 	for err := range errorChan {
-		if len(errors) == 0 {
-			errors := make([]error, 1)
+		if errors == nil {
+			errors = make([]error, 1)
 			errors[0] = err.Err
 		} else {
 			errors = append(errors, err.Err)
