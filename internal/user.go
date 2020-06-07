@@ -1,6 +1,7 @@
 package distrybute
 
 import (
+	"errors"
 	"github.com/google/uuid"
 )
 
@@ -47,11 +48,11 @@ type User struct {
 
 // IsUsingLatestPasswordHashAlgorithm indicates whether the user is using the latest password hash
 // algorithm (LatestPasswordHashAlgorithm).
-func (user User) IsUsingLatestPasswordHashAlgorithm() bool {
+func (user User) IsUsingLatestPasswordHashAlgorithm() (bool, error) {
 	if user.PasswordHashAlgorithm == "" {
-		panic("could not check for password hash algorithm because no algorithm set in user instance")
+		return false, errors.New("could not check for password hash algorithm because no algorithm set in user instance")
 	}
-	return user.PasswordHashAlgorithm == LatestPasswordHashAlgorithm
+	return user.PasswordHashAlgorithm == LatestPasswordHashAlgorithm, nil
 }
 
 // UserService contains the basic functions for interacting with the user database and their passwords.
