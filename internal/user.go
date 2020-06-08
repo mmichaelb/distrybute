@@ -6,7 +6,7 @@ import (
 )
 
 // DefaultUserID is used for old file entries with no specified author.
-var DefaultUserID, _ = uuid.FromBytes(make([]byte, 16))
+var DefaultUserID = uuid.UUID{}
 
 // PasswordHashAlgorithm is used to represent a password hashing algorithm in order to allow
 // multiple different hashing implementations.
