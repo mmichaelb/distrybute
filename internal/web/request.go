@@ -48,6 +48,7 @@ func getDispositionHeader(contentTypesToDisplay []string, contentType, filename 
 	return fmt.Sprintf(dispositionValueFormat, dispositionType, filename)
 }
 
+// checkEntryRequestError checks if the error is given if so, returns true
 func checkEntryRequestError(err error, writer http.ResponseWriter) bool {
 	if err != nil {
 		switch err {
