@@ -28,16 +28,16 @@ func (router *Router) handleRequest(writer http.ResponseWriter, req *http.Reques
 	// make sure that the entry gets closed afterwards
 	defer entry.ReadCloseSeeker.Close()
 	// set content disposition header (download or embed)
-	writer.Header().Set(dispositionHeader, getDispositionHeader(router, entry.ContentType, entry.Filename))
+	writer.Header().Set(dispositionHeader, getDispositionHeader(router.config.ContentTypesToDisplay, entry.ContentType, entry.Filename))
 	// set content type header in order to simplify the serve content function
 	writer.Header().Set(contentTypeHeader, entry.ContentType)
 	// finally, serve the content with all the required caching parameters
 	http.ServeContent(writer, req, "" /* parameter never used - see documentation */, entry.UploadDate, entry.ReadCloseSeeker)
 }
 
-func getDispositionHeader(router *Router, contentType, filename string) string {
+func getDispositionHeader(contentTypesToDisplay []string, contentType, filename string) string {
 	var dispositionType string
-	for _, whitelistedContentType := range router.config.ContentTypesToDisplay {
+	for _, whitelistedContentType := range contentTypesToDisplay {
 		if strings.EqualFold(whitelistedContentType, contentType) {
 			dispositionType = "inline"
 		}
