@@ -13,6 +13,9 @@ const (
 	contentTypeHeader      = "Content-Type"
 	dispositionHeader      = "Content-Disposition"
 	dispositionValueFormat = "%v; filename=\"%v\""
+
+	downloadEntryUriPrefix = "/d"
+	viewEntryUriPrefix     = "/v"
 )
 
 // handleRequest represents an endpoint which can be used request a file entry
@@ -33,6 +36,38 @@ func (router *Router) handleRequest(writer http.ResponseWriter, req *http.Reques
 	writer.Header().Set(contentTypeHeader, entry.ContentType)
 	// finally, serve the content with all the required caching parameters
 	http.ServeContent(writer, req, "" /* parameter never used - see documentation */, entry.UploadDate, entry.ReadCloseSeeker)
+}
+
+// handleGeneralRequest handles a general file request and redirects the request according to the used user agent.
+func (router *Router) handleGeneralRequest(writer http.ResponseWriter, req *http.Request) {
+	var prefix string
+	if isBrowserRequesting(router.config.BrowserUserAgentContains, req.UserAgent()) {
+		prefix = viewEntryUriPrefix
+	} else {
+		prefix = downloadEntryUriPrefix
+	}
+	// get redirect url
+	newUrl := getRequestRedirectUri(req.URL.RequestURI(), prefix)
+	// redirect request
+	http.Redirect(writer, req, newUrl, http.StatusTemporaryRedirect)
+}
+
+func getRequestRedirectUri(requestUri, prefix string) string {
+	lastSlashIndex := strings.LastIndexByte(requestUri, '/')
+	newUrl := requestUri[:lastSlashIndex] + prefix + requestUri[lastSlashIndex:]
+	return newUrl
+}
+
+func isBrowserRequesting(userAgentContains []string, userAgent string) bool {
+	if len(userAgent) == 0 {
+		return false
+	}
+	for _, userAgentContain := range userAgentContains {
+		if strings.Contains(userAgent, userAgentContain) {
+			return true
+		}
+	}
+	return false
 }
 
 func getDispositionHeader(contentTypesToDisplay []string, contentType, filename string) string {
