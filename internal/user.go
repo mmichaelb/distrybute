@@ -18,7 +18,7 @@ const (
 	// PasswordHashArgon2ID is the identical name for the expensive key derivation function Argon2Id.
 	PasswordHashArgon2ID PasswordHashAlgorithm = "argon2id"
 	// LatestPasswordHashAlgorithm declares the default used and latest password hash algorithm.
-	LatestPasswordHashAlgorithm PasswordHashAlgorithm = PasswordHashArgon2ID
+	LatestPasswordHashAlgorithm = PasswordHashArgon2ID
 )
 
 // Role is the string wrapper for user roles.
@@ -60,7 +60,7 @@ type UserService interface {
 	// CreateNewUser creates a new user by using the specified Username and role within the user
 	// instance. After a successful creation the Id and AuthorizationToken of the user instance are
 	// updated. It returns an error (err) if something went wrong.
-	CreateNewUser(user *User, password []byte) (err error)
+	CreateNewUser(username string, role Role, password []byte) (user *User, err error)
 	// ResolveUser tries to search for the user by using the uuid or username set within the user instance.
 	// After successfully finding the entry it sets the Id, Username, Role and PasswordHashAlgorithm
 	// field of the user. It returns an error (err) if something went wrong.
