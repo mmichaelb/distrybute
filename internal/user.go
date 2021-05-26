@@ -21,25 +21,12 @@ const (
 	LatestPasswordHashAlgorithm = PasswordHashArgon2ID
 )
 
-// Role is the string wrapper for user roles.
-type Role string
-
-const (
-	// RoleAdmin represents the constant for the admin role.
-	RoleAdmin Role = "ADMIN"
-	// RoleUser represents the constant for the user role.
-	RoleUser Role = "USER"
-)
-
 // User contains the basic user data.
 type User struct {
 	// ID is a unqiue ID which can be used to identify the user.
 	ID uuid.UUID
 	// Username is the name of the user to e.g. login with.
 	Username string
-	// Role indicates the status of the user inside the system and whether he has extended access to
-	// other ressources.
-	Role Role
 	// AuthorizationToken holds the auth token for the user to use when uploading file entries.
 	AuthorizationToken string
 	// PasswordHashAlgorithm indicates the hashing algorithm which this user entry is using.
@@ -55,22 +42,22 @@ func (user User) IsUsingLatestPasswordHashAlgorithm() (bool, error) {
 	return user.PasswordHashAlgorithm == LatestPasswordHashAlgorithm, nil
 }
 
+var (
+	ErrUserAlreadyExists = errors.New("the user already exists")
+)
+
 // UserService contains the basic functions for interacting with the user database and their passwords.
 type UserService interface {
-	// CreateNewUser creates a new user by using the specified Username and role within the user
-	// instance. After a successful creation the Id and AuthorizationToken of the user instance are
-	// updated. It returns an error (err) if something went wrong.
-	CreateNewUser(username string, role Role, password []byte) (user *User, err error)
+	// CreateNewUser creates a new user by using the specified Username. After a successful creation, a user instance
+	// is returned. It returns an error (err) if something went wrong.
+	CreateNewUser(username string, password []byte) (user *User, err error)
 	// ResolveUser tries to search for the user by using the uuid or username set within the user instance.
-	// After successfully finding the entry it sets the Id, Username, Role and PasswordHashAlgorithm
+	// After successfully finding the entry it sets the Id, Username, and PasswordHashAlgorithm
 	// field of the user. It returns an error (err) if something went wrong.
 	ResolveUser(user *User) (err error)
 	// UpdateUsername updates the user`s username and sets the value of the user instance. It
 	// returns an error (err) if something went wrong.
 	UpdateUsername(user *User, newUsername string) (err error)
-	// UpdateRole updates the user`s role and sets the value of the user instance. It returns an
-	// error (err) if something went wrong.
-	UpdateRole(user *User, newRole Role) (err error)
 	// ResolveAuthorizationToken resolves the authorization token and sets the value of the user
 	// instance. It returns an error (err) if something went wrong.
 	ResolveAuthorizationToken(user *User) (err error)

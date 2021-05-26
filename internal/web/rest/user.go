@@ -9,15 +9,24 @@ import (
 	"unicode"
 )
 
+type UserCreateState string
+
+const (
+	userCreatedState         = UserCreateState("USER_CREATED")
+	userAlreadyExistentState = UserCreateState("USER_ALREADY_EXISTENT")
+	usernameInvalidState     = UserCreateState("USERNAME_INVALID")
+	passwordInvalidState     = UserCreateState("PASSWORD_INVALID")
+)
+
 type UserCreateRequest struct {
 	Username string `json:"username"`
-	Role     string `json:"role"`
 	Password []byte `json:"password"`
 }
 
 type UserCreateResponse struct {
-	Username           string `json:"username"`
-	AuthorizationToken string `json:"authorization_token"`
+	Username           string          `json:"username,omitempty"`
+	AuthorizationToken string          `json:"authorization_token,omitempty"`
+	State              UserCreateState `json:"state"`
 }
 
 var usernameRegex = regexp.MustCompile("^\\w{4,}$")
@@ -36,15 +45,18 @@ func (r *Router) handleUserCreate(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	if !validateUsername(parsedReq.Username) {
-		r.sendError(w, req, http.StatusBadRequest, "username does not fulfill requirements")
+		r.sendResponseWithCode(w, req, http.StatusBadRequest, &UserCreateResponse{State: usernameInvalidState})
 		return
 	}
 	if !validatePassword(parsedReq.Password) {
-		r.sendError(w, req, http.StatusBadRequest, "password does not fulfill requirements")
+		r.sendResponseWithCode(w, req, http.StatusBadRequest, &UserCreateResponse{State: passwordInvalidState})
 		return
 	}
-	user, err := r.userService.CreateNewUser(parsedReq.Username, distrybute.Role(parsedReq.Role), parsedReq.Password)
-	if err != nil {
+	user, err := r.userService.CreateNewUser(parsedReq.Username, parsedReq.Password)
+	if err == distrybute.ErrUserAlreadyExists {
+		r.sendResponseWithCode(w, req, http.StatusBadRequest, &UserCreateResponse{State: userAlreadyExistentState})
+		return
+	} else if err != nil {
 		log.Err(err).Str("createUsername", parsedReq.Username).Msg("could not create new user")
 		r.sendInternalServerError(w, req)
 		return
@@ -52,6 +64,7 @@ func (r *Router) handleUserCreate(w http.ResponseWriter, req *http.Request) {
 	r.sendResponse(w, req, &UserCreateResponse{
 		Username:           user.Username,
 		AuthorizationToken: user.AuthorizationToken,
+		State:              userCreatedState,
 	})
 }
 

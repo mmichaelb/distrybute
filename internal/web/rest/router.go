@@ -2,6 +2,7 @@ package rest
 
 import (
 	"encoding/json"
+	"github.com/go-chi/chi/v5"
 	distrybute "github.com/mmichaelb/distrybute/internal"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -14,6 +15,12 @@ type Router struct {
 	userService distrybute.UserService
 }
 
+func (r *Router) GetHttpHandler() http.Handler {
+	router := chi.NewRouter()
+	router.Post("/user/create", r.handleUserCreate)
+	return router
+}
+
 type Response struct {
 	StatusCode   int
 	ErrorMessage string      `json:"error_message,omitempty"`
@@ -21,10 +28,15 @@ type Response struct {
 }
 
 func (r *Router) sendResponse(w http.ResponseWriter, req *http.Request, data interface{}) {
+	r.sendResponseWithCode(w, req, http.StatusOK, data)
+}
+
+func (r *Router) sendResponseWithCode(w http.ResponseWriter, req *http.Request, code int, data interface{}) {
 	resp := &Response{
 		StatusCode: http.StatusOK,
 		Data:       data,
 	}
+	w.WriteHeader(code)
 	if err := json.NewEncoder(w).Encode(resp); err != nil {
 		log.Err(err).Msg("could not write http response")
 		return
