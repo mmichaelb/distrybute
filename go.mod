@@ -7,6 +7,7 @@ require (
 	github.com/go-ini/ini v1.46.0 // indirect
 	github.com/google/uuid v1.1.1
 	github.com/gopherjs/gopherjs v0.0.0-20190910122728-9d188e94fb99 // indirect
+	github.com/jackc/pgx v3.6.2+incompatible // indirect
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/minio/minio-go v6.0.14+incompatible
 	github.com/mitchellh/go-homedir v1.1.0 // indirect

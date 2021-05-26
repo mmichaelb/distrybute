@@ -15,6 +15,10 @@ type Router struct {
 	userService distrybute.UserService
 }
 
+func NewRouter(logger zerolog.Logger, fileService distrybute.FileService, userService distrybute.UserService) *Router {
+	return &Router{logger: logger, fileService: fileService, userService: userService}
+}
+
 func (r *Router) GetHttpHandler() http.Handler {
 	router := chi.NewRouter()
 	router.Post("/user/create", r.handleUserCreate)
