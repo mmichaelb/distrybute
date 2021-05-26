@@ -20,7 +20,7 @@ type UserCreateResponse struct {
 	AuthorizationToken string `json:"authorization_token"`
 }
 
-var usernameRegex = regexp.MustCompile("\\w{4,}")
+var usernameRegex = regexp.MustCompile("^\\w{4,}$")
 
 const passwordMinLength = 8
 
