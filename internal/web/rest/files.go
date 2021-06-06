@@ -12,7 +12,7 @@ const (
 )
 
 // handleFileRequest handles an incoming file request (e.g. /v/{callReference})
-func (r *Router) handleFileRequest(w http.ResponseWriter, req *http.Request) {
+func (r *router) handleFileRequest(w http.ResponseWriter, req *http.Request) {
 	// retrieve file reference from request
 	callReference := chi.URLParam(req, fileRequestShortIdParamName)
 	// request file entry from backend

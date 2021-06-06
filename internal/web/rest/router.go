@@ -9,17 +9,17 @@ import (
 	"net/http"
 )
 
-type Router struct {
+type router struct {
 	logger      zerolog.Logger
 	fileService distrybute.FileService
 	userService distrybute.UserService
 }
 
-func NewRouter(logger zerolog.Logger, fileService distrybute.FileService, userService distrybute.UserService) *Router {
-	return &Router{logger: logger, fileService: fileService, userService: userService}
+func NewRouter(logger zerolog.Logger, fileService distrybute.FileService, userService distrybute.UserService) *router {
+	return &router{logger: logger, fileService: fileService, userService: userService}
 }
 
-func (r *Router) GetHttpHandler() http.Handler {
+func (r *router) BuildHttpHandler() http.Handler {
 	router := chi.NewRouter()
 	router.Post("/user/create", r.handleUserCreate)
 	return router
@@ -31,11 +31,11 @@ type Response struct {
 	Data         interface{} `json:"data,omitempty"`
 }
 
-func (r *Router) sendResponse(w http.ResponseWriter, req *http.Request, data interface{}) {
+func (r *router) sendResponse(w http.ResponseWriter, req *http.Request, data interface{}) {
 	r.sendResponseWithCode(w, req, http.StatusOK, data)
 }
 
-func (r *Router) sendResponseWithCode(w http.ResponseWriter, req *http.Request, code int, data interface{}) {
+func (r *router) sendResponseWithCode(w http.ResponseWriter, req *http.Request, code int, data interface{}) {
 	resp := &Response{
 		StatusCode: http.StatusOK,
 		Data:       data,
@@ -47,19 +47,19 @@ func (r *Router) sendResponseWithCode(w http.ResponseWriter, req *http.Request, 
 	}
 }
 
-func (r *Router) sendNotFound(w http.ResponseWriter, req *http.Request, message string) {
+func (r *router) sendNotFound(w http.ResponseWriter, req *http.Request, message string) {
 	r.sendError(w, req, http.StatusNotFound, message)
 }
 
-func (r *Router) sendInternalServerError(w http.ResponseWriter, req *http.Request) {
+func (r *router) sendInternalServerError(w http.ResponseWriter, req *http.Request) {
 	r.sendAutomaticError(w, req, http.StatusInternalServerError)
 }
 
-func (r *Router) sendAutomaticError(w http.ResponseWriter, req *http.Request, code int) {
+func (r *router) sendAutomaticError(w http.ResponseWriter, req *http.Request, code int) {
 	r.sendError(w, req, code, http.StatusText(code))
 }
 
-func (*Router) sendError(w http.ResponseWriter, req *http.Request, code int, message string) {
+func (*router) sendError(w http.ResponseWriter, req *http.Request, code int, message string) {
 	w.WriteHeader(code)
 	response := &Response{
 		StatusCode:   http.StatusNotFound,
