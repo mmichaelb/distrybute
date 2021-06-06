@@ -1,0 +1,73 @@
+package rest
+
+import (
+	"encoding/json"
+	"github.com/rs/zerolog/log"
+	"net/http"
+)
+
+type Response struct {
+	StatusCode   int         `json:"status_code"`
+	ErrorMessage string      `json:"error_message,omitempty"`
+	Data         interface{} `json:"data,omitempty"`
+}
+
+type responseWriter struct {
+	writer http.ResponseWriter
+}
+
+func wrapResponseWriter(writer http.ResponseWriter) *responseWriter {
+	return &responseWriter{
+		writer: writer,
+	}
+}
+
+type HandlerFunc func(*responseWriter, *http.Request)
+
+func wrapStandardHttpMethod(handlerFunc HandlerFunc) http.HandlerFunc  {
+	return func(writer http.ResponseWriter, request *http.Request) {
+		handlerFunc(wrapResponseWriter(writer), request)
+	}
+}
+
+func (writer responseWriter) Header() http.Header {
+	return writer.writer.Header()
+}
+
+func (writer responseWriter) Write(bytes []byte) (int, error) {
+	return writer.writer.Write(bytes)
+}
+
+func (writer responseWriter) WriteHeader(statusCode int) {
+	writer.writer.WriteHeader(statusCode)
+}
+
+func (writer responseWriter) WriteResponse(statusCode int, errorMessage string, data interface{}) error {
+	writer.WriteHeader(statusCode)
+	resp := &Response{
+		StatusCode:   statusCode,
+		ErrorMessage: errorMessage,
+	}
+	if data != nil {
+		resp.Data = data
+	}
+	if err := json.NewEncoder(writer.writer).Encode(resp); err != nil {
+		log.Err(err).Msg("could not write http response")
+		return err
+	}
+	return nil
+}
+
+func (writer responseWriter) WriteSuccessfulResponse(data interface{}) error {
+	return writer.WriteResponse(http.StatusOK, "", data)
+}
+
+func (writer responseWriter) WriteNotFoundResponse(data interface{}) error {
+	return writer.WriteResponse(http.StatusOK, "", data)
+}
+
+func (writer responseWriter) WriteAutomaticErrorResponse(statusCode int, r *http.Request) {
+	if err := writer.WriteResponse(statusCode, http.StatusText(statusCode), nil); err != nil {
+		log.Err(err).
+	}
+}

@@ -33,11 +33,11 @@ var usernameRegex = regexp.MustCompile("^\\w{4,}$")
 
 const passwordMinLength = 8
 
-func (r *router) handleUserCreate(w http.ResponseWriter, req *http.Request) {
+func (r *router) handleUserCreate(w *responseWriter, req *http.Request) {
 	var parsedReq UserCreateRequest
 	err := json.NewDecoder(req.Body).Decode(&parsedReq)
 	if _, ok := err.(*json.UnmarshalTypeError); ok {
-		r.sendAutomaticError(w, req, http.StatusBadRequest)
+		w.WriteAutomaticErrorResponse(http.StatusBadRequest, r)
 		return
 	} else if err != nil {
 		log.Err(err).Msg("could not unmarshal user request body")
