@@ -26,7 +26,7 @@ func (r *router) BuildHttpHandler() http.Handler {
 }
 
 type Response struct {
-	StatusCode   int
+	StatusCode   int         `json:"status_code"`
 	ErrorMessage string      `json:"error_message,omitempty"`
 	Data         interface{} `json:"data,omitempty"`
 }
