@@ -2,7 +2,7 @@ package rest
 
 import (
 	"encoding/json"
-	"github.com/rs/zerolog/log"
+	"github.com/rs/zerolog"
 	"net/http"
 )
 
@@ -14,20 +14,22 @@ type Response struct {
 
 type responseWriter struct {
 	writer     http.ResponseWriter
+	router     *router
 	statusCode int
 }
 
-func wrapResponseWriter(writer http.ResponseWriter) *responseWriter {
+func wrapResponseWriter(writer http.ResponseWriter, router *router) *responseWriter {
 	return &responseWriter{
 		writer: writer,
+		router: router,
 	}
 }
 
 type HandlerFunc func(*responseWriter, *http.Request)
 
-func wrapStandardHttpMethod(handlerFunc HandlerFunc) http.HandlerFunc {
+func (r *router) wrapStandardHttpMethod(handlerFunc HandlerFunc) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
-		handlerFunc(wrapResponseWriter(writer), request)
+		handlerFunc(wrapResponseWriter(writer, r), request)
 	}
 }
 
@@ -47,7 +49,7 @@ func (writer responseWriter) WriteHeader(statusCode int) {
 	writer.statusCode = statusCode
 }
 
-func (writer responseWriter) WriteResponse(statusCode int, errorMessage string, data interface{}, r *http.Request) {
+func (writer responseWriter) WriteResponse(statusCode int, errorMessage string, data interface{}, request *http.Request) {
 	writer.WriteHeader(statusCode)
 	resp := &Response{
 		StatusCode:   statusCode,
@@ -57,7 +59,8 @@ func (writer responseWriter) WriteResponse(statusCode int, errorMessage string, 
 		resp.Data = data
 	}
 	if err := json.NewEncoder(writer.writer).Encode(resp); err != nil {
-		log.Err(err).Msg("could not write http response") // TODO include requesting address etc
+		writer.router.log(zerolog.ErrorLevel, request).Err(err).Msg("could not write http response")
+		writer.WriteAutomaticErrorResponse(http.StatusInternalServerError, nil, request)
 	}
 }
 
@@ -69,6 +72,6 @@ func (writer responseWriter) WriteNotFoundResponse(message string, data interfac
 	writer.WriteResponse(http.StatusOK, message, data, r)
 }
 
-func (writer responseWriter) WriteAutomaticErrorResponse(statusCode int, r *http.Request) {
-	writer.WriteResponse(statusCode, http.StatusText(statusCode), nil, r)
+func (writer responseWriter) WriteAutomaticErrorResponse(statusCode int, data interface{}, r *http.Request) {
+	writer.WriteResponse(statusCode, http.StatusText(statusCode), data, r)
 }
