@@ -22,8 +22,9 @@ func NewRouter(logger zerolog.Logger, fileService distrybute.FileService, userSe
 func (r *router) BuildHttpHandler() http.Handler {
 	router := chi.NewRouter()
 	middleware.RequestIDHeader = ""
-	router.Use(middleware.RequestID)
 	router.Use(middleware.CleanPath)
+	router.Use(middleware.RequestID)
+	router.Use(r.loggingMiddleware)
 	router.Use(r.recovererMiddleware)
 	router.NotFound(func(writer http.ResponseWriter, request *http.Request) {
 		wrapResponseWriter(writer).WriteAutomaticErrorResponse(http.StatusNotFound, request)
@@ -37,9 +38,24 @@ func (r *router) BuildHttpHandler() http.Handler {
 
 func (r *router) log(level zerolog.Level, request *http.Request) *zerolog.Event {
 	return r.logger.WithLevel(level).
-		Str("addr", request.RemoteAddr).
-		Str("userAgent", request.Header.Get("User-Agent")).
 		Str("requestId", middleware.GetReqID(request.Context()))
+}
+
+func (r *router) loggingMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		r.log(zerolog.InfoLevel, request).
+			Str("addr", request.RemoteAddr).
+			Str("userAgent", request.Header.Get("User-Agent")).
+			Str("method", request.Method).
+			Str("path", request.RequestURI).
+			Send()
+		wrappedWriter := wrapResponseWriter(writer)
+		defer func() {
+			r.log(zerolog.InfoLevel, request).
+				Int("responseCode", wrappedWriter.statusCode).Send()
+		}()
+		next.ServeHTTP(wrappedWriter, request)
+	})
 }
 
 func (r *router) recovererMiddleware(next http.Handler) http.Handler {
