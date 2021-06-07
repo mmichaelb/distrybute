@@ -19,6 +19,12 @@ func NewRouter(logger zerolog.Logger, fileService distrybute.FileService, userSe
 
 func (r *router) BuildHttpHandler() http.Handler {
 	router := chi.NewRouter()
+	router.NotFound(func(writer http.ResponseWriter, request *http.Request) {
+		wrapResponseWriter(writer).WriteAutomaticErrorResponse(http.StatusNotFound, request)
+	})
+	router.MethodNotAllowed(func(writer http.ResponseWriter, request *http.Request) {
+		wrapResponseWriter(writer).WriteAutomaticErrorResponse(http.StatusMethodNotAllowed, request)
+	})
 	router.Post("/user/create", wrapStandardHttpMethod(r.handleUserCreate))
 	return router
 }

@@ -24,7 +24,7 @@ func wrapResponseWriter(writer http.ResponseWriter) *responseWriter {
 
 type HandlerFunc func(*responseWriter, *http.Request)
 
-func wrapStandardHttpMethod(handlerFunc HandlerFunc) http.HandlerFunc  {
+func wrapStandardHttpMethod(handlerFunc HandlerFunc) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		handlerFunc(wrapResponseWriter(writer), request)
 	}
@@ -42,7 +42,7 @@ func (writer responseWriter) WriteHeader(statusCode int) {
 	writer.writer.WriteHeader(statusCode)
 }
 
-func (writer responseWriter) WriteResponse(statusCode int, errorMessage string, data interface{}) error {
+func (writer responseWriter) WriteResponse(statusCode int, errorMessage string, data interface{}, r *http.Request) {
 	writer.WriteHeader(statusCode)
 	resp := &Response{
 		StatusCode:   statusCode,
@@ -52,22 +52,18 @@ func (writer responseWriter) WriteResponse(statusCode int, errorMessage string, 
 		resp.Data = data
 	}
 	if err := json.NewEncoder(writer.writer).Encode(resp); err != nil {
-		log.Err(err).Msg("could not write http response")
-		return err
+		log.Err(err).Msg("could not write http response") // TODO include requesting address etc
 	}
-	return nil
 }
 
-func (writer responseWriter) WriteSuccessfulResponse(data interface{}) error {
-	return writer.WriteResponse(http.StatusOK, "", data)
+func (writer responseWriter) WriteSuccessfulResponse(data interface{}, r *http.Request) {
+	writer.WriteResponse(http.StatusOK, "", data, r)
 }
 
-func (writer responseWriter) WriteNotFoundResponse(data interface{}) error {
-	return writer.WriteResponse(http.StatusOK, "", data)
+func (writer responseWriter) WriteNotFoundResponse(message string, data interface{}, r *http.Request) {
+	writer.WriteResponse(http.StatusOK, message, data, r)
 }
 
 func (writer responseWriter) WriteAutomaticErrorResponse(statusCode int, r *http.Request) {
-	if err := writer.WriteResponse(statusCode, http.StatusText(statusCode), nil); err != nil {
-		log.Err(err).
-	}
+	writer.WriteResponse(statusCode, http.StatusText(statusCode), nil, r)
 }
