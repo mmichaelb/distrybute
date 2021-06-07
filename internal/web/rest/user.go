@@ -3,7 +3,7 @@ package rest
 import (
 	"encoding/json"
 	distrybute "github.com/mmichaelb/distrybute/internal"
-	"github.com/rs/zerolog/log"
+	"github.com/rs/zerolog"
 	"net/http"
 	"regexp"
 	"unicode"
@@ -37,35 +37,35 @@ func (r *router) handleUserCreate(w *responseWriter, req *http.Request) {
 	var parsedReq UserCreateRequest
 	err := json.NewDecoder(req.Body).Decode(&parsedReq)
 	if _, ok := err.(*json.UnmarshalTypeError); ok {
-		w.WriteAutomaticErrorResponse(http.StatusBadRequest, r)
+		w.WriteAutomaticErrorResponse(http.StatusBadRequest, nil, req)
 		return
 	} else if err != nil {
-		log.Err(err).Msg("could not unmarshal user request body")
-		r.sendInternalServerError(w, req)
+		r.log(zerolog.ErrorLevel, req).Err(err).Msg("could not unmarshal user request body due to an unknown error")
+		w.WriteAutomaticErrorResponse(http.StatusInternalServerError, nil, req)
 		return
 	}
 	if !validateUsername(parsedReq.Username) {
-		r.sendResponseWithCode(w, req, http.StatusBadRequest, &UserCreateResponse{State: usernameInvalidState})
+		w.WriteAutomaticErrorResponse(http.StatusBadRequest, &UserCreateResponse{State: usernameInvalidState}, req)
 		return
 	}
 	if !validatePassword(parsedReq.Password) {
-		r.sendResponseWithCode(w, req, http.StatusBadRequest, &UserCreateResponse{State: passwordInvalidState})
+		w.WriteAutomaticErrorResponse(http.StatusBadRequest, &UserCreateResponse{State: passwordInvalidState}, req)
 		return
 	}
 	user, err := r.userService.CreateNewUser(parsedReq.Username, parsedReq.Password)
 	if err == distrybute.ErrUserAlreadyExists {
-		r.sendResponseWithCode(w, req, http.StatusBadRequest, &UserCreateResponse{State: userAlreadyExistentState})
+		w.WriteAutomaticErrorResponse(http.StatusBadGateway, &UserCreateResponse{State: userAlreadyExistentState}, req)
 		return
 	} else if err != nil {
-		log.Err(err).Str("createUsername", parsedReq.Username).Msg("could not create new user")
-		r.sendInternalServerError(w, req)
+		r.log(zerolog.ErrorLevel, req).Err(err).Str("createUsername", parsedReq.Username).Msg("could not create new user")
+		w.WriteAutomaticErrorResponse(http.StatusInternalServerError, nil, req)
 		return
 	}
-	r.sendResponse(w, req, &UserCreateResponse{
+	w.WriteResponse(http.StatusOK, "", &UserCreateResponse{
 		Username:           user.Username,
 		AuthorizationToken: user.AuthorizationToken,
 		State:              userCreatedState,
-	})
+	}, req)
 }
 
 func validateUsername(username string) bool {
