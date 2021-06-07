@@ -13,7 +13,8 @@ type Response struct {
 }
 
 type responseWriter struct {
-	writer http.ResponseWriter
+	writer     http.ResponseWriter
+	statusCode int
 }
 
 func wrapResponseWriter(writer http.ResponseWriter) *responseWriter {
@@ -34,12 +35,16 @@ func (writer responseWriter) Header() http.Header {
 	return writer.writer.Header()
 }
 
-func (writer responseWriter) Write(bytes []byte) (int, error) {
+func (writer *responseWriter) Write(bytes []byte) (int, error) {
+	if writer.statusCode == 0 {
+		writer.statusCode = http.StatusOK
+	}
 	return writer.writer.Write(bytes)
 }
 
 func (writer responseWriter) WriteHeader(statusCode int) {
 	writer.writer.WriteHeader(statusCode)
+	writer.statusCode = statusCode
 }
 
 func (writer responseWriter) WriteResponse(statusCode int, errorMessage string, data interface{}, r *http.Request) {
