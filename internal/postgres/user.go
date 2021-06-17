@@ -134,7 +134,22 @@ func (s *service) DeleteUser(id uuid.UUID) (err error) {
 }
 
 func (s *service) UpdatePassword(id uuid.UUID, password []byte) (err error) {
-	panic("implement me")
+	row := s.connection.QueryRow(context.Background(), `SELECT (password_alg, password_salt) FROM distrybute.users WHERE id=$1`, id)
+	var passwordAlgorithm distrybute.PasswordHashAlgorithm
+	var passwordSalt []byte
+	err = row.Scan(passwordAlgorithm, passwordSalt)
+	if err == pgx.ErrNoRows {
+		return distrybute.ErrUserNotFound
+	} else if err != nil {
+		return err
+	}
+	hashedPassword, err := generatePasswordHash(password, passwordSalt, passwordAlgorithm)
+	if err != nil {
+		return err
+	}
+	row = s.connection.QueryRow(context.Background(),
+		`UPDATE distrybute.users SET password=$1 WHERE id=$2`, hashedPassword, id)
+	return row.Scan()
 }
 
 func isViolatingUniqueConstraintErr(err error) bool {
