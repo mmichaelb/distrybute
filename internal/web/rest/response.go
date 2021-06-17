@@ -18,10 +18,9 @@ type responseWriter struct {
 	statusCode int
 }
 
-func wrapResponseWriter(writer http.ResponseWriter, router *router) *responseWriter {
+func (r *router) wrapResponseWriter(writer http.ResponseWriter) *responseWriter {
 	return &responseWriter{
 		writer: writer,
-		router: router,
 	}
 }
 
@@ -29,7 +28,7 @@ type HandlerFunc func(*responseWriter, *http.Request)
 
 func (r *router) wrapStandardHttpMethod(handlerFunc HandlerFunc) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
-		handlerFunc(wrapResponseWriter(writer, r), request)
+		handlerFunc(r.wrapResponseWriter(writer), request)
 	}
 }
 

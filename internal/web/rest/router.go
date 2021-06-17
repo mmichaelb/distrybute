@@ -27,12 +27,12 @@ func (r *router) BuildHttpHandler() http.Handler {
 	router.Use(r.loggingMiddleware)
 	router.Use(r.recovererMiddleware)
 	router.NotFound(func(writer http.ResponseWriter, request *http.Request) {
-		wrapResponseWriter(writer).WriteAutomaticErrorResponse(http.StatusNotFound, request)
+		r.wrapResponseWriter(writer).WriteAutomaticErrorResponse(http.StatusNotFound, nil, request)
 	})
 	router.MethodNotAllowed(func(writer http.ResponseWriter, request *http.Request) {
-		wrapResponseWriter(writer).WriteAutomaticErrorResponse(http.StatusMethodNotAllowed, request)
+		r.wrapResponseWriter(writer).WriteAutomaticErrorResponse(http.StatusMethodNotAllowed, nil, request)
 	})
-	router.Post("/user/create", wrapStandardHttpMethod(r.handleUserCreate))
+	router.Post("/user/create", r.wrapStandardHttpMethod(r.handleUserCreate))
 	return router
 }
 
@@ -49,7 +49,7 @@ func (r *router) loggingMiddleware(next http.Handler) http.Handler {
 			Str("method", request.Method).
 			Str("path", request.RequestURI).
 			Send()
-		wrappedWriter := wrapResponseWriter(writer)
+		wrappedWriter := r.wrapResponseWriter(writer)
 		defer func() {
 			r.log(zerolog.InfoLevel, request).
 				Int("responseCode", wrappedWriter.statusCode).Send()
