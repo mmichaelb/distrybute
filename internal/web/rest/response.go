@@ -2,7 +2,7 @@ package rest
 
 import (
 	"encoding/json"
-	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/hlog"
 	"net/http"
 )
 
@@ -43,7 +43,7 @@ func (writer *responseWriter) Write(bytes []byte) (int, error) {
 	return writer.writer.Write(bytes)
 }
 
-func (writer responseWriter) WriteHeader(statusCode int) {
+func (writer *responseWriter) WriteHeader(statusCode int) {
 	writer.writer.WriteHeader(statusCode)
 	writer.statusCode = statusCode
 }
@@ -58,7 +58,7 @@ func (writer responseWriter) WriteResponse(statusCode int, errorMessage string, 
 		resp.Data = data
 	}
 	if err := json.NewEncoder(writer.writer).Encode(resp); err != nil {
-		writer.router.log(zerolog.ErrorLevel, request).Err(err).Msg("could not write http response")
+		hlog.FromRequest(request).Err(err).Msg("could not write http response")
 		writer.WriteAutomaticErrorResponse(http.StatusInternalServerError, nil, request)
 	}
 }

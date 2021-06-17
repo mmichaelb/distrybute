@@ -3,7 +3,7 @@ package rest
 import (
 	"encoding/json"
 	distrybute "github.com/mmichaelb/distrybute/internal"
-	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/hlog"
 	"net/http"
 	"regexp"
 	"unicode"
@@ -40,7 +40,7 @@ func (r *router) handleUserCreate(w *responseWriter, req *http.Request) {
 		w.WriteAutomaticErrorResponse(http.StatusBadRequest, nil, req)
 		return
 	} else if err != nil {
-		r.log(zerolog.ErrorLevel, req).Err(err).Msg("could not unmarshal user request body due to an unknown error")
+		hlog.FromRequest(req).Err(err).Msg("could not unmarshal user request body due to an unknown error")
 		w.WriteAutomaticErrorResponse(http.StatusInternalServerError, nil, req)
 		return
 	}
@@ -57,7 +57,7 @@ func (r *router) handleUserCreate(w *responseWriter, req *http.Request) {
 		w.WriteAutomaticErrorResponse(http.StatusBadGateway, &UserCreateResponse{State: userAlreadyExistentState}, req)
 		return
 	} else if err != nil {
-		r.log(zerolog.ErrorLevel, req).Err(err).Str("createUsername", parsedReq.Username).Msg("could not create new user")
+		hlog.FromRequest(req).Err(err).Str("createUsername", parsedReq.Username).Msg("could not create new user")
 		w.WriteAutomaticErrorResponse(http.StatusInternalServerError, nil, req)
 		return
 	}
