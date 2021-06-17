@@ -11,13 +11,15 @@ import (
 )
 
 type router struct {
-	logger      zerolog.Logger
-	fileService distrybute.FileService
-	userService distrybute.UserService
+	logger         zerolog.Logger
+	fileService    distrybute.FileService
+	userService    distrybute.UserService
+	sessionService distrybute.SessionService
+	jwtSigningKey  []byte
 }
 
-func NewRouter(logger zerolog.Logger, fileService distrybute.FileService, userService distrybute.UserService) *router {
-	return &router{logger: logger, fileService: fileService, userService: userService}
+func NewRouter(logger zerolog.Logger, fileService distrybute.FileService, userService distrybute.UserService, sessionService distrybute.SessionService, jwtSigningKey []byte) *router {
+	return &router{logger: logger, fileService: fileService, userService: userService, sessionService: sessionService, jwtSigningKey: jwtSigningKey}
 }
 
 func (r *router) BuildHttpHandler() http.Handler {

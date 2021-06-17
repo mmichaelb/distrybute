@@ -54,7 +54,7 @@ type UserService interface {
 	CreateNewUser(username string, password []byte) (user *User, err error)
 	// CheckPassword checks the user`s password and whether the username is existent inside the database. Ok is true if
 	// the check was successful. If the user could not be found a ErrUserNotFound is returned.
-	CheckPassword(username string, password []byte) (ok bool, err error)
+	CheckPassword(username string, password []byte) (ok bool, user *User, err error)
 	// UpdateUsername updates the user`s username and sets the value of the user instance. It
 	// returns an error (err) if something went wrong.
 	UpdateUsername(user *User, newUsername string) (err error)

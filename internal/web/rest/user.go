@@ -9,6 +9,10 @@ import (
 	"unicode"
 )
 
+var usernameRegex = regexp.MustCompile("^\\w{4,}$")
+
+const passwordMinLength = 8
+
 type UserLoginState string
 type UserCreateState string
 
@@ -37,10 +41,6 @@ type UserCreateResponse struct {
 	State              UserCreateState `json:"state"`
 }
 
-var usernameRegex = regexp.MustCompile("^\\w{4,}$")
-
-const passwordMinLength = 8
-
 func (r *router) handleUserLogin(w *responseWriter, req *http.Request) {
 	var parsedReq UserRequest
 	err := json.NewDecoder(req.Body).Decode(&parsedReq)
@@ -52,7 +52,7 @@ func (r *router) handleUserLogin(w *responseWriter, req *http.Request) {
 		w.WriteAutomaticErrorResponse(http.StatusInternalServerError, nil, req)
 		return
 	}
-	ok, err := r.userService.CheckPassword(parsedReq.Username, parsedReq.Password)
+	ok, user, err := r.userService.CheckPassword(parsedReq.Username, parsedReq.Password)
 	if err == distrybute.ErrUserAlreadyExists {
 		hlog.FromRequest(req).Info().Str("username", parsedReq.Username).Msg("failed login with non-existent username")
 		w.WriteResponse(http.StatusNotFound, "", &UserLoginResponse{userNotFoundState}, req)
@@ -66,8 +66,12 @@ func (r *router) handleUserLogin(w *responseWriter, req *http.Request) {
 		w.WriteResponse(http.StatusUnauthorized, "", &UserLoginResponse{invalidPasswordState}, req)
 		return
 	}
-	// TODO add jwt logic
-	hlog.FromRequest(req).Info().Str("username", parsedReq.Username).Msg("successful login attempt")
+	if err = r.sessionService.SetUserSession(user, w); err != nil {
+		hlog.FromRequest(req).Err(err).Str("username", user.Username).Msg("could not set user session")
+		w.WriteAutomaticErrorResponse(http.StatusInternalServerError, nil, req)
+		return
+	}
+	hlog.FromRequest(req).Info().Str("username", user.Username).Msg("successful login attempt")
 	w.WriteSuccessfulResponse(&UserLoginResponse{loginSuccessfulState}, req)
 }
 
