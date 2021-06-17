@@ -86,8 +86,19 @@ func (s *service) CheckPassword(username string, password []byte) (ok bool, user
 	}, nil
 }
 
-func (s *service) UpdateUsername(user *distrybute.User, newUsername string) (err error) {
-	panic("implement me")
+func (s *service) UpdateUsername(id uuid.UUID, newUsername string) (err error) {
+	row := s.connection.QueryRow(context.Background(), `UPDATE distrybute.users SET username=$1 WHERE id=$2`, newUsername, id)
+	err = row.Scan()
+	if err == nil {
+		return
+	}
+	pgErr, ok := err.(*pgconn.PgError)
+	// check for unique constraint violation
+	if ok && pgErr.Code == "23505" {
+		return distrybute.ErrUserAlreadyExists
+	} else {
+		return err
+	}
 }
 
 func (s *service) ResolveAuthorizationToken(id uuid.UUID) (token string, err error) {
