@@ -43,8 +43,9 @@ func (user User) IsUsingLatestPasswordHashAlgorithm() (bool, error) {
 }
 
 var (
-	ErrUserAlreadyExists = errors.New("the user already exists")
-	ErrUserNotFound      = errors.New("the given user could not be found")
+	ErrUserAlreadyExists       = errors.New("the user already exists")
+	ErrUserNotFound            = errors.New("the given user could not be found")
+	ErrAuthTokenAlreadyPresent = errors.New("the given auth token is already present within the database")
 )
 
 // UserService contains the basic functions for interacting with the user database and their passwords.

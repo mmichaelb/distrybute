@@ -89,12 +89,7 @@ func (s *service) CheckPassword(username string, password []byte) (ok bool, user
 func (s *service) UpdateUsername(id uuid.UUID, newUsername string) (err error) {
 	row := s.connection.QueryRow(context.Background(), `UPDATE distrybute.users SET username=$1 WHERE id=$2`, newUsername, id)
 	err = row.Scan()
-	if err == nil {
-		return
-	}
-	pgErr, ok := err.(*pgconn.PgError)
-	// check for unique constraint violation
-	if ok && pgErr.Code == "23505" {
+	if isViolatingUniqueConstraintErr(err) {
 		return distrybute.ErrUserAlreadyExists
 	} else {
 		return err
@@ -102,11 +97,31 @@ func (s *service) UpdateUsername(id uuid.UUID, newUsername string) (err error) {
 }
 
 func (s *service) ResolveAuthorizationToken(id uuid.UUID) (token string, err error) {
-	panic("implement me")
+	row := s.connection.QueryRow(context.Background(), `SELECT (users) FROM distrybute.users WHERE id=$1`, id)
+	err = row.Scan(&token)
+	if err == nil {
+		return
+	} else if err == pgx.ErrNoRows {
+		return "", distrybute.ErrUserNotFound
+	} else {
+		return "", err
+	}
 }
 
 func (s *service) RefreshAuthorizationToken(id uuid.UUID) (token string, err error) {
-	panic("implement me")
+	token, err = generateAuthToken()
+	if err != nil {
+		return "", err
+	}
+	row := s.connection.QueryRow(context.Background(), `UPDATE distrybute.users SET auth_token=$1 WHERE id=$2`, token, id)
+	err = row.Scan(&token)
+	if err == nil {
+		return
+	} else if isViolatingUniqueConstraintErr(err) {
+		return "", distrybute.ErrAuthTokenAlreadyPresent
+	} else {
+		return "", err
+	}
 }
 
 func (s *service) DeleteUser(id uuid.UUID) (err error) {
@@ -115,4 +130,13 @@ func (s *service) DeleteUser(id uuid.UUID) (err error) {
 
 func (s *service) UpdatePassword(id uuid.UUID, password []byte) (err error) {
 	panic("implement me")
+}
+
+func isViolatingUniqueConstraintErr(err error) bool {
+	if err == nil {
+		return false
+	}
+	pgErr, ok := err.(*pgconn.PgError)
+	// check for unique constraint violation
+	return ok && pgErr.Code == "23505"
 }
