@@ -9,7 +9,7 @@ import (
 	"unicode"
 )
 
-var usernameRegex = regexp.MustCompile("^\\w{4,}$")
+var usernameRegex = regexp.MustCompile("^\\w{4,16}$")
 
 const passwordMinLength = 8
 
@@ -36,9 +36,9 @@ type UserLoginResponse struct {
 }
 
 type UserCreateResponse struct {
-	Username           string          `json:"username,omitempty"`
-	AuthorizationToken string          `json:"authorization_token,omitempty"`
-	State              UserCreateState `json:"state"`
+	Username string          `json:"username,omitempty"`
+	State    UserCreateState `json:"state"`
+	UserAuthTokenResponse
 }
 
 func (r *router) handleUserLogin(w *responseWriter, req *http.Request) {
@@ -104,9 +104,11 @@ func (r *router) handleUserCreate(w *responseWriter, req *http.Request) {
 		return
 	}
 	w.WriteResponse(http.StatusOK, "", &UserCreateResponse{
-		Username:           user.Username,
-		AuthorizationToken: user.AuthorizationToken,
-		State:              userCreatedState,
+		Username: user.Username,
+		State:    userCreatedState,
+		UserAuthTokenResponse: UserAuthTokenResponse{
+			AuthorizationToken: user.AuthorizationToken,
+		},
 	}, req)
 }
 
@@ -132,4 +134,26 @@ func validatePassword(password []byte) bool {
 		}
 	}
 	return check == 7
+}
+
+type UserAuthTokenResponse struct {
+	AuthorizationToken string `json:"authorization_token,omitempty"`
+}
+
+func (r *router) handleUserRetrieveAuthToken(w *responseWriter, req *http.Request) {
+	user := r.sessionService.GetUserFromContext(req)
+	if user == nil {
+		hlog.FromRequest(req).Error().Msg("user value in context is not set - can not retrieve user auth token")
+		w.WriteAutomaticErrorResponse(http.StatusInternalServerError, nil, req)
+		return
+	}
+	token, err := r.userService.ResolveAuthorizationToken(user.ID)
+	if err != nil {
+		hlog.FromRequest(req).Err(err).Msg("could not resolve authorization token")
+		w.WriteAutomaticErrorResponse(http.StatusInternalServerError, nil, req)
+		return
+	}
+	w.WriteSuccessfulResponse(&UserAuthTokenResponse{
+		AuthorizationToken: token,
+	}, req)
 }
