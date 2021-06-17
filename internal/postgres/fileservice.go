@@ -2,7 +2,7 @@ package postgres
 
 import (
 	"github.com/google/uuid"
-	"github.com/jackc/pgx"
+	"github.com/jackc/pgx/v4"
 	distrybute "github.com/mmichaelb/distrybute/internal"
 	"github.com/mmichaelb/distrybute/internal/miniostorage"
 	"github.com/rs/zerolog"
@@ -20,12 +20,7 @@ func New(logger zerolog.Logger, minioInstance *miniostorage.Instance, connection
 }
 
 func (f *fileService) Store(entry *distrybute.FileEntry, reader io.Reader) (err error) {
-	ps, err := f.connection.Query("INSERT INTO entries ")
-	if err != nil {
-		f.logger.Err(err).Msg("could create prepared statement for file store process")
-		return err
-	}
-
+	panic("implement me")
 }
 
 func (f *fileService) Request(callReference string) (entry distrybute.FileEntry, err error) {
