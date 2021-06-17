@@ -57,7 +57,7 @@ type UserService interface {
 	CheckPassword(username string, password []byte) (ok bool, user *User, err error)
 	// UpdateUsername updates the user`s username and sets the value of the user instance. It
 	// returns an error (err) if something went wrong.
-	UpdateUsername(user *User, newUsername string) (err error)
+	UpdateUsername(id uuid.UUID, newUsername string) (err error)
 	// ResolveAuthorizationToken resolves the authorization token and sets the value of the user
 	// instance. It returns an error (err) if something went wrong.
 	ResolveAuthorizationToken(id uuid.UUID) (token string, err error)

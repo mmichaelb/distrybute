@@ -1,7 +1,7 @@
 package postgres
 
 import (
-	"github.com/jackc/pgx"
+	"github.com/jackc/pgx/v4"
 )
 
 type service struct {

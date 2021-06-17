@@ -2,13 +2,16 @@ package postgres
 
 import (
 	"bytes"
+	"context"
 	"github.com/google/uuid"
+	"github.com/jackc/pgconn"
+	"github.com/jackc/pgx/v4"
 	distrybute "github.com/mmichaelb/distrybute/internal"
 	"github.com/rs/zerolog/log"
 )
 
 func (s *service) initUserDDL() (err error) {
-	rows, err := s.connection.Query(`CREATE TABLE distrybute.users (
+	rows, err := s.connection.Query(context.Background(), `CREATE TABLE distrybute.users (
 		id uuid,
 		username varchar(16) NOT NULL,
 		auth_token text NULL,
@@ -41,8 +44,9 @@ func (s *service) CreateNewUser(username string, password []byte) (user *distryb
 	if err != nil {
 		return nil, err
 	}
-	rows, err := s.connection.Query(`INSERT INTO distrybute.users (id, username, auth_token, password_alg, password_salt, password) 
-		VALUES ($1, $2, $3, $4, $5, $6)`, id, username, authToken, string(passwordAlgorithm), salt, hashedPassword)
+	rows, err := s.connection.Query(context.Background(),
+		`INSERT INTO distrybute.users (id, username, auth_token, password_alg, password_salt, password) VALUES ($1, $2, $3, $4, $5, $6)`,
+		id, username, authToken, string(passwordAlgorithm), salt, hashedPassword)
 	if err != nil {
 		return nil, err
 	}
@@ -56,22 +60,18 @@ func (s *service) CreateNewUser(username string, password []byte) (user *distryb
 }
 
 func (s *service) CheckPassword(username string, password []byte) (ok bool, user *distrybute.User, err error) {
-	rows, err := s.connection.Query(`SELECT (id, username, password, password_alg, password_salt) FROM distrybute.users WHERE user LIKE $1`, username)
-	if err != nil {
-		return false, nil, err
-	}
-	if !rows.Next() {
+	row := s.connection.QueryRow(context.Background(),
+		`SELECT (id, username, password, password_alg, password_salt) FROM distrybute.users WHERE user LIKE $1`, username)
+	var id uuid.UUID
+	var fetchedUsername string
+	var expectedPasswordHash, passwordSalt []byte
+	var passwordAlgorithm distrybute.PasswordHashAlgorithm
+	err = row.Scan(&id, &fetchedUsername, &expectedPasswordHash, &passwordAlgorithm, &passwordSalt)
+	if err == pgx.ErrNoRows {
 		return false, nil, distrybute.ErrUserNotFound
-	}
-	values, err := rows.Values()
-	if err != nil {
+	} else if err != nil {
 		return false, nil, err
 	}
-	id := values[0].(uuid.UUID)
-	username = values[1].(string)
-	expectedPasswordHash := values[2].([]byte)
-	passwordAlgorithm := distrybute.PasswordHashAlgorithm(values[3].([]byte))
-	passwordSalt := values[4].([]byte)
 	hashedPassword, err := generatePasswordHash(password, passwordSalt, passwordAlgorithm)
 	if err != nil {
 		return false, nil, err
