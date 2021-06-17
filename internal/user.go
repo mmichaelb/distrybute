@@ -44,6 +44,7 @@ func (user User) IsUsingLatestPasswordHashAlgorithm() (bool, error) {
 
 var (
 	ErrUserAlreadyExists = errors.New("the user already exists")
+	ErrUserNotFound      = errors.New("the given user could not be found")
 )
 
 // UserService contains the basic functions for interacting with the user database and their passwords.
@@ -51,10 +52,9 @@ type UserService interface {
 	// CreateNewUser creates a new user by using the specified Username. After a successful creation, a user instance
 	// is returned. It returns an error (err) if something went wrong.
 	CreateNewUser(username string, password []byte) (user *User, err error)
-	// ResolveUser tries to search for the user by using the uuid or username set within the user instance.
-	// After successfully finding the entry it sets the Id, Username, and PasswordHashAlgorithm
-	// field of the user. It returns an error (err) if something went wrong.
-	ResolveUser(user *User) (err error)
+	// CheckPassword checks the user`s password and whether the username is existent inside the database. Ok is true if
+	// the check was successful. If the user could not be found a ErrUserNotFound is returned.
+	CheckPassword(username string, password []byte) (ok bool, err error)
 	// UpdateUsername updates the user`s username and sets the value of the user instance. It
 	// returns an error (err) if something went wrong.
 	UpdateUsername(user *User, newUsername string) (err error)
@@ -67,11 +67,6 @@ type UserService interface {
 	// DeleteUser deletes the user by searching for the user`s ID. It returns an error (err) if
 	// something went wrong.
 	DeleteUser(id uuid.UUID) (err error)
-	// CheckPassword checks the user`s password and whether the username is existent inside the
-	// database. It returns the User instance (user) with all values filled except for both, the
-	// authorization token and  password field if the check was successful. It returns an error
-	// (err) if something went wrong.
-	CheckPassword(user *User, password []byte) (ok bool, err error)
 	// UpdatePassword updates the user`s password. It returns an error (err) if something went wrong.
 	UpdatePassword(user *User, password []byte) (err error)
 }
