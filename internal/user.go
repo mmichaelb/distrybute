@@ -60,13 +60,13 @@ type UserService interface {
 	UpdateUsername(user *User, newUsername string) (err error)
 	// ResolveAuthorizationToken resolves the authorization token and sets the value of the user
 	// instance. It returns an error (err) if something went wrong.
-	ResolveAuthorizationToken(user *User) (err error)
-	// UpdateAuthorizationToken updates the user`s authorization token and sets the value of the
-	// user instance. It returns an error (err) if something went wrong.
-	UpdateAuthorizationToken(user *User) (err error)
+	ResolveAuthorizationToken(id uuid.UUID) (token string, err error)
+	// RefreshAuthorizationToken updates the user`s authorization token and returns the fresh one. It returns an error
+	// (err) if something went wrong.
+	RefreshAuthorizationToken(id uuid.UUID) (token string, err error)
 	// DeleteUser deletes the user by searching for the user`s ID. It returns an error (err) if
 	// something went wrong.
 	DeleteUser(id uuid.UUID) (err error)
 	// UpdatePassword updates the user`s password. It returns an error (err) if something went wrong.
-	UpdatePassword(user *User, password []byte) (err error)
+	UpdatePassword(id uuid.UUID, password []byte) (err error)
 }
