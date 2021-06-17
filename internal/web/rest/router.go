@@ -36,7 +36,7 @@ func (r *router) BuildHttpHandler() http.Handler {
 	router.MethodNotAllowed(func(writer http.ResponseWriter, request *http.Request) {
 		r.wrapResponseWriter(writer).WriteAutomaticErrorResponse(http.StatusMethodNotAllowed, nil, request)
 	})
-	router.Post("/user/create", r.wrapStandardHttpMethod(r.handleUserCreate))
+	// TODO add endpoints
 	return router
 }
 
