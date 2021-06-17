@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"bytes"
 	"crypto/rand"
 	"encoding/hex"
 	"errors"
@@ -92,7 +93,34 @@ func generateAuthToken() (authToken string, err error) {
 }
 
 func (s *service) CheckPassword(username string, password []byte) (ok bool, user *distrybute.User, err error) {
-	panic("implement me")
+	rows, err := s.connection.Query(`SELECT (id, username, password, password_alg, password_salt) FROM distrybute.users WHERE user LIKE $1`, username)
+	if err != nil {
+		return false, nil, err
+	}
+	if !rows.Next() {
+		return false, nil, distrybute.ErrUserNotFound
+	}
+	values, err := rows.Values()
+	if err != nil {
+		return false, nil, err
+	}
+	id := values[0].(uuid.UUID)
+	username = values[1].(string)
+	expectedPasswordHash := values[2].([]byte)
+	passwordAlgorithm := distrybute.PasswordHashAlgorithm(values[3].([]byte))
+	passwordSalt := values[4].([]byte)
+	hashedPassword, err := generatePasswordHash(password, passwordSalt, passwordAlgorithm)
+	if err != nil {
+		return false, nil, err
+	}
+	if !bytes.Equal(expectedPasswordHash, hashedPassword) {
+		return false, nil, nil
+	}
+	return true, &distrybute.User{
+		ID:                    id,
+		Username:              username,
+		PasswordHashAlgorithm: passwordAlgorithm,
+	}, nil
 }
 
 func (s *service) UpdateUsername(user *distrybute.User, newUsername string) (err error) {
