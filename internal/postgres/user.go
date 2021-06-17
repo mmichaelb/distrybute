@@ -11,7 +11,7 @@ import (
 )
 
 func (s *service) initUserDDL() (err error) {
-	rows, err := s.connection.Query(context.Background(), `CREATE TABLE distrybute.users (
+	row := s.connection.QueryRow(context.Background(), `CREATE TABLE distrybute.users (
 		id uuid,
 		username varchar(16) NOT NULL,
 		auth_token text NULL,
@@ -22,11 +22,10 @@ func (s *service) initUserDDL() (err error) {
 		CONSTRAINT users_auth_token_unique UNIQUE (auth_token),
 		CONSTRAINT users_username_un UNIQUE (username)
 	)`)
-	if err != nil {
+	if err = row.Scan(); err != nil {
 		log.Err(err).Msg("could not run initial user ddl")
 		return err
 	}
-	rows.Close()
 	return nil
 }
 
@@ -44,13 +43,12 @@ func (s *service) CreateNewUser(username string, password []byte) (user *distryb
 	if err != nil {
 		return nil, err
 	}
-	rows, err := s.connection.Query(context.Background(),
+	row := s.connection.QueryRow(context.Background(),
 		`INSERT INTO distrybute.users (id, username, auth_token, password_alg, password_salt, password) VALUES ($1, $2, $3, $4, $5, $6)`,
 		id, username, authToken, string(passwordAlgorithm), salt, hashedPassword)
-	if err != nil {
+	if err = row.Scan(); err != nil {
 		return nil, err
 	}
-	rows.Close()
 	return &distrybute.User{
 		ID:                    id,
 		Username:              username,
