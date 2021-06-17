@@ -125,7 +125,14 @@ func (s *service) RefreshAuthorizationToken(id uuid.UUID) (token string, err err
 }
 
 func (s *service) DeleteUser(id uuid.UUID) (err error) {
-	panic("implement me")
+	row := s.connection.QueryRow(context.Background(), `DELETE FROM distrybute.users WHERE id=$1 RETURNING username`, id)
+	var username string
+	err = row.Scan(username)
+	if err == pgx.ErrNoRows {
+		return distrybute.ErrUserNotFound
+	} else {
+		return
+	}
 }
 
 func (s *service) UpdatePassword(id uuid.UUID, password []byte) (err error) {
