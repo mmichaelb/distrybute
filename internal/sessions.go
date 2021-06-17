@@ -21,6 +21,8 @@ type SessionService interface {
 	// the user out of his account.
 	InvalidateUserSessions(user *User) (err error)
 	// ValidateUserSession validates the http request and checks whether a session is present. If so,
-	// the matched user is returned.
+	// the matched user is returned. It also sets the http request context value to use when calling GetUserFromContext.
 	ValidateUserSession(req *http.Request) (user *User, err error)
+	// GetUserFromContext returns the user bound to the http request context. Returns nil, if no user is bound.
+	GetUserFromContext(req *http.Request) (user *User)
 }
