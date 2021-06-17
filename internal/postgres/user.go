@@ -11,7 +11,7 @@ import (
 )
 
 func (s *service) initUserDDL() (err error) {
-	row := s.connection.QueryRow(context.Background(), `CREATE TABLE distrybute.users (
+	row := s.connection.QueryRow(context.Background(), `CREATE TABLE IF NOT EXISTS distrybute.users (
 		id uuid,
 		username varchar(16) NOT NULL,
 		auth_token text NULL,
