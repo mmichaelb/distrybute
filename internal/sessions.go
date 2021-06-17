@@ -15,7 +15,7 @@ var (
 // SessionService contains the basic functions to manage sessions.
 type SessionService interface {
 	// SetUserSession sets the session and saves it to the database. It returns an error if
-	// something went wrong.
+	// something went wrong. Moreover, this method also sets the request context to use when calling GetUserFromContext.
 	SetUserSession(user *User, resp http.ResponseWriter) (err error)
 	// InvalidateUserSessions invalidates all used user sessions and therefore automatically logs
 	// the user out of his account.
