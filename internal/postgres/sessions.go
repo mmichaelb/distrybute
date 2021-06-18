@@ -103,8 +103,12 @@ func (s *service) ValidateUserSession(req *http.Request) (bool, *http.Request, e
 	return true, req, nil
 }
 
-func (s *service) GetUserFromContext(req *http.Request) (user *distrybute.User) {
-	panic("implement me")
+func (s *service) GetUserFromContext(req *http.Request) *distrybute.User {
+	rawUser := req.Context().Value(&userKey{})
+	if user, ok := rawUser.(*distrybute.User); ok {
+		return user
+	}
+	return nil
 }
 
 func generateSessionKey() (key string, err error) {
