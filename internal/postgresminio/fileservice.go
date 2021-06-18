@@ -102,7 +102,7 @@ func (s *service) Request(callReference string) (entry *distrybute.FileEntry, er
 	var deleteReference, contentType, filename string
 	var size int64
 	var uploadDate time.Time
-	if err := row.Scan(id, author, deleteReference, contentType, filename, size, uploadDate); err != nil {
+	if err := row.Scan(&id, &author, &deleteReference, &contentType, &filename, &size, &uploadDate); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, distrybute.ErrEntryNotFound
 		} else if err != nil {

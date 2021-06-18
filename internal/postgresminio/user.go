@@ -125,7 +125,7 @@ func (s *service) RefreshAuthorizationToken(id uuid.UUID) (token string, err err
 func (s *service) DeleteUser(id uuid.UUID) (err error) {
 	row := s.connection.QueryRow(context.Background(), `DELETE FROM distrybute.users WHERE id=$1 RETURNING username`, id)
 	var username string
-	err = row.Scan(username)
+	err = row.Scan(&username)
 	if err == pgx.ErrNoRows {
 		return distrybute.ErrUserNotFound
 	} else {
@@ -137,7 +137,7 @@ func (s *service) UpdatePassword(id uuid.UUID, password []byte) (err error) {
 	row := s.connection.QueryRow(context.Background(), `SELECT (password_alg, password_salt) FROM distrybute.users WHERE id=$1`, id)
 	var passwordAlgorithm distrybute.PasswordHashAlgorithm
 	var passwordSalt []byte
-	err = row.Scan(passwordAlgorithm, passwordSalt)
+	err = row.Scan(&passwordAlgorithm, &passwordSalt)
 	if err == pgx.ErrNoRows {
 		return distrybute.ErrUserNotFound
 	} else if err != nil {

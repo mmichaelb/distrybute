@@ -90,7 +90,7 @@ func (s *service) ValidateUserSession(req *http.Request) (bool, *http.Request, e
 		sessionKey)
 	var id uuid.UUID
 	var username string
-	if err = row.Scan(id, username); errors.Is(err, pgx.ErrNoRows) {
+	if err = row.Scan(&id, &username); errors.Is(err, pgx.ErrNoRows) {
 		return false, nil, nil
 	} else if err != nil {
 		return false, nil, err
