@@ -1,15 +1,7 @@
 package distrybute
 
 import (
-	"errors"
 	"net/http"
-)
-
-var (
-	// ErrSessionInvalid indicates that the given session has been invalidated.
-	ErrSessionInvalid = errors.New("the given session is invalid")
-	// ErrNoSessionSet indicates that the given request does not contain a session.
-	ErrNoSessionSet = errors.New("the given request does not contain a session")
 )
 
 // SessionService contains the basic functions to manage sessions.
