@@ -2,6 +2,8 @@ package postgres
 
 import (
 	"context"
+	"crypto/rand"
+	"encoding/hex"
 	distrybute "github.com/mmichaelb/distrybute/internal"
 	"github.com/rs/zerolog/log"
 	"net/http"
@@ -46,4 +48,13 @@ func setUserContextValue() {
 
 func (s *service) GetUserFromContext(req *http.Request) (user *distrybute.User) {
 	panic("implement me")
+}
+
+func generateSessionKey() (key string, err error) {
+	keyBytes := make([]byte, 16)
+	_, err = rand.Read(keyBytes)
+	if err != nil {
+		return "", err
+	}
+	return hex.EncodeToString(keyBytes), nil
 }
