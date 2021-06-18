@@ -128,7 +128,15 @@ func (s *service) Request(callReference string) (entry *distrybute.FileEntry, er
 }
 
 func (s *service) Delete(deleteReference string) (err error) {
-	panic("implement me")
+	row := s.connection.QueryRow(context.Background(),
+		`DELETE FROM distrybute.entries WHERE delete_reference=$1 RETURNING call_reference`, deleteReference)
+	var callReference string
+	if err := row.Scan(&callReference); errors.Is(err, pgx.ErrNoRows) {
+		return distrybute.ErrEntryNotFound
+	} else if err != nil {
+		return err
+	}
+	return nil
 }
 
 func generateEntryId(length int) (string, error) {
