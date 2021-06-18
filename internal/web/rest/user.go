@@ -66,7 +66,7 @@ func (r *router) handleUserLogin(w *responseWriter, req *http.Request) {
 		w.WriteResponse(http.StatusUnauthorized, "", &UserLoginResponse{invalidPasswordState}, req)
 		return
 	}
-	if err = r.sessionService.SetUserSession(user, w); err != nil {
+	if _, err = r.sessionService.SetUserSession(user, req, w); err != nil {
 		hlog.FromRequest(req).Err(err).Str("username", user.Username).Msg("could not set user session")
 		w.WriteAutomaticErrorResponse(http.StatusInternalServerError, nil, req)
 		return
