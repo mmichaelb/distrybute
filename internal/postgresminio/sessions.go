@@ -5,10 +5,10 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v4"
 	distrybute "github.com/mmichaelb/distrybute/internal"
-	"github.com/rs/zerolog/log"
 	"net/http"
 	"time"
 )
@@ -23,7 +23,7 @@ const (
 )
 
 func (s *service) initSessionDDL() (err error) {
-	row := s.connection.QueryRow(context.Background(), `CREATE TABLE distrybute.sessions (
+	row := s.connection.QueryRow(context.Background(), `CREATE TABLE IF NOT EXISTS distrybute.sessions (
 		id uuid NOT NULL,
 		session_key varchar(32) NULL,
 		created_at timestamptz NULL,
@@ -33,8 +33,7 @@ func (s *service) initSessionDDL() (err error) {
 		CONSTRAINT sessions_session_key_unique UNIQUE (session_key)
 	);`)
 	if err = row.Scan(); !errors.Is(err, pgx.ErrNoRows) {
-		log.Err(err).Msg("could not run initial session ddl")
-		return err
+		return fmt.Errorf("error occurred while running session ddl: %w", err)
 	}
 	return nil
 }
@@ -86,7 +85,7 @@ func (s *service) ValidateUserSession(req *http.Request) (bool, *http.Request, e
 	}
 	sessionKey := cookie.Value
 	row := s.connection.QueryRow(context.Background(),
-		`SELECT (id, username) FROM distrybute.users WHERE id=(SELECT id FROM distrybute.sessions WHERE session_key LIKE $1)`,
+		`SELECT id, username FROM distrybute.users WHERE id=(SELECT id FROM distrybute.sessions WHERE session_key LIKE $1)`,
 		sessionKey)
 	var id uuid.UUID
 	var username string

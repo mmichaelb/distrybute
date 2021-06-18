@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/rand"
 	"errors"
+	"fmt"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v4"
 	"github.com/minio/minio-go/v7"
@@ -38,8 +39,7 @@ func (s *service) initFileServiceDDL() error {
 		CONSTRAINT entries_delete_reference_unique UNIQUE (delete_reference)
 	);`)
 	if err := row.Scan(); !errors.Is(err, pgx.ErrNoRows) {
-		log.Err(err).Msg("could not run initial file service ddl")
-		return err
+		return fmt.Errorf("error occurred while running file service ddl: %w", err)
 	}
 	return nil
 }
@@ -51,7 +51,7 @@ func (s *service) Store(filename, contentType string, size int64, author uuid.UU
 	}
 	defer func() {
 		err := tx.Rollback(context.Background())
-		if !errors.Is(err, pgx.ErrTxClosed) {
+		if !errors.Is(err, pgx.ErrTxClosed) && err != nil {
 			log.Err(err).Str("filename", filename).Str("contentType", contentType).Msg("could not rollback transaction opened in order to store a new entry")
 		}
 	}()
@@ -97,7 +97,7 @@ func (s *service) Store(filename, contentType string, size int64, author uuid.UU
 
 func (s *service) Request(callReference string) (entry *distrybute.FileEntry, err error) {
 	row := s.connection.QueryRow(context.Background(),
-		`SELECT (id, author, delete_reference, content_type, filename, size, upload_date) FROM distrybute.entries WHERE call_reference=$1`, callReference)
+		`SELECT id, author, delete_reference, content_type, filename, size, upload_date FROM distrybute.entries WHERE call_reference=$1`, callReference)
 	var id, author uuid.UUID
 	var deleteReference, contentType, filename string
 	var size int64
@@ -131,7 +131,7 @@ func (s *service) Delete(deleteReference string) (err error) {
 	tx, err := s.connection.Begin(context.Background())
 	defer func() {
 		err := tx.Rollback(context.Background())
-		if !errors.Is(err, pgx.ErrTxClosed) {
+		if !errors.Is(err, pgx.ErrTxClosed) && err != nil {
 			log.Err(err).Str("deleteReference", deleteReference).Msg("could not rollback transaction opened in order to delete an entry")
 		}
 	}()

@@ -3,11 +3,12 @@ package postgresminio
 import (
 	"bytes"
 	"context"
+	"errors"
+	"fmt"
 	"github.com/google/uuid"
 	"github.com/jackc/pgconn"
 	"github.com/jackc/pgx/v4"
 	distrybute "github.com/mmichaelb/distrybute/internal"
-	"github.com/rs/zerolog/log"
 )
 
 func (s *service) initUserDDL() (err error) {
@@ -22,9 +23,8 @@ func (s *service) initUserDDL() (err error) {
 		CONSTRAINT users_auth_token_unique UNIQUE (auth_token),
 		CONSTRAINT users_username_un UNIQUE (username)
 	)`)
-	if err = row.Scan(); err != nil {
-		log.Err(err).Msg("could not run initial user ddl")
-		return err
+	if err = row.Scan(); !errors.Is(err, pgx.ErrNoRows) {
+		return fmt.Errorf("error occurred while running user ddl: %w", err)
 	}
 	return nil
 }
@@ -46,8 +46,10 @@ func (s *service) CreateNewUser(username string, password []byte) (user *distryb
 	row := s.connection.QueryRow(context.Background(),
 		`INSERT INTO distrybute.users (id, username, auth_token, password_alg, password_salt, password) VALUES ($1, $2, $3, $4, $5, $6)`,
 		id, username, authToken, string(passwordAlgorithm), salt, hashedPassword)
-	if err = row.Scan(); err != nil {
-		return nil, err
+	if err = row.Scan(); isViolatingUniqueConstraintErr(err) {
+		return nil, distrybute.ErrUserAlreadyExists
+	} else if !errors.Is(err, pgx.ErrNoRows) {
+		return nil, fmt.Errorf("error while inserting new user: %w", err)
 	}
 	return &distrybute.User{
 		ID:                    id,
@@ -59,7 +61,7 @@ func (s *service) CreateNewUser(username string, password []byte) (user *distryb
 
 func (s *service) CheckPassword(username string, password []byte) (ok bool, user *distrybute.User, err error) {
 	row := s.connection.QueryRow(context.Background(),
-		`SELECT (id, username, password, password_alg, password_salt) FROM distrybute.users WHERE user LIKE $1`, username)
+		`SELECT id, username, password, password_alg, password_salt FROM distrybute.users WHERE username LIKE $1`, username)
 	var id uuid.UUID
 	var fetchedUsername string
 	var expectedPasswordHash, passwordSalt []byte
@@ -89,13 +91,14 @@ func (s *service) UpdateUsername(id uuid.UUID, newUsername string) (err error) {
 	err = row.Scan()
 	if isViolatingUniqueConstraintErr(err) {
 		return distrybute.ErrUserAlreadyExists
-	} else {
+	} else if !errors.Is(err, pgx.ErrNoRows) {
 		return err
 	}
+	return nil
 }
 
 func (s *service) ResolveAuthorizationToken(id uuid.UUID) (token string, err error) {
-	row := s.connection.QueryRow(context.Background(), `SELECT (users) FROM distrybute.users WHERE id=$1`, id)
+	row := s.connection.QueryRow(context.Background(), `SELECT auth_token FROM distrybute.users WHERE id=$1`, id)
 	err = row.Scan(&token)
 	if err == nil {
 		return
@@ -134,7 +137,7 @@ func (s *service) DeleteUser(id uuid.UUID) (err error) {
 }
 
 func (s *service) UpdatePassword(id uuid.UUID, password []byte) (err error) {
-	row := s.connection.QueryRow(context.Background(), `SELECT (password_alg, password_salt) FROM distrybute.users WHERE id=$1`, id)
+	row := s.connection.QueryRow(context.Background(), `SELECT password_alg, password_salt FROM distrybute.users WHERE id=$1`, id)
 	var passwordAlgorithm distrybute.PasswordHashAlgorithm
 	var passwordSalt []byte
 	err = row.Scan(&passwordAlgorithm, &passwordSalt)
@@ -144,7 +147,7 @@ func (s *service) UpdatePassword(id uuid.UUID, password []byte) (err error) {
 		return err
 	}
 	hashedPassword, err := generatePasswordHash(password, passwordSalt, passwordAlgorithm)
-	if err != nil {
+	if !errors.Is(err, pgx.ErrNoRows) {
 		return err
 	}
 	row = s.connection.QueryRow(context.Background(),
