@@ -96,7 +96,35 @@ func (s *service) Store(filename, contentType string, size int64, author uuid.UU
 }
 
 func (s *service) Request(callReference string) (entry *distrybute.FileEntry, err error) {
-	panic("implement me")
+	row := s.connection.QueryRow(context.Background(),
+		`SELECT (id, author, delete_reference, content_type, filename, size, upload_date) FROM distrybute.entries WHERE call_reference=$1`, callReference)
+	var id, author uuid.UUID
+	var deleteReference, contentType, filename string
+	var size int64
+	var uploadDate time.Time
+	if err := row.Scan(id, author, deleteReference, contentType, filename, size, uploadDate); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, distrybute.ErrEntryNotFound
+		} else if err != nil {
+			return nil, err
+		}
+	}
+	object, err := s.minioClient.GetObject(s.bucketName, s.objectPrefix+id.String(), minio.GetObjectOptions{})
+	if err != nil {
+		return nil, err
+	}
+	entry = &distrybute.FileEntry{
+		Id:              id,
+		CallReference:   callReference,
+		DeleteReference: deleteReference,
+		Author:          author,
+		Filename:        filename,
+		ContentType:     contentType,
+		UploadDate:      uploadDate,
+		ReadCloseSeeker: object,
+		Size:            size,
+	}
+	return entry, nil
 }
 
 func (s *service) Delete(deleteReference string) (err error) {
