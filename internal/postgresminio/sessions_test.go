@@ -1,4 +1,4 @@
-package postgres
+package postgresminio
 
 import (
 	"github.com/stretchr/testify/assert"

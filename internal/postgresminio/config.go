@@ -1,4 +1,4 @@
-package postgres
+package postgresminio
 
 import (
 	"crypto/rand"
