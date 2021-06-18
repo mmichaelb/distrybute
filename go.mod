@@ -12,7 +12,7 @@ require (
 	github.com/jackc/pgproto3/v2 v2.1.0 // indirect
 	github.com/jackc/pgx/v4 v4.11.0
 	github.com/lib/pq v1.10.2 // indirect
-	github.com/minio/minio-go v6.0.14+incompatible
+	github.com/minio/minio-go/v7 v7.0.11 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/rs/zerolog v1.22.0
 	github.com/shopspring/decimal v1.2.0 // indirect
@@ -21,5 +21,4 @@ require (
 	golang.org/x/crypto v0.0.0-20210616213533-5ff15b29337e
 	golang.org/x/text v0.3.6 // indirect
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
-	gopkg.in/ini.v1 v1.46.0 // indirect
 )

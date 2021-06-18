@@ -2,7 +2,7 @@ package postgresminio
 
 import (
 	"github.com/jackc/pgx/v4"
-	"github.com/minio/minio-go"
+	"github.com/minio/minio-go/v7"
 )
 
 type service struct {

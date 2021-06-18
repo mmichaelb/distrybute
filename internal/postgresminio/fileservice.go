@@ -6,7 +6,7 @@ import (
 	"errors"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v4"
-	"github.com/minio/minio-go"
+	"github.com/minio/minio-go/v7"
 	distrybute "github.com/mmichaelb/distrybute/internal"
 	"github.com/rs/zerolog/log"
 	"io"
@@ -49,12 +49,12 @@ func (s *service) Store(filename, contentType string, size int64, author uuid.UU
 	if err != nil {
 		return nil, err
 	}
-	defer func(tx pgx.Tx, ctx context.Context) {
-		err := tx.Rollback(ctx)
+	defer func() {
+		err := tx.Rollback(context.Background())
 		if !errors.Is(err, pgx.ErrTxClosed) {
-			log.Err(err).Str("filename", filename).Str("contentType", contentType).Msg("could not close transaction opened in order to store a new entry")
+			log.Err(err).Str("filename", filename).Str("contentType", contentType).Msg("could not rollback transaction opened in order to store a new entry")
 		}
-	}(tx, context.Background())
+	}()
 	id, err := uuid.NewRandom()
 	if err != nil {
 		return nil, err
@@ -74,7 +74,7 @@ func (s *service) Store(filename, contentType string, size int64, author uuid.UU
 	if err := row.Scan(); !errors.Is(err, pgx.ErrNoRows) {
 		return nil, err
 	}
-	_, err = s.minioClient.PutObject(s.bucketName, s.objectPrefix+id.String(), reader, size, minio.PutObjectOptions{})
+	_, err = s.minioClient.PutObject(context.Background(), s.bucketName, s.objectPrefix+id.String(), reader, size, minio.PutObjectOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -109,7 +109,7 @@ func (s *service) Request(callReference string) (entry *distrybute.FileEntry, er
 			return nil, err
 		}
 	}
-	object, err := s.minioClient.GetObject(s.bucketName, s.objectPrefix+id.String(), minio.GetObjectOptions{})
+	object, err := s.minioClient.GetObject(context.Background(), s.bucketName, s.objectPrefix+id.String(), minio.GetObjectOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -128,12 +128,27 @@ func (s *service) Request(callReference string) (entry *distrybute.FileEntry, er
 }
 
 func (s *service) Delete(deleteReference string) (err error) {
-	row := s.connection.QueryRow(context.Background(),
-		`DELETE FROM distrybute.entries WHERE delete_reference=$1 RETURNING call_reference`, deleteReference)
-	var callReference string
-	if err := row.Scan(&callReference); errors.Is(err, pgx.ErrNoRows) {
+	tx, err := s.connection.Begin(context.Background())
+	defer func() {
+		err := tx.Rollback(context.Background())
+		if !errors.Is(err, pgx.ErrTxClosed) {
+			log.Err(err).Str("deleteReference", deleteReference).Msg("could not rollback transaction opened in order to delete an entry")
+		}
+	}()
+	row := tx.QueryRow(context.Background(),
+		`DELETE FROM distrybute.entries WHERE delete_reference=$1 RETURNING id`, deleteReference)
+	var id uuid.UUID
+	if err := row.Scan(&id); errors.Is(err, pgx.ErrNoRows) {
 		return distrybute.ErrEntryNotFound
 	} else if err != nil {
+		return err
+	}
+	err = s.minioClient.RemoveObject(context.Background(), s.bucketName, s.objectPrefix+id.String(), minio.RemoveObjectOptions{})
+	if err != nil {
+		return err
+	}
+	err = tx.Commit(context.Background())
+	if err != nil {
 		return err
 	}
 	return nil
