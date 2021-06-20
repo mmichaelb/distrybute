@@ -2,6 +2,8 @@ name: PostgresSQL and Minio based integration test
 on:
   push:
   pull_request:
+env:
+  DISTRYBUTE_TEST_DB: distrybute_${{ env.GITHUB_RUN_ID }}
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -11,7 +13,7 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: postgres
+          POSTGRES_DB: ${{ env.DISTRYBUTE_TEST_DB }}
         ports:
           - 5432/tcp
         options: >-
@@ -40,3 +42,4 @@ jobs:
         env:
           TEST_POSTGRES_HOST: localhost
           TEST_POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
+          TEST_POSTGRES_DB: ${{ env.DISTRYBUTE_TEST_DB }}
