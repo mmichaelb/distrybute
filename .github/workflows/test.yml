@@ -4,6 +4,7 @@ on:
   pull_request:
 env:
   DISTRYBUTE_TEST_DB: ${{ format('distrybute_{0}', github.run_id) }}
+  MINIO_TEST_BUCKET_NAME: ${{ format('distrybute-{0}', github.run_id) }}
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -24,7 +25,7 @@ jobs:
       minio:
         image: fclairamb/minio-github-actions
         ports:
-          - 9000:9000
+          - 9000/tcp
         options: >-
           --health-cmd "curl http://localhost:9000/minio/health/live"
           --health-interval 10s
@@ -43,3 +44,6 @@ jobs:
           TEST_POSTGRES_HOST: localhost
           TEST_POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
           TEST_POSTGRES_DB: ${{ env.DISTRYBUTE_TEST_DB }}
+          TEST_MINIO_HOST: localhost
+          TEST_MINIO_PORT: ${{ job.services.postgres.ports[9000] }}
+          TEST_MINIO_BUCKET_NAME: ${{ env.MINIO_TEST_BUCKET_NAME }}

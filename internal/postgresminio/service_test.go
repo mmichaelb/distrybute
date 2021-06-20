@@ -14,7 +14,7 @@ import (
 var connection *pgx.Conn
 var minioClient *minio.Client
 
-var testBucketName = "distrybutetest-" + os.Getenv("GITHUB_RUN_ID")
+var testBucketName = os.Getenv("TEST_MINIO_BUCKET_NAME")
 
 func Test_PostgresMinio_Service(t *testing.T) {
 	setupPostgresConnection(t)
