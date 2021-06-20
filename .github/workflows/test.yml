@@ -3,7 +3,7 @@ on:
   push:
   pull_request:
 env:
-  DISTRYBUTE_TEST_DB: distrybute_${{ env.GITHUB_RUN_ID }}
+  DISTRYBUTE_TEST_DB: ${{ format('distrybute_{0}', github.run_id) }}
 jobs:
   test:
     runs-on: ubuntu-latest
