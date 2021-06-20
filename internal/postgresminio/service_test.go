@@ -32,7 +32,8 @@ func setupPostgresConnection(t *testing.T) {
 	var err error
 	connection, err = pgx.Connect(context.Background(), fmt.Sprintf("postgres://postgres:postgres@%s:%s/%s", host, port, db))
 	assert.NoError(t, err, "could not establish test connection")
-
+	err = connection.QueryRow(context.Background(), "CREATE SCHEMA IF NOT EXISTS distrybute").Scan()
+	assert.ErrorIs(t, err, pgx.ErrNoRows, "could not create distrybute schema")
 }
 
 func setupMinioClient(t *testing.T) {
