@@ -45,5 +45,5 @@ jobs:
           TEST_POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
           TEST_POSTGRES_DB: ${{ env.DISTRYBUTE_TEST_DB }}
           TEST_MINIO_HOST: localhost
-          TEST_MINIO_PORT: ${{ job.services.postgres.ports[9000] }}
+          TEST_MINIO_PORT: ${{ job.services.minio.ports[9000] }}
           TEST_MINIO_BUCKET_NAME: ${{ env.MINIO_TEST_BUCKET_NAME }}
