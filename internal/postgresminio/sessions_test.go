@@ -19,3 +19,7 @@ func Test_generateSessionKey(t *testing.T) {
 		assert.True(t, gotFirstKey != gotSecondKey)
 	})
 }
+
+func sessionServiceIntegrationTest(t *testing.T) {
+
+}
