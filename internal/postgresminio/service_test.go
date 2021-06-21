@@ -23,6 +23,9 @@ func Test_PostgresMinio_Service(t *testing.T) {
 	service := NewService(connection, minioClient, testBucketName, "")
 	err := service.InitDDL()
 	assert.NoError(t, err)
+	t.Run("user service", userServiceIntegrationTest(service))
+	t.Run("file service", fileServiceIntegrationTest)
+	t.Run("session service", sessionServiceIntegrationTest)
 }
 
 func setupPostgresConnection(t *testing.T) {
@@ -34,6 +37,10 @@ func setupPostgresConnection(t *testing.T) {
 	assert.NoError(t, err, "could not establish test connection")
 	err = connection.QueryRow(context.Background(), "CREATE SCHEMA IF NOT EXISTS distrybute").Scan()
 	assert.ErrorIs(t, err, pgx.ErrNoRows, "could not create distrybute schema")
+	t.Cleanup(func() {
+		err = connection.QueryRow(context.Background(), "DROP SCHEMA distrybute").Scan()
+		assert.ErrorIs(t, err, pgx.ErrNoRows, "could not delete distrybute schema")
+	})
 }
 
 func setupMinioClient(t *testing.T) {
