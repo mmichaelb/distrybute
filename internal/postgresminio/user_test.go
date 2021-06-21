@@ -83,5 +83,23 @@ func userServiceIntegrationTest(userService distrybute.UserService) func(t *test
 				assert.Nil(t, resolvedUser)
 			})
 		})
+		t.Run("username is being updated correctly", func(t *testing.T) {
+			const username = "usertest-update-username"
+			password := []byte("Sommer2019")
+			user, err := userService.CreateNewUser(username, password)
+			assert.NoError(t, err)
+			newUsername := "usertest-update-username-new"
+			err = userService.UpdateUsername(user.ID, newUsername)
+			assert.NoError(t, err, "username could not be updated")
+			ok, resolvedUser, err := userService.CheckPassword(newUsername, password)
+			assert.NoError(t, err, "could not check password with new username")
+			assert.True(t, ok)
+			assert.Equal(t, user.ID, resolvedUser.ID)
+			assert.Equal(t, user.Username, resolvedUser.Username)
+			ok, resolvedUser, err = userService.CheckPassword(username, password)
+			assert.ErrorIs(t, err, distrybute.ErrUserNotFound, "login with old username was still successful")
+			assert.False(t, ok)
+			assert.Nil(t, resolvedUser)
+		})
 	}
 }
