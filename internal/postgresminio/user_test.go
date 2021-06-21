@@ -4,6 +4,7 @@ import (
 	"github.com/google/uuid"
 	distrybute "github.com/mmichaelb/distrybute/internal"
 	"github.com/stretchr/testify/assert"
+	"strings"
 	"testing"
 )
 
@@ -47,6 +48,40 @@ func userServiceIntegrationTest(userService distrybute.UserService) func(t *test
 			assert.NotNil(t, err, "uuid could not be parsed")
 			err = userService.DeleteUser(id)
 			assert.ErrorIs(t, err, distrybute.ErrUserNotFound)
+		})
+		t.Run("password check test", func(t *testing.T) {
+			const username = "usertest-password-check"
+			password := []byte("Sommer2019")
+			user, err := userService.CreateNewUser(username, password)
+			assert.NoError(t, err)
+			t.Run("password check is done correctly", func(t *testing.T) {
+				ok, resolvedUser, err := userService.CheckPassword(user.Username, password)
+				assert.NoError(t, err)
+				assert.True(t, ok)
+				assert.Equal(t, user.ID, resolvedUser.ID)
+				assert.Equal(t, user.Username, resolvedUser.Username)
+				assert.Empty(t, resolvedUser.AuthorizationToken)
+			})
+			t.Run("password is checked correctly even if username is not of correct case", func(t *testing.T) {
+				upperUsername := strings.ToUpper(user.Username)
+				ok, resolvedUser, err := userService.CheckPassword(upperUsername, password)
+				assert.NoError(t, err)
+				assert.True(t, ok)
+				assert.Equal(t, user.ID, resolvedUser.ID)
+				assert.Equal(t, user.Username, resolvedUser.Username)
+			})
+			t.Run("wrong password is not accepted", func(t *testing.T) {
+				ok, resolvedUser, err := userService.CheckPassword(username, []byte("nottherightpassword"))
+				assert.NoError(t, err)
+				assert.False(t, ok)
+				assert.Nil(t, resolvedUser)
+			})
+			t.Run("username has to be registered within the system", func(t *testing.T) {
+				ok, resolvedUser, err := userService.CheckPassword("userthatdoesnotexist", []byte("nottherightpassword"))
+				assert.ErrorIs(t, err, distrybute.ErrUserNotFound)
+				assert.False(t, ok)
+				assert.Nil(t, resolvedUser)
+			})
 		})
 	}
 }
