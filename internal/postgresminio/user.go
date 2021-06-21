@@ -85,7 +85,7 @@ func (s *service) CheckPassword(username string, password []byte) (ok bool, user
 	}
 	return true, &distrybute.User{
 		ID:                    id,
-		Username:              username,
+		Username:              fetchedUsername,
 		PasswordHashAlgorithm: passwordAlgorithm,
 	}, nil
 }
