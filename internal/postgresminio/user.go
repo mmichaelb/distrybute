@@ -20,7 +20,7 @@ func (s *service) initUserDDL() (err error) {
 		password_salt bytea NOT NULL,
 		"password" bytea NOT NULL,
 		CONSTRAINT users_pk PRIMARY KEY (id),
-		CONSTRAINT users_auth_token_unique UNIQUE (auth_token),
+		CONSTRAINT users_auth_token_unique UNIQUE (auth_token)
 	)`).Scan()
 	if !errors.Is(err, pgx.ErrNoRows) {
 		return fmt.Errorf("error occurred while running user table creation ddl: %w", err)
