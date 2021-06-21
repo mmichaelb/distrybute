@@ -42,5 +42,11 @@ func userServiceIntegrationTest(userService distrybute.UserService) func(t *test
 			_, _, err = userService.CheckPassword(username, []byte("Testpassword"))
 			assert.ErrorIs(t, err, distrybute.ErrUserNotFound)
 		})
+		t.Run("user cannot be deleted if not present", func(t *testing.T) {
+			id, err := uuid.Parse("7c478fdc-be22-4571-b7b6-2dfa5a31a1a7") // parse some random uuid
+			assert.NotNil(t, err, "uuid could not be parsed")
+			err = userService.DeleteUser(id)
+			assert.ErrorIs(t, err, distrybute.ErrUserNotFound)
+		})
 	}
 }
