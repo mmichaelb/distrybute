@@ -25,5 +25,14 @@ func userServiceIntegrationTest(userService distrybute.UserService) func(t *test
 			_, err = userService.CreateNewUser(username, []byte("Sommer2020"))
 			assert.ErrorIs(t, err, distrybute.ErrUserAlreadyExists)
 		})
+		t.Run("user is deleted correctly", func(t *testing.T) {
+			const username = "usertest-del"
+			user, err := userService.CreateNewUser(username, []byte("Testpassword"))
+			assert.NoError(t, err)
+			err = userService.DeleteUser(user.ID)
+			assert.NoError(t, err)
+			_, _, err = userService.CheckPassword(username, []byte("Testpassword"))
+			assert.ErrorIs(t, err, distrybute.ErrUserNotFound)
+		})
 	}
 }

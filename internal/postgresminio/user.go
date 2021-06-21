@@ -12,7 +12,7 @@ import (
 )
 
 func (s *service) initUserDDL() (err error) {
-	row := s.connection.QueryRow(context.Background(), `CREATE TABLE IF NOT EXISTS distrybute.users (
+	err = s.connection.QueryRow(context.Background(), `CREATE TABLE IF NOT EXISTS distrybute.users (
 		id uuid,
 		username varchar(16) NOT NULL,
 		auth_token text NULL,
@@ -22,9 +22,14 @@ func (s *service) initUserDDL() (err error) {
 		CONSTRAINT users_pk PRIMARY KEY (id),
 		CONSTRAINT users_auth_token_unique UNIQUE (auth_token),
 		CONSTRAINT users_username_un UNIQUE (username)
-	)`)
-	if err = row.Scan(); !errors.Is(err, pgx.ErrNoRows) {
-		return fmt.Errorf("error occurred while running user ddl: %w", err)
+	)`).Scan()
+	if !errors.Is(err, pgx.ErrNoRows) {
+		return fmt.Errorf("error occurred while running user table creation ddl: %w", err)
+	}
+	err = s.connection.QueryRow(context.Background(),
+		`CREATE UNIQUE INDEX IF NOT EXISTS users_username_un ON distrybute.users (LOWER(username))`).Scan()
+	if !errors.Is(err, pgx.ErrNoRows) {
+		return fmt.Errorf("error occurred while running user username unique index creation ddl: %w", err)
 	}
 	return nil
 }
