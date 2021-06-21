@@ -65,7 +65,7 @@ func (s *service) CreateNewUser(username string, password []byte) (user *distryb
 
 func (s *service) CheckPassword(username string, password []byte) (ok bool, user *distrybute.User, err error) {
 	row := s.connection.QueryRow(context.Background(),
-		`SELECT id, username, password, password_alg, password_salt FROM distrybute.users WHERE username LIKE $1`, username)
+		`SELECT id, username, password, password_alg, password_salt FROM distrybute.users WHERE username ILIKE $1`, username)
 	var id uuid.UUID
 	var fetchedUsername string
 	var expectedPasswordHash, passwordSalt []byte
