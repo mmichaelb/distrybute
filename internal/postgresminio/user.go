@@ -14,7 +14,7 @@ import (
 func (s *service) initUserDDL() (err error) {
 	err = s.connection.QueryRow(context.Background(), `CREATE TABLE IF NOT EXISTS distrybute.users (
 		id uuid,
-		username varchar(16) NOT NULL,
+		username varchar(32) NOT NULL,
 		auth_token text NULL,
 		password_alg varchar(32) NOT NULL,
 		password_salt bytea NOT NULL,

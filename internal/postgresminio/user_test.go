@@ -19,10 +19,18 @@ func userServiceIntegrationTest(userService distrybute.UserService) func(t *test
 			assert.Equal(t, distrybute.LatestPasswordHashAlgorithm, user.PasswordHashAlgorithm)
 		})
 		t.Run("duplicate usernames are not accepted", func(t *testing.T) {
-			const username = "usertest-dupl"
+			const username = "usertest-duplicate"
 			_, err := userService.CreateNewUser(username, []byte("Sommer2019"))
 			assert.NoError(t, err)
 			_, err = userService.CreateNewUser(username, []byte("Sommer2020"))
+			assert.ErrorIs(t, err, distrybute.ErrUserAlreadyExists)
+		})
+		t.Run("duplicate usernames are being detected case insensitively", func(t *testing.T) {
+			const username = "usertest-duplicate-case-ins"
+			const usernameSecond = "usertest-duplicate-case-INS"
+			_, err := userService.CreateNewUser(username, []byte("Sommer2019"))
+			assert.NoError(t, err)
+			_, err = userService.CreateNewUser(usernameSecond, []byte("Sommer2020"))
 			assert.ErrorIs(t, err, distrybute.ErrUserAlreadyExists)
 		})
 		t.Run("user is deleted correctly", func(t *testing.T) {
