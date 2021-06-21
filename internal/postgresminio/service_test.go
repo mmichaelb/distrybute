@@ -37,7 +37,7 @@ func setupPostgresConnection(t *testing.T) {
 	err = connection.QueryRow(context.Background(), "CREATE SCHEMA IF NOT EXISTS distrybute").Scan()
 	assert.ErrorIs(t, err, pgx.ErrNoRows, "could not create distrybute schema")
 	t.Cleanup(func() {
-		err = connection.QueryRow(context.Background(), "DROP SCHEMA distrybute").Scan()
+		err = connection.QueryRow(context.Background(), "DROP SCHEMA distrybute CASCADE").Scan()
 		assert.ErrorIs(t, err, pgx.ErrNoRows, "could not delete distrybute schema")
 		err = connection.Close(context.Background())
 		assert.NoError(t, err, "could not close postgres connection")
