@@ -19,7 +19,6 @@ var testBucketName = os.Getenv("TEST_MINIO_BUCKET_NAME")
 func Test_PostgresMinio_Service(t *testing.T) {
 	setupPostgresConnection(t)
 	setupMinioClient(t)
-	defer connection.Close(context.Background())
 	service := NewService(connection, minioClient, testBucketName, "")
 	err := service.InitDDL()
 	assert.NoError(t, err)
@@ -40,6 +39,8 @@ func setupPostgresConnection(t *testing.T) {
 	t.Cleanup(func() {
 		err = connection.QueryRow(context.Background(), "DROP SCHEMA distrybute").Scan()
 		assert.ErrorIs(t, err, pgx.ErrNoRows, "could not delete distrybute schema")
+		err = connection.Close(context.Background())
+		assert.NoError(t, err, "could not close postgres connection")
 	})
 }
 
