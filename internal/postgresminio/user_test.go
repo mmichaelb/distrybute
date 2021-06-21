@@ -95,7 +95,7 @@ func userServiceIntegrationTest(userService distrybute.UserService) func(t *test
 			assert.NoError(t, err, "could not check password with new username")
 			assert.True(t, ok)
 			assert.Equal(t, user.ID, resolvedUser.ID)
-			assert.Equal(t, user.Username, resolvedUser.Username)
+			assert.Equal(t, newUsername, resolvedUser.Username)
 			ok, resolvedUser, err = userService.CheckPassword(username, password)
 			assert.ErrorIs(t, err, distrybute.ErrUserNotFound, "login with old username was still successful")
 			assert.False(t, ok)
