@@ -18,8 +18,8 @@ test:
 # builds and formats the project with the built-in Golang tool
 .PHONY: build
 build:
-	@go build -ldflags '${LD_FLAGS}' -o "${OUTPUT_PREFIX}-${GOOS}-${GOARCH}${OUTPUT_FILE_ENDING}" ./cmd/distrybute/main.go
+	@go build -trimpath -ldflags '${LD_FLAGS}' -o "${OUTPUT_PREFIX}-${GOOS}-${GOARCH}${OUTPUT_FILE_ENDING}" ./cmd/distrybute/main.go
 
 # installs and formats the project with the built-in Golang tool
 install:
-	@go install -ldflags '${LD_FLAGS}' ./cmd/distrybute/main.go
+	@go install -trimpath -ldflags '${LD_FLAGS}' ./cmd/distrybute/main.go
