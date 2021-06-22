@@ -24,7 +24,7 @@ func Test_PostgresMinio_Service(t *testing.T) {
 	assert.NoError(t, err)
 	t.Run("user service", userServiceIntegrationTest(service))
 	t.Run("file service", fileServiceIntegrationTest(service, service))
-	t.Run("session service", sessionServiceIntegrationTest)
+	t.Run("session service", sessionServiceIntegrationTest(service, service))
 }
 
 func setupPostgresConnection(t *testing.T) {

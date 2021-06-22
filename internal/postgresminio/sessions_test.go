@@ -71,5 +71,13 @@ func sessionServiceIntegrationTest(sessionService distrybute.SessionService, use
 			user := sessionService.GetUserFromContext(req)
 			assert.Nil(t, user, "user value is still set to context")
 		})
+		t.Run("unknown session is not accepted", func(t *testing.T) {
+			req := httptest.NewRequest("/", http.MethodGet, nil)
+			ok, req, err := sessionService.ValidateUserSession(req)
+			assert.False(t, ok, "session is accepted with no session cookie set")
+			assert.NoError(t, err, "could not validate unknown session")
+			assert.Nil(t, sessionService.GetUserFromContext(req), "user object set in request context even "+
+				"for invalid session")
+		})
 	}
 }
