@@ -4,7 +4,6 @@ go 1.12
 
 require (
 	github.com/go-chi/chi/v5 v5.0.3
-	github.com/go-ini/ini v1.46.0 // indirect
 	github.com/gofrs/uuid v4.0.0+incompatible // indirect
 	github.com/google/uuid v1.1.1
 	github.com/gopherjs/gopherjs v0.0.0-20190910122728-9d188e94fb99 // indirect
@@ -13,7 +12,6 @@ require (
 	github.com/jackc/pgx/v4 v4.11.0
 	github.com/lib/pq v1.10.2 // indirect
 	github.com/minio/minio-go/v7 v7.0.11
-	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/rs/zerolog v1.22.0
 	github.com/shopspring/decimal v1.2.0 // indirect
 	github.com/smartystreets/assertions v1.0.1 // indirect
