@@ -40,6 +40,17 @@ func fileServiceIntegrationTest(fileService distrybute.FileService, userService 
 			err = fileService.Delete(entry.DeleteReference)
 			assert.NoError(t, err, "an error occurred while deleting the test entry")
 		})
+		t.Run("requests using unknown call reference returns entry found err", func(t *testing.T) {
+			fakeCallReference := "thiscallreferenceisnotpresent"
+			entry, err := fileService.Request(fakeCallReference)
+			assert.Nil(t, entry, "requested entry using fake call reference is not nil")
+			assert.ErrorIs(t, err, distrybute.ErrEntryNotFound)
+		})
+		t.Run("deletions using unknown delete reference returns entry found err", func(t *testing.T) {
+			fakeDeleteReference := "thisdeletereferenceisnotpresent"
+			err := fileService.Delete(fakeDeleteReference)
+			assert.ErrorIs(t, err, distrybute.ErrEntryNotFound)
+		})
 		t.Run("files with duplicate names can be stored", func(t *testing.T) {
 			filename := "duplicatefile.txt"
 			_, err := fileService.Store(filename, contentType, size, user.ID, content)
