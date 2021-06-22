@@ -41,12 +41,12 @@ func sessionServiceIntegrationTest(sessionService distrybute.SessionService, use
 			assert.Equal(t, user, sessionService.GetUserFromContext(req), "user could not be retrieved from request")
 		})
 		t.Run("user session is parsed correctly", func(t *testing.T) {
-			req := httptest.NewRequest("/", http.MethodGet, nil)
+			req := httptest.NewRequest(http.MethodGet, "/", nil)
 			writer := httptest.NewRecorder()
 			_, err := sessionService.SetUserSession(user, req, writer)
 			assert.NoError(t, err, "could not set user session")
 			cookie := writer.Result().Cookies()[0]
-			req = httptest.NewRequest("/", http.MethodGet, nil)
+			req = httptest.NewRequest(http.MethodGet, "/", nil)
 			req.AddCookie(cookie)
 			ok, req, err := sessionService.ValidateUserSession(req)
 			assert.True(t, ok, "session is detected as invalid")
@@ -56,13 +56,13 @@ func sessionServiceIntegrationTest(sessionService distrybute.SessionService, use
 			assert.Equal(t, user.Username, contextUser.Username)
 		})
 		t.Run("user session can be invalidated", func(t *testing.T) {
-			req := httptest.NewRequest("/", http.MethodGet, nil)
+			req := httptest.NewRequest(http.MethodGet, "/", nil)
 			writer := httptest.NewRecorder()
 			_, err := sessionService.SetUserSession(user, req, writer)
 			assert.NoError(t, err, "could not set user session")
 			cookie := writer.Result().Cookies()[0]
 			err = sessionService.InvalidateUserSessions(user)
-			req = httptest.NewRequest("/", http.MethodGet, nil)
+			req = httptest.NewRequest(http.MethodGet, "/", nil)
 			assert.NoError(t, err, "could not invalidate user session")
 			req.AddCookie(cookie)
 			ok, req, err := sessionService.ValidateUserSession(req)
@@ -72,7 +72,7 @@ func sessionServiceIntegrationTest(sessionService distrybute.SessionService, use
 			assert.Nil(t, user, "user value is still set to context")
 		})
 		t.Run("unknown session is not accepted", func(t *testing.T) {
-			req := httptest.NewRequest("/", http.MethodGet, nil)
+			req := httptest.NewRequest(http.MethodGet, "/", nil)
 			ok, req, err := sessionService.ValidateUserSession(req)
 			assert.False(t, ok, "session is accepted with no session cookie set")
 			assert.NoError(t, err, "could not validate unknown session")
