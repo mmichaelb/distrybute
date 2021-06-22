@@ -120,10 +120,10 @@ func (s *service) RefreshAuthorizationToken(id uuid.UUID) (token string, err err
 	}
 	row := s.connection.QueryRow(context.Background(), `UPDATE distrybute.users SET auth_token=$1 WHERE id=$2`, token, id)
 	err = row.Scan(&token)
-	if err == nil {
-		return
-	} else if isViolatingUniqueConstraintErr(err) {
+	if isViolatingUniqueConstraintErr(err) {
 		return "", distrybute.ErrAuthTokenAlreadyPresent
+	} else if errors.Is(err, pgx.ErrNoRows) {
+		return
 	} else {
 		return "", err
 	}
