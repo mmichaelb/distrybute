@@ -28,7 +28,7 @@ func sessionServiceIntegrationTest(sessionService distrybute.SessionService, use
 		user, err := userService.CreateNewUser("sessiontest-user", []byte("Sommer2019"))
 		assert.NoError(t, err, "could not create session test user")
 		t.Run("user session is set correctly", func(t *testing.T) {
-			req := httptest.NewRequest("/", http.MethodGet, nil)
+			req := httptest.NewRequest(http.MethodGet, "/", nil)
 			writer := httptest.NewRecorder()
 			req, err := sessionService.SetUserSession(user, req, writer)
 			assert.NoError(t, err, "could not set user session")
