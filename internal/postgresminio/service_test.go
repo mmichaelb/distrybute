@@ -23,7 +23,7 @@ func Test_PostgresMinio_Service(t *testing.T) {
 	err := service.InitDDL()
 	assert.NoError(t, err)
 	t.Run("user service", userServiceIntegrationTest(service))
-	t.Run("file service", fileServiceIntegrationTest)
+	t.Run("file service", fileServiceIntegrationTest(service, service))
 	t.Run("session service", sessionServiceIntegrationTest)
 }
 
