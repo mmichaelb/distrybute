@@ -123,7 +123,7 @@ func (s *service) RefreshAuthorizationToken(id uuid.UUID) (token string, err err
 	if isViolatingUniqueConstraintErr(err) {
 		return "", distrybute.ErrAuthTokenAlreadyPresent
 	} else if errors.Is(err, pgx.ErrNoRows) {
-		return
+		return token, nil
 	} else {
 		return "", err
 	}
