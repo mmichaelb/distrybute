@@ -80,7 +80,9 @@ func (s *service) InvalidateUserSessions(user *distrybute.User) (err error) {
 
 func (s *service) ValidateUserSession(req *http.Request) (bool, *http.Request, error) {
 	cookie, err := req.Cookie(sessionCookieName)
-	if err != nil && !errors.Is(err, http.ErrNoCookie) {
+	if errors.Is(err, http.ErrNoCookie) {
+		return false, req, nil
+	} else if err != nil {
 		return false, req, err
 	}
 	sessionKey := cookie.Value
