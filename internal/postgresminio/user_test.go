@@ -34,20 +34,22 @@ func userServiceIntegrationTest(userService distrybute.UserService) func(t *test
 			_, err = userService.CreateNewUser(usernameSecond, []byte("Sommer2020"))
 			assert.ErrorIs(t, err, distrybute.ErrUserAlreadyExists)
 		})
-		t.Run("user is deleted correctly", func(t *testing.T) {
-			const username = "usertest-del"
-			user, err := userService.CreateNewUser(username, []byte("Testpassword"))
-			assert.NoError(t, err)
-			err = userService.DeleteUser(user.ID)
-			assert.NoError(t, err)
-			_, _, err = userService.CheckPassword(username, []byte("Testpassword"))
-			assert.ErrorIs(t, err, distrybute.ErrUserNotFound)
-		})
-		t.Run("user cannot be deleted if not present", func(t *testing.T) {
-			id, err := uuid.Parse("7c478fdc-be22-4571-b7b6-2dfa5a31a1a7") // parse some random uuid
-			assert.Nil(t, err, "uuid could not be parsed")
-			err = userService.DeleteUser(id)
-			assert.ErrorIs(t, err, distrybute.ErrUserNotFound)
+		t.Run("user deletion test", func(t *testing.T) {
+			t.Run("user is deleted correctly", func(t *testing.T) {
+				const username = "usertest-del"
+				user, err := userService.CreateNewUser(username, []byte("Testpassword"))
+				assert.NoError(t, err)
+				err = userService.DeleteUser(user.ID)
+				assert.NoError(t, err)
+				_, _, err = userService.CheckPassword(username, []byte("Testpassword"))
+				assert.ErrorIs(t, err, distrybute.ErrUserNotFound)
+			})
+			t.Run("user cannot be deleted if not present", func(t *testing.T) {
+				id, err := uuid.Parse("7c478fdc-be22-4571-b7b6-2dfa5a31a1a7") // parse some random uuid
+				assert.Nil(t, err, "uuid could not be parsed")
+				err = userService.DeleteUser(id)
+				assert.ErrorIs(t, err, distrybute.ErrUserNotFound)
+			})
 		})
 		t.Run("password check test", func(t *testing.T) {
 			const username = "usertest-password-check"
@@ -100,6 +102,25 @@ func userServiceIntegrationTest(userService distrybute.UserService) func(t *test
 			assert.ErrorIs(t, err, distrybute.ErrUserNotFound, "login with old username was still successful")
 			assert.False(t, ok)
 			assert.Nil(t, resolvedUser)
+		})
+		t.Run("authorization token tests", func(t *testing.T) {
+			const username = "usertest-auth-token"
+			password := []byte("Sommer2019")
+			user, err := userService.CreateNewUser(username, password)
+			assert.NoError(t, err)
+			t.Run("authorization token can be retrieved", func(t *testing.T) {
+				token, err := userService.ResolveAuthorizationToken(user.ID)
+				assert.NoError(t, err, "authorization token could not be resolved")
+				assert.Equal(t, user.AuthorizationToken, token)
+			})
+			t.Run("authorization token can be refreshed", func(t *testing.T) {
+				token, err := userService.RefreshAuthorizationToken(user.ID)
+				assert.NoError(t, err, "authorization token could not be refreshed")
+				assert.NotEqual(t, user.AuthorizationToken, token)
+				retrievedToken, err := userService.ResolveAuthorizationToken(user.ID)
+				assert.NoError(t, err, "authorization token could not be resolved")
+				assert.Equal(t, retrievedToken, token)
+			})
 		})
 	}
 }
