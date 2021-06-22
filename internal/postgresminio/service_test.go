@@ -56,6 +56,15 @@ func setupMinioClient(t *testing.T) {
 	err = minioClient.MakeBucket(context.Background(), testBucketName, minio.MakeBucketOptions{})
 	assert.NoError(t, err, "could not create distrybute minio test bucket")
 	t.Cleanup(func() {
+		objectInfoChan := minioClient.ListObjects(context.Background(), testBucketName, minio.ListObjectsOptions{})
+		removeObjErrChan := minioClient.RemoveObjects(context.Background(), testBucketName, objectInfoChan, minio.RemoveObjectsOptions{})
+		for {
+			removeObjErr, ok := <-removeObjErrChan
+			if !ok {
+				break
+			}
+			assert.NoError(t, removeObjErr.Err, "could not remove bucket object")
+		}
 		err = minioClient.RemoveBucket(context.Background(), testBucketName)
 		assert.NoError(t, err)
 	})

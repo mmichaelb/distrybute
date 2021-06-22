@@ -53,7 +53,7 @@ func fileServiceIntegrationTest(fileService distrybute.FileService, userService 
 func assertEntryComparison(t *testing.T, expected *distrybute.FileEntry, actual *distrybute.FileEntry) {
 	assert.Equal(t, expected.Id, actual.Id)
 	assert.Equal(t, expected.Author, actual.Author)
-	assert.Equal(t, expected.UploadDate, actual.UploadDate)
+	assert.Equal(t, expected.UploadDate.Unix(), actual.UploadDate.Unix())
 	assert.Equal(t, expected.Size, actual.Size)
 	assert.Equal(t, expected.ContentType, actual.ContentType)
 	assert.Equal(t, expected.CallReference, actual.CallReference)
