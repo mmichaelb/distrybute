@@ -47,7 +47,8 @@ func (s *service) SetUserSession(user *distrybute.User, req *http.Request, write
 	validUntil := createdAt.Add(sessionDuration)
 	row := s.connection.QueryRow(context.Background(),
 		`INSERT INTO distrybute.sessions (id, session_key, created_at, valid_until) VALUES ($1, $2, $3, $4) 
-			ON CONFLICT (id) DO UPDATE SET session_key=$2`, user.ID, sessionKey, createdAt, validUntil)
+			ON CONFLICT (id) DO UPDATE SET session_key=$2, created_at=$3, valid_until=$4`,
+		user.ID, sessionKey, createdAt, validUntil)
 	if err = row.Scan(); !errors.Is(err, pgx.ErrNoRows) {
 		return nil, err
 	}

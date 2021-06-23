@@ -44,16 +44,13 @@ type UserCreateResponse struct {
 func (r *router) handleUserLogin(w *responseWriter, req *http.Request) {
 	var parsedReq UserRequest
 	err := json.NewDecoder(req.Body).Decode(&parsedReq)
-	if _, ok := err.(*json.UnmarshalTypeError); ok {
+	if err != nil {
+		hlog.FromRequest(req).Debug().Err(err).Msg("could not unmarshal user login request body")
 		w.WriteAutomaticErrorResponse(http.StatusBadRequest, nil, req)
-		return
-	} else if err != nil {
-		hlog.FromRequest(req).Err(err).Msg("could not unmarshal user login request body due to an unknown error")
-		w.WriteAutomaticErrorResponse(http.StatusInternalServerError, nil, req)
 		return
 	}
 	ok, user, err := r.userService.CheckPassword(parsedReq.Username, parsedReq.Password)
-	if err == distrybute.ErrUserAlreadyExists {
+	if err == distrybute.ErrUserNotFound {
 		hlog.FromRequest(req).Info().Str("username", parsedReq.Username).Msg("failed login with non-existent username")
 		w.WriteResponse(http.StatusNotFound, "", &UserLoginResponse{userNotFoundState}, req)
 		return
