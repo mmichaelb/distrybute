@@ -121,6 +121,13 @@ func userServiceIntegrationTest(userService distrybute.UserService) func(t *test
 				assert.NoError(t, err, "authorization token could not be resolved")
 				assert.Equal(t, retrievedToken, token)
 			})
+			t.Run("authorization token can be used to retrieve a user", func(t *testing.T) {
+				ok, retrievedUser, err := userService.GetUserByAuthorizationToken(user.AuthorizationToken)
+				assert.NoError(t, err, "authorization token could not be used to retrieve a user")
+				assert.True(t, ok)
+				assert.Equal(t, user.Username, retrievedUser.Username)
+				assert.Equal(t, user.ID, retrievedUser.ID)
+			})
 		})
 	}
 }

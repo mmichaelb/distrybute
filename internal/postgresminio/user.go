@@ -129,6 +129,19 @@ func (s *service) RefreshAuthorizationToken(id uuid.UUID) (token string, err err
 	}
 }
 
+func (s *service) GetUserByAuthorizationToken(token string) (bool, *distrybute.User, error) {
+	row := s.connection.QueryRow(context.Background(), `SELECT id, username FROM distrybute.users WHERE auth_token=$1`, token)
+	var id uuid.UUID
+	var username string
+	err := row.Scan(&id, &username)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return false, nil, nil
+	} else if err != nil {
+		return false, nil, err
+	}
+	return true, &distrybute.User{ID: id, Username: username}, nil
+}
+
 func (s *service) DeleteUser(id uuid.UUID) (err error) {
 	row := s.connection.QueryRow(context.Background(), `DELETE FROM distrybute.users WHERE id=$1 RETURNING username`, id)
 	var username string

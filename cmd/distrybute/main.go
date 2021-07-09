@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v4"
 	"github.com/minio/minio-go/v7"
@@ -40,6 +41,7 @@ func main() {
 	}
 	apiRouter := rest.NewRouter(log.With().Str("service", "rest").Logger(),
 		service, service, service, []byte("somerandombytes"))
-	router.Mount("/api/", apiRouter.BuildHttpHandler())
+	router.Mount("/api/", apiRouter)
+	router.Get(fmt.Sprintf("/v/{%s}", rest.FileRequestShortIdParamName), apiRouter.HandleFileRequest)
 	panic(http.ListenAndServe("127.0.0.1:8080", router))
 }
