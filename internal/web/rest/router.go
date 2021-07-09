@@ -11,6 +11,7 @@ import (
 )
 
 type router struct {
+	*chi.Mux
 	logger         zerolog.Logger
 	fileService    distrybute.FileService
 	userService    distrybute.UserService
@@ -19,25 +20,47 @@ type router struct {
 }
 
 func NewRouter(logger zerolog.Logger, fileService distrybute.FileService, userService distrybute.UserService, sessionService distrybute.SessionService, jwtSigningKey []byte) *router {
-	return &router{logger: logger, fileService: fileService, userService: userService, sessionService: sessionService, jwtSigningKey: jwtSigningKey}
+	router := &router{
+		Mux:            chi.NewRouter(),
+		logger:         logger,
+		fileService:    fileService,
+		userService:    userService,
+		sessionService: sessionService,
+		jwtSigningKey:  jwtSigningKey,
+	}
+	router.setupMiddlewares()
+	router.Post("/login", router.handleUserLogin)
+	router.Post("/logout", router.handlerFuncWithAuth(router.HandleUserLogout))
+	router.Post("/user/create", router.handlerFuncWithAuth(router.handleUserCreate))
+	router.Get("/user/getAuthToken", router.handlerFuncWithAuth(router.handleUserRetrieveAuthToken))
+	return router
 }
 
-func (r *router) BuildHttpHandler() http.Handler {
-	router := chi.NewRouter()
+func (r *router) setupMiddlewares() {
 	middleware.RequestIDHeader = ""
-	router.Use(hlog.NewHandler(r.logger))
-	router.Use(middleware.CleanPath)
-	router.Use(hlog.RequestIDHandler("request_id", ""))
-	router.Use(r.loggingMiddleware)
-	router.Use(r.recovererMiddleware)
-	router.NotFound(func(writer http.ResponseWriter, request *http.Request) {
+	r.Use(hlog.NewHandler(r.logger))
+	r.Use(middleware.CleanPath)
+	r.Use(hlog.RequestIDHandler("request_id", ""))
+	r.Use(r.loggingMiddleware)
+	r.Use(r.recovererMiddleware)
+	r.Use(r.authenticationMiddleware)
+	r.NotFound(func(writer http.ResponseWriter, request *http.Request) {
 		r.wrapResponseWriter(writer).WriteAutomaticErrorResponse(http.StatusNotFound, nil, request)
 	})
-	router.MethodNotAllowed(func(writer http.ResponseWriter, request *http.Request) {
+	r.MethodNotAllowed(func(writer http.ResponseWriter, request *http.Request) {
 		r.wrapResponseWriter(writer).WriteAutomaticErrorResponse(http.StatusMethodNotAllowed, nil, request)
 	})
-	// TODO add endpoints
-	return router
+}
+
+func (r *router) handlerFuncWithAuth(handlerFn http.HandlerFunc) http.HandlerFunc {
+	return func(writer http.ResponseWriter, request *http.Request) {
+		user := r.sessionService.GetUserFromContext(request)
+		if user == nil {
+			r.wrapResponseWriter(writer).WriteAutomaticErrorResponse(http.StatusUnauthorized, nil, request)
+			return
+		}
+		handlerFn.ServeHTTP(writer, request)
+	}
 }
 
 func (r *router) loggingMiddleware(next http.Handler) http.Handler {
@@ -71,6 +94,19 @@ func (r *router) recovererMiddleware(next http.Handler) http.Handler {
 					Msg("recovered an unknown value from an http handler")
 			}
 		}()
+		next.ServeHTTP(writer, request)
+	})
+}
+
+func (r *router) authenticationMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		var err error
+		_, request, err = r.sessionService.ValidateUserSession(request)
+		if err != nil {
+			hlog.FromRequest(request).Err(err).Msg("could not validate user session")
+			r.wrapResponseWriter(writer).WriteAutomaticErrorResponse(http.StatusInternalServerError, nil, request)
+			return
+		}
 		next.ServeHTTP(writer, request)
 	})
 }

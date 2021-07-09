@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	fileRequestShortIdParamName = "callReference"
+	FileRequestShortIdParamName = "callReference"
 )
 
 // HandleFileRequest handles an incoming file request (e.g. /v/{callReference})
