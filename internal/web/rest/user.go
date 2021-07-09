@@ -42,7 +42,7 @@ type UserCreateResponse struct {
 	UserAuthTokenResponse
 }
 
-func (r *router) HandleUserLogin(w http.ResponseWriter, req *http.Request) {
+func (r *router) handleUserLogin(w http.ResponseWriter, req *http.Request) {
 	writer := r.wrapResponseWriter(w)
 	var parsedReq UserRequest
 	err := json.NewDecoder(req.Body).Decode(&parsedReq)
