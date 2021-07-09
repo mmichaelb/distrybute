@@ -13,8 +13,6 @@ import (
 	"time"
 )
 
-type userKey struct{}
-
 var sessionDuration = time.Hour * 24 * 7
 
 const (
@@ -38,10 +36,10 @@ func (s *service) initSessionDDL() (err error) {
 	return nil
 }
 
-func (s *service) SetUserSession(user *distrybute.User, req *http.Request, writer http.ResponseWriter) (*http.Request, error) {
+func (s *service) SetUserSession(user *distrybute.User, writer http.ResponseWriter) error {
 	sessionKey, err := generateSessionKey()
 	if err != nil {
-		return nil, err
+		return err
 	}
 	createdAt := time.Now()
 	validUntil := createdAt.Add(sessionDuration)
@@ -50,7 +48,7 @@ func (s *service) SetUserSession(user *distrybute.User, req *http.Request, write
 			ON CONFLICT (id) DO UPDATE SET session_key=$2, created_at=$3, valid_until=$4`,
 		user.ID, sessionKey, createdAt, validUntil)
 	if err = row.Scan(); !errors.Is(err, pgx.ErrNoRows) {
-		return nil, err
+		return err
 	}
 	cookie := &http.Cookie{
 		Name:     "session_key",
@@ -62,13 +60,7 @@ func (s *service) SetUserSession(user *distrybute.User, req *http.Request, write
 	}
 	// set cookie
 	http.SetCookie(writer, cookie)
-	req = setUserContextValue(user, req)
-	return req, nil
-}
-
-func setUserContextValue(user *distrybute.User, req *http.Request) *http.Request {
-	ctx := context.WithValue(req.Context(), &userKey{}, user)
-	return req.WithContext(ctx)
+	return nil
 }
 
 func (s *service) InvalidateUserSessions(user *distrybute.User) (err error) {
@@ -79,12 +71,12 @@ func (s *service) InvalidateUserSessions(user *distrybute.User) (err error) {
 	return nil
 }
 
-func (s *service) ValidateUserSession(req *http.Request) (bool, *http.Request, error) {
+func (s *service) ValidateUserSession(req *http.Request) (bool, *distrybute.User, error) {
 	cookie, err := req.Cookie(sessionCookieName)
 	if errors.Is(err, http.ErrNoCookie) {
-		return false, req, nil
+		return false, nil, nil
 	} else if err != nil {
-		return false, req, err
+		return false, nil, err
 	}
 	sessionKey := cookie.Value
 	row := s.connection.QueryRow(context.Background(),
@@ -93,7 +85,7 @@ func (s *service) ValidateUserSession(req *http.Request) (bool, *http.Request, e
 	var id uuid.UUID
 	var username string
 	if err = row.Scan(&id, &username); errors.Is(err, pgx.ErrNoRows) {
-		return false, req, nil
+		return false, nil, nil
 	} else if err != nil {
 		return false, nil, err
 	}
@@ -101,16 +93,7 @@ func (s *service) ValidateUserSession(req *http.Request) (bool, *http.Request, e
 		ID:       id,
 		Username: username,
 	}
-	req = setUserContextValue(user, req)
-	return true, req, nil
-}
-
-func (s *service) GetUserFromContext(req *http.Request) *distrybute.User {
-	rawUser := req.Context().Value(&userKey{})
-	if user, ok := rawUser.(*distrybute.User); ok {
-		return user
-	}
-	return nil
+	return true, user, nil
 }
 
 func generateSessionKey() (key string, err error) {
