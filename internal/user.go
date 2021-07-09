@@ -65,6 +65,9 @@ type UserService interface {
 	// RefreshAuthorizationToken updates the user`s authorization token and returns the fresh one. It returns an error
 	// (err) if something went wrong.
 	RefreshAuthorizationToken(id uuid.UUID) (token string, err error)
+	// GetUserByAuthorizationToken retrieves the user by using the passed authorization token. It returns an error (err)
+	// if something went wrong.
+	GetUserByAuthorizationToken(token string) (ok bool, user *User, err error)
 	// DeleteUser deletes the user by searching for the user`s ID. It returns an error (err) if
 	// something went wrong.
 	DeleteUser(id uuid.UUID) (err error)
