@@ -11,18 +11,19 @@ const (
 	fileRequestShortIdParamName = "callReference"
 )
 
-// handleFileRequest handles an incoming file request (e.g. /v/{callReference})
-func (r *router) handleFileRequest(w responseWriter, req *http.Request) {
+// HandleFileRequest handles an incoming file request (e.g. /v/{callReference})
+func (r *router) HandleFileRequest(w http.ResponseWriter, req *http.Request) {
+	writer := r.wrapResponseWriter(w)
 	// retrieve file reference from request
-	callReference := chi.URLParam(req, fileRequestShortIdParamName)
+	callReference := chi.URLParam(req, FileRequestShortIdParamName)
 	// request file entry from backend
 	entry, err := r.fileService.Request(callReference)
 	if err == distrybute.ErrEntryNotFound {
-		w.WriteNotFoundResponse("entry not found", nil, req)
+		writer.WriteNotFoundResponse("entry not found", nil, req)
 		return
 	} else if err != nil {
 		r.logger.Err(err).Str("callReference", callReference).Msg("could not request file entry")
-		w.WriteAutomaticErrorResponse(http.StatusInternalServerError, nil, req)
+		writer.WriteAutomaticErrorResponse(http.StatusInternalServerError, nil, req)
 		return
 	}
 	defer func(ReadCloseSeeker distrybute.ReadCloseSeeker) {
@@ -34,5 +35,5 @@ func (r *router) handleFileRequest(w responseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", entry.ContentType)
 	hlog.FromRequest(req).Debug().Str("id", entry.Id.String()).Msg("serving file entry")
 	// serve content
-	http.ServeContent(&w, req, entry.Filename, entry.UploadDate, entry.ReadCloseSeeker)
+	http.ServeContent(writer, req, entry.Filename, entry.UploadDate, entry.ReadCloseSeeker)
 }
