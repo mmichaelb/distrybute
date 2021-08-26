@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"context"
 	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -10,23 +11,23 @@ import (
 	"net/http"
 )
 
+var userContextKey = &struct{}{}
+
 type router struct {
 	*chi.Mux
 	logger         zerolog.Logger
 	fileService    distrybute.FileService
 	userService    distrybute.UserService
 	sessionService distrybute.SessionService
-	jwtSigningKey  []byte
 }
 
-func NewRouter(logger zerolog.Logger, fileService distrybute.FileService, userService distrybute.UserService, sessionService distrybute.SessionService, jwtSigningKey []byte) *router {
+func NewRouter(logger zerolog.Logger, fileService distrybute.FileService, userService distrybute.UserService, sessionService distrybute.SessionService) *router {
 	router := &router{
 		Mux:            chi.NewRouter(),
 		logger:         logger,
 		fileService:    fileService,
 		userService:    userService,
 		sessionService: sessionService,
-		jwtSigningKey:  jwtSigningKey,
 	}
 	router.setupMiddlewares()
 	router.Post("/login", router.handleUserLogin)
@@ -54,7 +55,7 @@ func (r *router) setupMiddlewares() {
 
 func (r *router) handlerFuncWithAuth(handlerFn http.HandlerFunc) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
-		user := r.sessionService.GetUserFromContext(request)
+		user := request.Context().Value(userContextKey).(*distrybute.User)
 		if user == nil {
 			r.wrapResponseWriter(writer).WriteAutomaticErrorResponse(http.StatusUnauthorized, nil, request)
 			return
@@ -101,7 +102,11 @@ func (r *router) recovererMiddleware(next http.Handler) http.Handler {
 func (r *router) authenticationMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 		var err error
-		_, request, err = r.sessionService.ValidateUserSession(request)
+		ok, user, err := r.sessionService.ValidateUserSession(request)
+		if ok {
+			request = request.WithContext(
+				context.WithValue(request.Context(), userContextKey, user))
+		}
 		if err != nil {
 			hlog.FromRequest(request).Err(err).Msg("could not validate user session")
 			r.wrapResponseWriter(writer).WriteAutomaticErrorResponse(http.StatusInternalServerError, nil, request)

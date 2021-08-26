@@ -65,7 +65,7 @@ func (r *router) handleUserLogin(w http.ResponseWriter, req *http.Request) {
 		writer.WriteResponse(http.StatusUnauthorized, "", &UserActionResponse{invalidPasswordState}, req)
 		return
 	}
-	if _, err = r.sessionService.SetUserSession(user, req, w); err != nil {
+	if err = r.sessionService.SetUserSession(user, w); err != nil {
 		hlog.FromRequest(req).Err(err).Str("username", user.Username).Msg("could not set user session")
 		writer.WriteAutomaticErrorResponse(http.StatusInternalServerError, nil, req)
 		return
@@ -76,7 +76,7 @@ func (r *router) handleUserLogin(w http.ResponseWriter, req *http.Request) {
 
 func (r *router) HandleUserLogout(w http.ResponseWriter, req *http.Request) {
 	writer := r.wrapResponseWriter(w)
-	user := r.sessionService.GetUserFromContext(req)
+	user := req.Context().Value(userContextKey).(*distrybute.User)
 	if user == nil {
 		writer.WriteAutomaticErrorResponse(http.StatusUnauthorized, nil, req)
 		return
@@ -156,7 +156,7 @@ type UserAuthTokenResponse struct {
 
 func (r *router) handleUserRetrieveAuthToken(w http.ResponseWriter, req *http.Request) {
 	writer := r.wrapResponseWriter(w)
-	user := r.sessionService.GetUserFromContext(req)
+	user := req.Context().Value(userContextKey).(*distrybute.User)
 	if user == nil {
 		hlog.FromRequest(req).Error().Msg("user value in context is not set - can not retrieve user auth token")
 		writer.WriteAutomaticErrorResponse(http.StatusInternalServerError, nil, req)
