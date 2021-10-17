@@ -11,9 +11,12 @@ OUTPUT_PREFIX=./bin/${PROJECT_NAME}-${GIT_VERSION}
 
 OUTPUT_FILE_ENDING=$(shell go env GOEXE)
 
-# test go program
-test:
+# unit test go program
+unit-test:
 	@go test -v ./...
+
+postgres-minio-integration-test:
+	@POSTGRES_MINIO_INTEGRATION_TEST=true @go test -v ./...
 
 # builds and formats the project with the built-in Golang tool
 .PHONY: build

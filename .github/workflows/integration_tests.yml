@@ -1,4 +1,4 @@
-name: PostgresSQL and Minio based integration test
+name: Integration tests (Postgres & Minio)
 on:
   push:
   pull_request:
@@ -39,7 +39,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Test code
-        run: make test
+        run: make postgres-minio-integration-test
         env:
           TEST_POSTGRES_HOST: localhost
           TEST_POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}

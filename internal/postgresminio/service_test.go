@@ -17,6 +17,10 @@ var minioClient *minio.Client
 var testBucketName = os.Getenv("TEST_MINIO_BUCKET_NAME")
 
 func Test_PostgresMinio_Service(t *testing.T) {
+	if os.Getenv("POSTGRES_MINIO_INTEGRATION_TEST") == "" {
+		t.Skip("skipping postgres minio integration test because env `POSTGRES_MINIO_INTEGRATION_TEST` is not set")
+		return
+	}
 	setupPostgresConnection(t)
 	setupMinioClient(t)
 	service := NewService(connection, minioClient, testBucketName, "")
