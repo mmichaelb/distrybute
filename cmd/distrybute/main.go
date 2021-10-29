@@ -8,7 +8,7 @@ import (
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	postgresminio2 "github.com/mmichaelb/distrybute/pkg/postgresminio"
-	rest2 "github.com/mmichaelb/distrybute/pkg/web/rest"
+	"github.com/mmichaelb/distrybute/pkg/rest/controller"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"io"
@@ -39,8 +39,8 @@ func main() {
 	if err = service.InitDDL(); err != nil {
 		panic(err)
 	}
-	apiRouter := rest2.NewRouter(log.With().Str("service", "rest").Logger(), service, service, service)
+	apiRouter := controller.NewRouter(log.With().Str("service", "rest").Logger(), service, service, service)
 	router.Mount("/api/", apiRouter)
-	router.Get(fmt.Sprintf("/v/{%s}", rest2.FileRequestShortIdParamName), apiRouter.HandleFileRequest)
+	router.Get(fmt.Sprintf("/v/{%s}", controller.FileRequestShortIdParamName), apiRouter.HandleFileRequest)
 	panic(http.ListenAndServe("127.0.0.1:8080", router))
 }

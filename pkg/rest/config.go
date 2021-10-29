@@ -1,4 +1,4 @@
-package web
+package rest
 
 type Configuration struct {
 	ContentTypesToDisplay    []string

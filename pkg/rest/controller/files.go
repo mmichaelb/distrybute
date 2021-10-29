@@ -1,4 +1,4 @@
-package rest
+package controller
 
 import (
 	"github.com/go-chi/chi/v5"
