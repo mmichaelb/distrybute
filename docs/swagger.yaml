@@ -7,5 +7,22 @@ info:
     url: https://github.com/mmichaelb/distrybute/blob/master/LICENSE
   title: distrybute API
   version: 0.0.1
-paths: {}
+paths:
+  /v/{callReference}:
+    get:
+      consumes:
+      - application/json
+      operationId: uploadFile
+      parameters:
+      - description: Call Reference
+        in: path
+        name: callReference
+        required: true
+        type: integer
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: ""
+      summary: Retrieve a file by using the callReference parameter.
 swagger: "2.0"

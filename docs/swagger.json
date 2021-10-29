@@ -10,5 +10,32 @@
         },
         "version": "0.0.1"
     },
-    "paths": {}
+    "paths": {
+        "/v/{callReference}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/octet-stream"
+                ],
+                "summary": "Retrieve a file by using the callReference parameter.",
+                "operationId": "uploadFile",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Call Reference",
+                        "name": "callReference",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            }
+        }
+    }
 }

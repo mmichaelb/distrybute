@@ -12,6 +12,13 @@ const (
 )
 
 // HandleFileRequest handles an incoming file request (e.g. /v/{callReference})
+// @Summary Retrieve a file by using the callReference parameter.
+// @ID uploadFile
+// @Accept json
+// @Produce octet-stream
+// @Param callReference path int true "Call Reference"
+// @Success 200
+// @Router /v/{callReference} [get]
 func (r *router) HandleFileRequest(w http.ResponseWriter, req *http.Request) {
 	writer := r.wrapResponseWriter(w)
 	// retrieve file reference from request
