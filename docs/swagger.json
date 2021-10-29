@@ -1,0 +1,14 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "API documentation for the REST API of distrybute, a lightweight image upload server.",
+        "title": "distrybute API",
+        "contact": {},
+        "license": {
+            "name": "MIT",
+            "url": "https://github.com/mmichaelb/distrybute/blob/master/LICENSE"
+        },
+        "version": "0.0.1"
+    },
+    "paths": {}
+}

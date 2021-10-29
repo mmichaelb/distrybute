@@ -1,0 +1,11 @@
+info:
+  contact: {}
+  description: API documentation for the REST API of distrybute, a lightweight image
+    upload server.
+  license:
+    name: MIT
+    url: https://github.com/mmichaelb/distrybute/blob/master/LICENSE
+  title: distrybute API
+  version: 0.0.1
+paths: {}
+swagger: "2.0"
