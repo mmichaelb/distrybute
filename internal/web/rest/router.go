@@ -11,6 +11,13 @@ import (
 	"net/http"
 )
 
+// @title distrybute API
+// @version 0.0.1
+// @description API documentation for the REST API of distrybute, a lightweight image upload server.
+
+// @license.name MIT
+// @license.url https://github.com/mmichaelb/distrybute/blob/master/LICENSE
+
 var userContextKey = &struct{}{}
 
 type router struct {
