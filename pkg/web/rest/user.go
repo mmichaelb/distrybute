@@ -2,7 +2,7 @@ package rest
 
 import (
 	"encoding/json"
-	distrybute "github.com/mmichaelb/distrybute/internal"
+	"github.com/mmichaelb/distrybute/pkg"
 	"github.com/rs/zerolog/hlog"
 	"net/http"
 	"regexp"
@@ -52,7 +52,7 @@ func (r *router) handleUserLogin(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	ok, user, err := r.userService.CheckPassword(parsedReq.Username, parsedReq.Password)
-	if err == distrybute.ErrUserNotFound {
+	if err == pkg.ErrUserNotFound {
 		hlog.FromRequest(req).Info().Str("username", parsedReq.Username).Msg("failed login with non-existent username")
 		writer.WriteResponse(http.StatusNotFound, "", &UserActionResponse{userNotFoundState}, req)
 		return
@@ -76,7 +76,7 @@ func (r *router) handleUserLogin(w http.ResponseWriter, req *http.Request) {
 
 func (r *router) HandleUserLogout(w http.ResponseWriter, req *http.Request) {
 	writer := r.wrapResponseWriter(w)
-	user := req.Context().Value(userContextKey).(*distrybute.User)
+	user := req.Context().Value(userContextKey).(*pkg.User)
 	if user == nil {
 		writer.WriteAutomaticErrorResponse(http.StatusUnauthorized, nil, req)
 		return
@@ -109,7 +109,7 @@ func (r *router) handleUserCreate(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	user, err := r.userService.CreateNewUser(parsedReq.Username, parsedReq.Password)
-	if err == distrybute.ErrUserAlreadyExists {
+	if err == pkg.ErrUserAlreadyExists {
 		writer.WriteAutomaticErrorResponse(http.StatusBadGateway, &UserCreateResponse{State: userAlreadyExistentState}, req)
 		return
 	} else if err != nil {
@@ -156,7 +156,7 @@ type UserAuthTokenResponse struct {
 
 func (r *router) handleUserRetrieveAuthToken(w http.ResponseWriter, req *http.Request) {
 	writer := r.wrapResponseWriter(w)
-	user := req.Context().Value(userContextKey).(*distrybute.User)
+	user := req.Context().Value(userContextKey).(*pkg.User)
 	if user == nil {
 		hlog.FromRequest(req).Error().Msg("user value in context is not set - can not retrieve user auth token")
 		writer.WriteAutomaticErrorResponse(http.StatusInternalServerError, nil, req)

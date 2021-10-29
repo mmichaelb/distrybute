@@ -1,7 +1,7 @@
 package postgresminio
 
 import (
-	distrybute "github.com/mmichaelb/distrybute/internal"
+	"github.com/mmichaelb/distrybute/pkg"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
@@ -23,7 +23,7 @@ func Test_generateSessionKey(t *testing.T) {
 	})
 }
 
-func sessionServiceIntegrationTest(sessionService distrybute.SessionService, userService distrybute.UserService) func(t *testing.T) {
+func sessionServiceIntegrationTest(sessionService pkg.SessionService, userService pkg.UserService) func(t *testing.T) {
 	return func(t *testing.T) {
 		user, err := userService.CreateNewUser("sessiontest-user", []byte("Sommer2019"))
 		assert.NoError(t, err, "could not create session test user")

@@ -7,8 +7,8 @@ import (
 	"github.com/jackc/pgx/v4"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
-	"github.com/mmichaelb/distrybute/internal/postgresminio"
-	"github.com/mmichaelb/distrybute/internal/web/rest"
+	postgresminio2 "github.com/mmichaelb/distrybute/pkg/postgresminio"
+	rest2 "github.com/mmichaelb/distrybute/pkg/web/rest"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"io"
@@ -35,12 +35,12 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	service := postgresminio.NewService(conn, minioClient, "distrybute", "file-")
+	service := postgresminio2.NewService(conn, minioClient, "distrybute", "file-")
 	if err = service.InitDDL(); err != nil {
 		panic(err)
 	}
-	apiRouter := rest.NewRouter(log.With().Str("service", "rest").Logger(), service, service, service)
+	apiRouter := rest2.NewRouter(log.With().Str("service", "rest").Logger(), service, service, service)
 	router.Mount("/api/", apiRouter)
-	router.Get(fmt.Sprintf("/v/{%s}", rest.FileRequestShortIdParamName), apiRouter.HandleFileRequest)
+	router.Get(fmt.Sprintf("/v/{%s}", rest2.FileRequestShortIdParamName), apiRouter.HandleFileRequest)
 	panic(http.ListenAndServe("127.0.0.1:8080", router))
 }

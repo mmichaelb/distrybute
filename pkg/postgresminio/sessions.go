@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v4"
-	distrybute "github.com/mmichaelb/distrybute/internal"
+	"github.com/mmichaelb/distrybute/pkg"
 	"net/http"
 	"time"
 )
@@ -36,7 +36,7 @@ func (s *service) initSessionDDL() (err error) {
 	return nil
 }
 
-func (s *service) SetUserSession(user *distrybute.User, writer http.ResponseWriter) error {
+func (s *service) SetUserSession(user *pkg.User, writer http.ResponseWriter) error {
 	sessionKey, err := generateSessionKey()
 	if err != nil {
 		return err
@@ -63,7 +63,7 @@ func (s *service) SetUserSession(user *distrybute.User, writer http.ResponseWrit
 	return nil
 }
 
-func (s *service) InvalidateUserSessions(user *distrybute.User) (err error) {
+func (s *service) InvalidateUserSessions(user *pkg.User) (err error) {
 	row := s.connection.QueryRow(context.Background(), `DELETE FROM distrybute.sessions WHERE id=$1`, user.ID)
 	if err := row.Scan(); !errors.Is(err, pgx.ErrNoRows) {
 		return err
@@ -71,7 +71,7 @@ func (s *service) InvalidateUserSessions(user *distrybute.User) (err error) {
 	return nil
 }
 
-func (s *service) ValidateUserSession(req *http.Request) (bool, *distrybute.User, error) {
+func (s *service) ValidateUserSession(req *http.Request) (bool, *pkg.User, error) {
 	cookie, err := req.Cookie(sessionCookieName)
 	if errors.Is(err, http.ErrNoCookie) {
 		return false, nil, nil
@@ -89,7 +89,7 @@ func (s *service) ValidateUserSession(req *http.Request) (bool, *distrybute.User
 	} else if err != nil {
 		return false, nil, err
 	}
-	user := &distrybute.User{
+	user := &pkg.User{
 		ID:       id,
 		Username: username,
 	}

@@ -1,4 +1,4 @@
-package distrybute
+package pkg
 
 import (
 	"net/http"

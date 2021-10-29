@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	distrybute "github.com/mmichaelb/distrybute/internal"
+	"github.com/mmichaelb/distrybute/pkg"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/hlog"
 	"net/http"
@@ -23,12 +23,12 @@ var userContextKey = &struct{}{}
 type router struct {
 	*chi.Mux
 	logger         zerolog.Logger
-	fileService    distrybute.FileService
-	userService    distrybute.UserService
-	sessionService distrybute.SessionService
+	fileService    pkg.FileService
+	userService    pkg.UserService
+	sessionService pkg.SessionService
 }
 
-func NewRouter(logger zerolog.Logger, fileService distrybute.FileService, userService distrybute.UserService, sessionService distrybute.SessionService) *router {
+func NewRouter(logger zerolog.Logger, fileService pkg.FileService, userService pkg.UserService, sessionService pkg.SessionService) *router {
 	router := &router{
 		Mux:            chi.NewRouter(),
 		logger:         logger,
@@ -62,7 +62,7 @@ func (r *router) setupMiddlewares() {
 
 func (r *router) handlerFuncWithAuth(handlerFn http.HandlerFunc) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
-		user := request.Context().Value(userContextKey).(*distrybute.User)
+		user := request.Context().Value(userContextKey).(*pkg.User)
 		if user == nil {
 			r.wrapResponseWriter(writer).WriteAutomaticErrorResponse(http.StatusUnauthorized, nil, request)
 			return

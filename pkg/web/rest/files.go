@@ -2,7 +2,7 @@ package rest
 
 import (
 	"github.com/go-chi/chi/v5"
-	distrybute "github.com/mmichaelb/distrybute/internal"
+	"github.com/mmichaelb/distrybute/pkg"
 	"github.com/rs/zerolog/hlog"
 	"net/http"
 )
@@ -18,7 +18,7 @@ func (r *router) HandleFileRequest(w http.ResponseWriter, req *http.Request) {
 	callReference := chi.URLParam(req, FileRequestShortIdParamName)
 	// request file entry from backend
 	entry, err := r.fileService.Request(callReference)
-	if err == distrybute.ErrEntryNotFound {
+	if err == pkg.ErrEntryNotFound {
 		writer.WriteNotFoundResponse("entry not found", nil, req)
 		return
 	} else if err != nil {
@@ -26,7 +26,7 @@ func (r *router) HandleFileRequest(w http.ResponseWriter, req *http.Request) {
 		writer.WriteAutomaticErrorResponse(http.StatusInternalServerError, nil, req)
 		return
 	}
-	defer func(ReadCloseSeeker distrybute.ReadCloseSeeker) {
+	defer func(ReadCloseSeeker pkg.ReadCloseSeeker) {
 		if err := ReadCloseSeeker.Close(); err != nil {
 			hlog.FromRequest(req).Err(err).Str("callReference", callReference).Msg("could not close file entry")
 		}

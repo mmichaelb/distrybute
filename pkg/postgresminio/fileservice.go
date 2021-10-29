@@ -8,7 +8,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v4"
 	"github.com/minio/minio-go/v7"
-	distrybute "github.com/mmichaelb/distrybute/internal"
+	"github.com/mmichaelb/distrybute/pkg"
 	"github.com/rs/zerolog/log"
 	"io"
 	"math/big"
@@ -44,7 +44,7 @@ func (s *service) initFileServiceDDL() error {
 	return nil
 }
 
-func (s *service) Store(filename, contentType string, size int64, author uuid.UUID, reader io.Reader) (entry *distrybute.FileEntry, err error) {
+func (s *service) Store(filename, contentType string, size int64, author uuid.UUID, reader io.Reader) (entry *pkg.FileEntry, err error) {
 	tx, err := s.connection.Begin(context.Background())
 	if err != nil {
 		return nil, err
@@ -82,7 +82,7 @@ func (s *service) Store(filename, contentType string, size int64, author uuid.UU
 	if err != nil {
 		return nil, err
 	}
-	entry = &distrybute.FileEntry{
+	entry = &pkg.FileEntry{
 		Id:              id,
 		CallReference:   callReference,
 		DeleteReference: deleteReference,
@@ -95,7 +95,7 @@ func (s *service) Store(filename, contentType string, size int64, author uuid.UU
 	return entry, nil
 }
 
-func (s *service) Request(callReference string) (entry *distrybute.FileEntry, err error) {
+func (s *service) Request(callReference string) (entry *pkg.FileEntry, err error) {
 	row := s.connection.QueryRow(context.Background(),
 		`SELECT id, author, delete_reference, content_type, filename, size, upload_date FROM distrybute.entries WHERE call_reference=$1`, callReference)
 	var id, author uuid.UUID
@@ -104,7 +104,7 @@ func (s *service) Request(callReference string) (entry *distrybute.FileEntry, er
 	var uploadDate time.Time
 	if err := row.Scan(&id, &author, &deleteReference, &contentType, &filename, &size, &uploadDate); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, distrybute.ErrEntryNotFound
+			return nil, pkg.ErrEntryNotFound
 		} else if err != nil {
 			return nil, err
 		}
@@ -113,7 +113,7 @@ func (s *service) Request(callReference string) (entry *distrybute.FileEntry, er
 	if err != nil {
 		return nil, err
 	}
-	entry = &distrybute.FileEntry{
+	entry = &pkg.FileEntry{
 		Id:              id,
 		CallReference:   callReference,
 		DeleteReference: deleteReference,
@@ -139,7 +139,7 @@ func (s *service) Delete(deleteReference string) (err error) {
 		`DELETE FROM distrybute.entries WHERE delete_reference=$1 RETURNING id`, deleteReference)
 	var id uuid.UUID
 	if err := row.Scan(&id); errors.Is(err, pgx.ErrNoRows) {
-		return distrybute.ErrEntryNotFound
+		return pkg.ErrEntryNotFound
 	} else if err != nil {
 		return err
 	}
