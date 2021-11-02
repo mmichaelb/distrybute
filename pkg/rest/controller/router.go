@@ -37,10 +37,6 @@ func NewRouter(logger zerolog.Logger, fileService pkg.FileService, userService p
 		sessionService: sessionService,
 	}
 	router.setupMiddlewares()
-	router.Post("/login", router.handleUserLogin)
-	router.Post("/logout", router.handlerFuncWithAuth(router.HandleUserLogout))
-	router.Post("/user/create", router.handlerFuncWithAuth(router.handleUserCreate))
-	router.Get("/user/getAuthToken", router.handlerFuncWithAuth(router.handleUserRetrieveAuthToken))
 	return router
 }
 
