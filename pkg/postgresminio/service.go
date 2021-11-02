@@ -57,7 +57,7 @@ func (s service) instantiateMigrateInstance() (*migrate.Migrate, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "could not initiate migrate postgres driver")
 	}
-	source, err := iofs.New(migrations, "./")
+	source, err := iofs.New(migrations, "migrations")
 	if err != nil {
 		return nil, errors.Wrap(err, "could not initiate FS source for database migrations")
 	}
