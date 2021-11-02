@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/rand"
 	"errors"
-	"fmt"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v4"
 	"github.com/minio/minio-go/v7"
@@ -22,27 +21,6 @@ const (
 	callReferenceLength   = 4
 	deleteReferenceLength = 12
 )
-
-func (s *service) initFileServiceDDL() error {
-	row := s.connection.QueryRow(context.Background(), `CREATE TABLE IF NOT EXISTS distrybute.entries (
-		id uuid,
-		author uuid NOT NULL,
-		call_reference varchar(4) NOT NULL,
-		delete_reference varchar(12) NOT NULL ,
-		filename varchar(256) NOT NULL,
-		content_type varchar(127) NOT NULL,
-		upload_date timestamptz NOT NULL,
-		size bigint,
-		CONSTRAINT entries_pk PRIMARY KEY (id),
-		CONSTRAINT entries_fk FOREIGN KEY (author) REFERENCES distrybute.users(id),
-		CONSTRAINT entries_call_reference_unique UNIQUE (call_reference),
-		CONSTRAINT entries_delete_reference_unique UNIQUE (delete_reference)
-	);`)
-	if err := row.Scan(); !errors.Is(err, pgx.ErrNoRows) {
-		return fmt.Errorf("error occurred while running file service ddl: %w", err)
-	}
-	return nil
-}
 
 func (s *service) Store(filename, contentType string, size int64, author uuid.UUID, reader io.Reader) (entry *pkg.FileEntry, err error) {
 	tx, err := s.connection.Begin(context.Background())

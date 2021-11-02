@@ -11,28 +11,6 @@ import (
 	"github.com/mmichaelb/distrybute/pkg"
 )
 
-func (s *service) initUserDDL() (err error) {
-	err = s.connection.QueryRow(context.Background(), `CREATE TABLE IF NOT EXISTS distrybute.users (
-		id uuid,
-		username varchar(32) NOT NULL,
-		auth_token text NULL,
-		password_alg varchar(32) NOT NULL,
-		password_salt bytea NOT NULL,
-		"password" bytea NOT NULL,
-		CONSTRAINT users_pk PRIMARY KEY (id),
-		CONSTRAINT users_auth_token_unique UNIQUE (auth_token)
-	)`).Scan()
-	if !errors.Is(err, pgx.ErrNoRows) {
-		return fmt.Errorf("error occurred while running user table creation ddl: %w", err)
-	}
-	err = s.connection.QueryRow(context.Background(),
-		`CREATE UNIQUE INDEX IF NOT EXISTS users_username_un ON distrybute.users (LOWER(username))`).Scan()
-	if !errors.Is(err, pgx.ErrNoRows) {
-		return fmt.Errorf("error occurred while running user username unique index creation ddl: %w", err)
-	}
-	return nil
-}
-
 func (s *service) CreateNewUser(username string, password []byte) (user *pkg.User, err error) {
 	id, err := uuid.NewRandom()
 	if err != nil {
