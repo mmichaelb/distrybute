@@ -29,7 +29,7 @@ type wrappedLogger struct {
 }
 
 func (w wrappedLogger) Printf(format string, v ...interface{}) {
-	w.logger.Printf(format, v)
+	w.logger.Printf(format, v...)
 }
 
 func (w wrappedLogger) Verbose() bool {
