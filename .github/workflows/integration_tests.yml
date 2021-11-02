@@ -47,3 +47,8 @@ jobs:
           TEST_MINIO_HOST: localhost
           TEST_MINIO_PORT: ${{ job.services.minio.ports[9000] }}
           TEST_MINIO_BUCKET_NAME: ${{ env.MINIO_TEST_BUCKET_NAME }}
+      - uses: codecov/codecov-action@v2
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage.txt
+          flags: integrationtests
