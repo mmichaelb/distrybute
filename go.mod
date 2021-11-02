@@ -16,6 +16,7 @@ require (
 	github.com/lib/pq v1.10.2 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/minio/minio-go/v7 v7.0.11
+	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rs/zerolog v1.22.0
 	github.com/smartystreets/assertions v1.0.1 // indirect
 	github.com/stretchr/testify v1.7.0

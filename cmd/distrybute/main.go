@@ -39,7 +39,7 @@ func main() {
 	if err = service.InitDDL(); err != nil {
 		panic(err)
 	}
-	apiRouter := controller.NewRouter(log.With().Str("service", "rest").Logger(), service, service, service)
+	apiRouter := controller.NewRouter(log.With().Str("service", "rest").Logger(), service, service)
 	router.Mount("/api/", apiRouter)
 	router.Get(fmt.Sprintf("/v/{%s}", controller.FileRequestShortIdParamName), apiRouter.HandleFileRequest)
 	panic(http.ListenAndServe("127.0.0.1:8080", router))
