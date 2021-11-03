@@ -42,7 +42,7 @@ func (s Service) InitDDL() error {
 	if err != nil {
 		return err
 	}
-	if err := m.Up(); err != nil {
+	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
 		return errors.Wrap(err, "could not run database migrations")
 	}
 	return nil
