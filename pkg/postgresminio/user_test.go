@@ -63,7 +63,7 @@ func userServiceIntegrationTest(userService distrybute.UserService) func(t *test
 						found = true
 					}
 				}
-				assert.True(t, found, fmt.Sprintf("user %s:%s could not be found within the returned user list (len: %d - %s)",
+				assert.True(t, found, fmt.Sprintf("user %s:%s could not be found within the returned user list (len: %d - %v)",
 					createdUser.Username, createdUser.ID, len(retrievedUsers), retrievedUsers))
 			}
 		})
