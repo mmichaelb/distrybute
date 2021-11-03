@@ -52,6 +52,9 @@ func userServiceIntegrationTest(userService distrybute.UserService) func(t *test
 				user, err := userService.CreateNewUser(fmt.Sprintf(usernamePattern, i), []byte("testpassowrd"))
 				assert.NoError(t, err)
 				users[i] = user
+				t.Cleanup(func() {
+					_ = userService.DeleteUser(user.ID)
+				})
 			}
 			retrievedUsers, err := userService.ListUsers()
 			assert.NoError(t, err, "list users method returned a non-nil err")
