@@ -1,3 +1,6 @@
+-- distrybute schema
+CREATE SCHEMA IF NOT EXISTS distrybute;
+
 -- users ddl
 CREATE TABLE IF NOT EXISTS distrybute.users (
     id              uuid,
