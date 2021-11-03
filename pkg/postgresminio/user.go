@@ -11,7 +11,7 @@ import (
 	"github.com/mmichaelb/distrybute/pkg"
 )
 
-func (s *service) CreateNewUser(username string, password []byte) (user *pkg.User, err error) {
+func (s *Service) CreateNewUser(username string, password []byte) (user *pkg.User, err error) {
 	id, err := uuid.NewRandom()
 	if err != nil {
 		return nil, err
@@ -41,7 +41,7 @@ func (s *service) CreateNewUser(username string, password []byte) (user *pkg.Use
 	}, nil
 }
 
-func (s *service) CheckPassword(username string, password []byte) (ok bool, user *pkg.User, err error) {
+func (s *Service) CheckPassword(username string, password []byte) (ok bool, user *pkg.User, err error) {
 	row := s.connection.QueryRow(context.Background(),
 		`SELECT id, username, password, password_alg, password_salt FROM distrybute.users WHERE username ILIKE $1`, username)
 	var id uuid.UUID
@@ -68,7 +68,7 @@ func (s *service) CheckPassword(username string, password []byte) (ok bool, user
 	}, nil
 }
 
-func (s *service) UpdateUsername(id uuid.UUID, newUsername string) (err error) {
+func (s *Service) UpdateUsername(id uuid.UUID, newUsername string) (err error) {
 	row := s.connection.QueryRow(context.Background(), `UPDATE distrybute.users SET username=$1 WHERE id=$2`, newUsername, id)
 	err = row.Scan()
 	if isViolatingUniqueConstraintErr(err) {
@@ -79,7 +79,7 @@ func (s *service) UpdateUsername(id uuid.UUID, newUsername string) (err error) {
 	return nil
 }
 
-func (s *service) ResolveAuthorizationToken(id uuid.UUID) (token string, err error) {
+func (s *Service) ResolveAuthorizationToken(id uuid.UUID) (token string, err error) {
 	row := s.connection.QueryRow(context.Background(), `SELECT auth_token FROM distrybute.users WHERE id=$1`, id)
 	err = row.Scan(&token)
 	if err == nil {
@@ -91,7 +91,7 @@ func (s *service) ResolveAuthorizationToken(id uuid.UUID) (token string, err err
 	}
 }
 
-func (s *service) RefreshAuthorizationToken(id uuid.UUID) (token string, err error) {
+func (s *Service) RefreshAuthorizationToken(id uuid.UUID) (token string, err error) {
 	token, err = generateAuthToken()
 	if err != nil {
 		return "", err
@@ -107,7 +107,7 @@ func (s *service) RefreshAuthorizationToken(id uuid.UUID) (token string, err err
 	}
 }
 
-func (s *service) GetUserByAuthorizationToken(token string) (bool, *pkg.User, error) {
+func (s *Service) GetUserByAuthorizationToken(token string) (bool, *pkg.User, error) {
 	row := s.connection.QueryRow(context.Background(), `SELECT id, username FROM distrybute.users WHERE auth_token=$1`, token)
 	var id uuid.UUID
 	var username string
@@ -120,7 +120,7 @@ func (s *service) GetUserByAuthorizationToken(token string) (bool, *pkg.User, er
 	return true, &pkg.User{ID: id, Username: username}, nil
 }
 
-func (s *service) DeleteUser(id uuid.UUID) (err error) {
+func (s *Service) DeleteUser(id uuid.UUID) (err error) {
 	row := s.connection.QueryRow(context.Background(), `DELETE FROM distrybute.users WHERE id=$1 RETURNING username`, id)
 	var username string
 	err = row.Scan(&username)
@@ -131,7 +131,7 @@ func (s *service) DeleteUser(id uuid.UUID) (err error) {
 	}
 }
 
-func (s *service) UpdatePassword(id uuid.UUID, password []byte) (err error) {
+func (s *Service) UpdatePassword(id uuid.UUID, password []byte) (err error) {
 	row := s.connection.QueryRow(context.Background(), `SELECT password_alg, password_salt FROM distrybute.users WHERE id=$1`, id)
 	var passwordAlgorithm pkg.PasswordHashAlgorithm
 	var passwordSalt []byte

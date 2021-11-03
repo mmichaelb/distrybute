@@ -26,8 +26,8 @@ func Test_PostgresMinio_Service(t *testing.T) {
 	service := NewService(connection, minioClient, testBucketName, "")
 	err := service.InitDDL()
 	assert.NoError(t, err)
-	t.Run("user service", userServiceIntegrationTest(service))
-	t.Run("file service", fileServiceIntegrationTest(service, service))
+	t.Run("user Service", userServiceIntegrationTest(service))
+	t.Run("file Service", fileServiceIntegrationTest(service, service))
 }
 
 func setupPostgresConnection(t *testing.T) {

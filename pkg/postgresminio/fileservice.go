@@ -22,7 +22,7 @@ const (
 	deleteReferenceLength = 12
 )
 
-func (s *service) Store(filename, contentType string, size int64, author uuid.UUID, reader io.Reader) (entry *pkg.FileEntry, err error) {
+func (s *Service) Store(filename, contentType string, size int64, author uuid.UUID, reader io.Reader) (entry *pkg.FileEntry, err error) {
 	tx, err := s.connection.Begin(context.Background())
 	if err != nil {
 		return nil, err
@@ -73,7 +73,7 @@ func (s *service) Store(filename, contentType string, size int64, author uuid.UU
 	return entry, nil
 }
 
-func (s *service) Request(callReference string) (entry *pkg.FileEntry, err error) {
+func (s *Service) Request(callReference string) (entry *pkg.FileEntry, err error) {
 	row := s.connection.QueryRow(context.Background(),
 		`SELECT id, author, delete_reference, content_type, filename, size, upload_date FROM distrybute.entries WHERE call_reference=$1`, callReference)
 	var id, author uuid.UUID
@@ -105,7 +105,7 @@ func (s *service) Request(callReference string) (entry *pkg.FileEntry, err error
 	return entry, nil
 }
 
-func (s *service) Delete(deleteReference string) (err error) {
+func (s *Service) Delete(deleteReference string) (err error) {
 	tx, err := s.connection.Begin(context.Background())
 	defer func() {
 		err := tx.Rollback(context.Background())

@@ -12,7 +12,7 @@ import (
 func fileServiceIntegrationTest(fileService pkg.FileService, userService pkg.UserService) func(t *testing.T) {
 	return func(t *testing.T) {
 		user, err := userService.CreateNewUser("fileservice-test-user", []byte("Sommer2019"))
-		assert.NoError(t, err, "could not create file service test")
+		assert.NoError(t, err, "could not create file Service test")
 		contentType := "text/plain"
 		contentString := "some file content"
 		content := strings.NewReader(contentString)

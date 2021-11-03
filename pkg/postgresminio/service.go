@@ -18,7 +18,7 @@ import (
 //go:embed migrations/*
 var migrations embed.FS
 
-type service struct {
+type Service struct {
 	connection   *pgx.Conn
 	minioClient  *minio.Client
 	bucketName   string
@@ -37,7 +37,7 @@ func (w wrappedLogger) Verbose() bool {
 	return w.logger.GetLevel() <= zerolog.DebugLevel
 }
 
-func (s service) InitDDL() error {
+func (s Service) InitDDL() error {
 	m, err := s.instantiateMigrateInstance()
 	if err != nil {
 		return err
@@ -48,7 +48,7 @@ func (s service) InitDDL() error {
 	return nil
 }
 
-func (s service) instantiateMigrateInstance() (*migrate.Migrate, error) {
+func (s Service) instantiateMigrateInstance() (*migrate.Migrate, error) {
 	db, err := sql.Open("pgx", s.connection.Config().ConnString())
 	if err != nil {
 		return nil, errors.Wrap(err, "could not connect to postgres database using pgx driver")
@@ -69,6 +69,6 @@ func (s service) instantiateMigrateInstance() (*migrate.Migrate, error) {
 	return m, nil
 }
 
-func NewService(connection *pgx.Conn, minioClient *minio.Client, bucketName string, objectPrefix string) *service {
-	return &service{connection: connection, minioClient: minioClient, bucketName: bucketName, objectPrefix: objectPrefix}
+func NewService(connection *pgx.Conn, minioClient *minio.Client, bucketName string, objectPrefix string) *Service {
+	return &Service{connection: connection, minioClient: minioClient, bucketName: bucketName, objectPrefix: objectPrefix}
 }
