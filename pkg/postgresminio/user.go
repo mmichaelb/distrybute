@@ -107,6 +107,26 @@ func (s *Service) RefreshAuthorizationToken(id uuid.UUID) (token string, err err
 	}
 }
 
+func (s *Service) ListUsers() (users []*distrybute.User, err error) {
+	rows, err := s.connection.Query(context.Background(), `SELECT id, username FROM distrybute.users`)
+	if err != nil {
+		return nil, err
+	}
+	users = make([]*distrybute.User, 0)
+	for rows.Next() {
+		if rows.Err() != nil {
+			return nil, err
+		}
+		var username string
+		var id uuid.UUID
+		if err = rows.Scan(&id, &username); err != nil {
+			return nil, err
+		}
+		users = append(users, &distrybute.User{ID: id, Username: username})
+	}
+	return users, nil
+}
+
 func (s *Service) GetUserByAuthorizationToken(token string) (bool, *distrybute.User, error) {
 	row := s.connection.QueryRow(context.Background(), `SELECT id, username FROM distrybute.users WHERE auth_token=$1`, token)
 	var id uuid.UUID

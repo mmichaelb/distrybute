@@ -1,6 +1,7 @@
 package postgresminio
 
 import (
+	"fmt"
 	"github.com/google/uuid"
 	"github.com/mmichaelb/distrybute/pkg"
 	"github.com/stretchr/testify/assert"
@@ -42,6 +43,29 @@ func userServiceIntegrationTest(userService distrybute.UserService) func(t *test
 				err = userService.DeleteUser(id)
 				assert.ErrorIs(t, err, distrybute.ErrUserNotFound)
 			})
+		})
+		t.Run("user list tests", func(t *testing.T) {
+			const userAmount = 5
+			const usernamePattern = "usertest-list-%d"
+			users := make([]*distrybute.User, userAmount)
+			for i := 0; i < userAmount; i++ {
+				user, err := userService.CreateNewUser(fmt.Sprintf(usernamePattern, i), []byte("testpassowrd"))
+				assert.NoError(t, err)
+				users[i] = user
+			}
+			retrievedUsers, err := userService.ListUsers()
+			assert.NoError(t, err, "list users method returned a non-nil err")
+			assert.Len(t, retrievedUsers, userAmount)
+			for _, createdUser := range users {
+				found := false
+				for _, retrievedUser := range retrievedUsers {
+					if createdUser.ID == retrievedUser.ID {
+						found = true
+					}
+				}
+				assert.True(t, found, fmt.Sprintf("user %s:%s could not be found within the returned user list (len: %d - %s)",
+					createdUser.Username, createdUser.ID, len(retrievedUsers), retrievedUsers))
+			}
 		})
 		t.Run("password check test", func(t *testing.T) {
 			const username = "usertest-password-check"

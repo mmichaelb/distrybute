@@ -65,6 +65,8 @@ type UserService interface {
 	// RefreshAuthorizationToken updates the user`s authorization token and returns the fresh one. It returns an error
 	// (err) if something went wrong.
 	RefreshAuthorizationToken(id uuid.UUID) (token string, err error)
+	// ListUsers returns all users who exist in the database. It returns an error (err) if something goes wrong.
+	ListUsers() (users []*User, err error)
 	// GetUserByAuthorizationToken retrieves the user by using the passed authorization token. It returns an error (err)
 	// if something went wrong.
 	GetUserByAuthorizationToken(token string) (ok bool, user *User, err error)
