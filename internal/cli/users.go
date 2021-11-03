@@ -85,7 +85,7 @@ func listUsers(_ *cli.Context) error {
 		log.Err(err).Msg("could not request user list")
 		return err
 	}
-	format := "| %32s | %32s |"
+	format := "%-32s | %-36s"
 	log.Info().Msg(fmt.Sprintf(format, "Username", "ID"))
 	for _, user := range users {
 		log.Info().Msg(fmt.Sprintf(format, user.Username, user.ID.String()))

@@ -41,7 +41,7 @@ var postgresFlags = []cli.Flag{
 	},
 	&cli.IntFlag{
 		Name:        "postgresport",
-		Aliases:     []string{"pu"},
+		Aliases:     []string{"ppo"},
 		Value:       5432,
 		EnvVars:     []string{"DISTRYBUTE_POSTGRES_PORT"},
 		Destination: &postgresPort,
@@ -89,8 +89,5 @@ func prepareService(_ *cli.Context) error {
 		return errors.Wrap(err, "could not connect to postgres database")
 	}
 	service = postgresminio.NewService(conn, nil, "distrybute", "file-")
-	if err = service.InitDDL(); err != nil {
-		return errors.Wrap(err, "could not instantiate postgres/minio service")
-	}
 	return nil
 }
