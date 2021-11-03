@@ -5,7 +5,9 @@ GIT_BRANCH=$(shell git branch --show-current)
 
 LD_FLAGS = -X main.GitVersion=${GIT_VERSION} -X main.GitBranch=${GIT_BRANCH}
 
-OUTPUT_SUFFIX=$(go env GOEXE)
+OUTPUT_SUFFIX=$(shell go env GOEXE)
+GOOS=$(shell go env GOOS)
+GOARCH=$(shell go env GOARCH)
 
 OUTPUT_PREFIX=./bin/${PROJECT_NAME}-${GIT_VERSION}
 
@@ -22,6 +24,10 @@ postgres-minio-integration-test:
 .PHONY: build
 build:
 	@go build -trimpath -ldflags '${LD_FLAGS}' -o "${OUTPUT_PREFIX}-${GOOS}-${GOARCH}${OUTPUT_FILE_ENDING}" ./cmd/distrybute/main.go
+
+.PHONY: build-cli
+build-cli:
+	@go build -trimpath -ldflags '${LD_FLAGS}' -o "./bin/${PROJECT_NAME}-cli-${GIT_VERSION}-${GOOS}-${GOARCH}${OUTPUT_FILE_ENDING}" ./cmd/distrybute-cli/main.go
 
 # installs and formats the project with the built-in Golang tool
 install:
