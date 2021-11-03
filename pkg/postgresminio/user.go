@@ -11,12 +11,12 @@ import (
 	"github.com/mmichaelb/distrybute/pkg"
 )
 
-func (s *Service) CreateNewUser(username string, password []byte) (user *pkg.User, err error) {
+func (s *Service) CreateNewUser(username string, password []byte) (user *distrybute.User, err error) {
 	id, err := uuid.NewRandom()
 	if err != nil {
 		return nil, err
 	}
-	passwordAlgorithm := pkg.LatestPasswordHashAlgorithm
+	passwordAlgorithm := distrybute.LatestPasswordHashAlgorithm
 	hashedPassword, salt, err := generatePasswordUserEntry(password, passwordAlgorithm)
 	if err != nil {
 		return nil, err
@@ -29,11 +29,11 @@ func (s *Service) CreateNewUser(username string, password []byte) (user *pkg.Use
 		`INSERT INTO distrybute.users (id, username, auth_token, password_alg, password_salt, password) VALUES ($1, $2, $3, $4, $5, $6)`,
 		id, username, authToken, string(passwordAlgorithm), salt, hashedPassword)
 	if err = row.Scan(); isViolatingUniqueConstraintErr(err) {
-		return nil, pkg.ErrUserAlreadyExists
+		return nil, distrybute.ErrUserAlreadyExists
 	} else if !errors.Is(err, pgx.ErrNoRows) {
 		return nil, fmt.Errorf("error while inserting new user: %w", err)
 	}
-	return &pkg.User{
+	return &distrybute.User{
 		ID:                    id,
 		Username:              username,
 		AuthorizationToken:    authToken,
@@ -41,16 +41,16 @@ func (s *Service) CreateNewUser(username string, password []byte) (user *pkg.Use
 	}, nil
 }
 
-func (s *Service) CheckPassword(username string, password []byte) (ok bool, user *pkg.User, err error) {
+func (s *Service) CheckPassword(username string, password []byte) (ok bool, user *distrybute.User, err error) {
 	row := s.connection.QueryRow(context.Background(),
 		`SELECT id, username, password, password_alg, password_salt FROM distrybute.users WHERE username ILIKE $1`, username)
 	var id uuid.UUID
 	var fetchedUsername string
 	var expectedPasswordHash, passwordSalt []byte
-	var passwordAlgorithm pkg.PasswordHashAlgorithm
+	var passwordAlgorithm distrybute.PasswordHashAlgorithm
 	err = row.Scan(&id, &fetchedUsername, &expectedPasswordHash, &passwordAlgorithm, &passwordSalt)
 	if err == pgx.ErrNoRows {
-		return false, nil, pkg.ErrUserNotFound
+		return false, nil, distrybute.ErrUserNotFound
 	} else if err != nil {
 		return false, nil, err
 	}
@@ -61,7 +61,7 @@ func (s *Service) CheckPassword(username string, password []byte) (ok bool, user
 	if !bytes.Equal(expectedPasswordHash, hashedPassword) {
 		return false, nil, nil
 	}
-	return true, &pkg.User{
+	return true, &distrybute.User{
 		ID:                    id,
 		Username:              fetchedUsername,
 		PasswordHashAlgorithm: passwordAlgorithm,
@@ -72,7 +72,7 @@ func (s *Service) UpdateUsername(id uuid.UUID, newUsername string) (err error) {
 	row := s.connection.QueryRow(context.Background(), `UPDATE distrybute.users SET username=$1 WHERE id=$2`, newUsername, id)
 	err = row.Scan()
 	if isViolatingUniqueConstraintErr(err) {
-		return pkg.ErrUserAlreadyExists
+		return distrybute.ErrUserAlreadyExists
 	} else if !errors.Is(err, pgx.ErrNoRows) {
 		return err
 	}
@@ -85,7 +85,7 @@ func (s *Service) ResolveAuthorizationToken(id uuid.UUID) (token string, err err
 	if err == nil {
 		return
 	} else if err == pgx.ErrNoRows {
-		return "", pkg.ErrUserNotFound
+		return "", distrybute.ErrUserNotFound
 	} else {
 		return "", err
 	}
@@ -99,7 +99,7 @@ func (s *Service) RefreshAuthorizationToken(id uuid.UUID) (token string, err err
 	row := s.connection.QueryRow(context.Background(), `UPDATE distrybute.users SET auth_token=$1 WHERE id=$2`, token, id)
 	err = row.Scan(&token)
 	if isViolatingUniqueConstraintErr(err) {
-		return "", pkg.ErrAuthTokenAlreadyPresent
+		return "", distrybute.ErrAuthTokenAlreadyPresent
 	} else if errors.Is(err, pgx.ErrNoRows) {
 		return token, nil
 	} else {
@@ -107,7 +107,7 @@ func (s *Service) RefreshAuthorizationToken(id uuid.UUID) (token string, err err
 	}
 }
 
-func (s *Service) GetUserByAuthorizationToken(token string) (bool, *pkg.User, error) {
+func (s *Service) GetUserByAuthorizationToken(token string) (bool, *distrybute.User, error) {
 	row := s.connection.QueryRow(context.Background(), `SELECT id, username FROM distrybute.users WHERE auth_token=$1`, token)
 	var id uuid.UUID
 	var username string
@@ -117,7 +117,7 @@ func (s *Service) GetUserByAuthorizationToken(token string) (bool, *pkg.User, er
 	} else if err != nil {
 		return false, nil, err
 	}
-	return true, &pkg.User{ID: id, Username: username}, nil
+	return true, &distrybute.User{ID: id, Username: username}, nil
 }
 
 func (s *Service) DeleteUser(id uuid.UUID) (err error) {
@@ -125,7 +125,7 @@ func (s *Service) DeleteUser(id uuid.UUID) (err error) {
 	var username string
 	err = row.Scan(&username)
 	if err == pgx.ErrNoRows {
-		return pkg.ErrUserNotFound
+		return distrybute.ErrUserNotFound
 	} else {
 		return
 	}
@@ -133,11 +133,11 @@ func (s *Service) DeleteUser(id uuid.UUID) (err error) {
 
 func (s *Service) UpdatePassword(id uuid.UUID, password []byte) (err error) {
 	row := s.connection.QueryRow(context.Background(), `SELECT password_alg, password_salt FROM distrybute.users WHERE id=$1`, id)
-	var passwordAlgorithm pkg.PasswordHashAlgorithm
+	var passwordAlgorithm distrybute.PasswordHashAlgorithm
 	var passwordSalt []byte
 	err = row.Scan(&passwordAlgorithm, &passwordSalt)
 	if err == pgx.ErrNoRows {
-		return pkg.ErrUserNotFound
+		return distrybute.ErrUserNotFound
 	} else if err != nil {
 		return err
 	}

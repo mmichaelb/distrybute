@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-func fileServiceIntegrationTest(fileService pkg.FileService, userService pkg.UserService) func(t *testing.T) {
+func fileServiceIntegrationTest(fileService distrybute.FileService, userService distrybute.UserService) func(t *testing.T) {
 	return func(t *testing.T) {
 		user, err := userService.CreateNewUser("fileservice-test-user", []byte("Sommer2019"))
 		assert.NoError(t, err, "could not create file Service test")
@@ -44,12 +44,12 @@ func fileServiceIntegrationTest(fileService pkg.FileService, userService pkg.Use
 			fakeCallReference := "thiscallreferenceisnotpresent"
 			entry, err := fileService.Request(fakeCallReference)
 			assert.Nil(t, entry, "requested entry using fake call reference is not nil")
-			assert.ErrorIs(t, err, pkg.ErrEntryNotFound)
+			assert.ErrorIs(t, err, distrybute.ErrEntryNotFound)
 		})
 		t.Run("deletions using unknown delete reference returns entry found err", func(t *testing.T) {
 			fakeDeleteReference := "thisdeletereferenceisnotpresent"
 			err := fileService.Delete(fakeDeleteReference)
-			assert.ErrorIs(t, err, pkg.ErrEntryNotFound)
+			assert.ErrorIs(t, err, distrybute.ErrEntryNotFound)
 		})
 		t.Run("files with duplicate names can be stored", func(t *testing.T) {
 			filename := "duplicatefile.txt"
@@ -61,7 +61,7 @@ func fileServiceIntegrationTest(fileService pkg.FileService, userService pkg.Use
 	}
 }
 
-func assertEntryComparison(t *testing.T, expected *pkg.FileEntry, actual *pkg.FileEntry) {
+func assertEntryComparison(t *testing.T, expected *distrybute.FileEntry, actual *distrybute.FileEntry) {
 	assert.Equal(t, expected.Id, actual.Id)
 	assert.Equal(t, expected.Author, actual.Author)
 	assert.Equal(t, expected.UploadDate.Unix(), actual.UploadDate.Unix())

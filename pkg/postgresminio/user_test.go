@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func userServiceIntegrationTest(userService pkg.UserService) func(t *testing.T) {
+func userServiceIntegrationTest(userService distrybute.UserService) func(t *testing.T) {
 	return func(t *testing.T) {
 		t.Run("user is created correctly", func(t *testing.T) {
 			const username = "usertest-user"
@@ -17,14 +17,14 @@ func userServiceIntegrationTest(userService pkg.UserService) func(t *testing.T) 
 			assert.NotEqual(t, uuid.UUID{}, user.ID)
 			assert.Equal(t, username, user.Username)
 			assert.NotEmpty(t, user.AuthorizationToken)
-			assert.Equal(t, pkg.LatestPasswordHashAlgorithm, user.PasswordHashAlgorithm)
+			assert.Equal(t, distrybute.LatestPasswordHashAlgorithm, user.PasswordHashAlgorithm)
 		})
 		t.Run("duplicate usernames are not accepted", func(t *testing.T) {
 			const username = "usertest-duplicate"
 			_, err := userService.CreateNewUser(username, []byte("Sommer2019"))
 			assert.NoError(t, err)
 			_, err = userService.CreateNewUser(username, []byte("Sommer2020"))
-			assert.ErrorIs(t, err, pkg.ErrUserAlreadyExists)
+			assert.ErrorIs(t, err, distrybute.ErrUserAlreadyExists)
 		})
 		t.Run("duplicate usernames are being detected case insensitively", func(t *testing.T) {
 			const username = "usertest-duplicate-case-ins"
@@ -32,7 +32,7 @@ func userServiceIntegrationTest(userService pkg.UserService) func(t *testing.T) 
 			_, err := userService.CreateNewUser(username, []byte("Sommer2019"))
 			assert.NoError(t, err)
 			_, err = userService.CreateNewUser(usernameSecond, []byte("Sommer2020"))
-			assert.ErrorIs(t, err, pkg.ErrUserAlreadyExists)
+			assert.ErrorIs(t, err, distrybute.ErrUserAlreadyExists)
 		})
 		t.Run("user deletion test", func(t *testing.T) {
 			t.Run("user is deleted correctly", func(t *testing.T) {
@@ -42,13 +42,13 @@ func userServiceIntegrationTest(userService pkg.UserService) func(t *testing.T) 
 				err = userService.DeleteUser(user.ID)
 				assert.NoError(t, err)
 				_, _, err = userService.CheckPassword(username, []byte("Testpassword"))
-				assert.ErrorIs(t, err, pkg.ErrUserNotFound)
+				assert.ErrorIs(t, err, distrybute.ErrUserNotFound)
 			})
 			t.Run("user cannot be deleted if not present", func(t *testing.T) {
 				id, err := uuid.Parse("7c478fdc-be22-4571-b7b6-2dfa5a31a1a7") // parse some random uuid
 				assert.Nil(t, err, "uuid could not be parsed")
 				err = userService.DeleteUser(id)
-				assert.ErrorIs(t, err, pkg.ErrUserNotFound)
+				assert.ErrorIs(t, err, distrybute.ErrUserNotFound)
 			})
 		})
 		t.Run("password check test", func(t *testing.T) {
@@ -80,7 +80,7 @@ func userServiceIntegrationTest(userService pkg.UserService) func(t *testing.T) 
 			})
 			t.Run("username has to be registered within the system", func(t *testing.T) {
 				ok, resolvedUser, err := userService.CheckPassword("userthatdoesnotexist", []byte("nottherightpassword"))
-				assert.ErrorIs(t, err, pkg.ErrUserNotFound)
+				assert.ErrorIs(t, err, distrybute.ErrUserNotFound)
 				assert.False(t, ok)
 				assert.Nil(t, resolvedUser)
 			})
@@ -99,7 +99,7 @@ func userServiceIntegrationTest(userService pkg.UserService) func(t *testing.T) 
 			assert.Equal(t, user.ID, resolvedUser.ID)
 			assert.Equal(t, newUsername, resolvedUser.Username)
 			ok, resolvedUser, err = userService.CheckPassword(username, password)
-			assert.ErrorIs(t, err, pkg.ErrUserNotFound, "login with old username was still successful")
+			assert.ErrorIs(t, err, distrybute.ErrUserNotFound, "login with old username was still successful")
 			assert.False(t, ok)
 			assert.Nil(t, resolvedUser)
 		})

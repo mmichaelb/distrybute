@@ -22,11 +22,11 @@ var userContextKey = &struct{}{}
 type router struct {
 	*chi.Mux
 	logger      zerolog.Logger
-	fileService pkg.FileService
-	userService pkg.UserService
+	fileService distrybute.FileService
+	userService distrybute.UserService
 }
 
-func NewRouter(logger zerolog.Logger, fileService pkg.FileService, userService pkg.UserService) *router {
+func NewRouter(logger zerolog.Logger, fileService distrybute.FileService, userService distrybute.UserService) *router {
 	router := &router{
 		Mux:         chi.NewRouter(),
 		logger:      logger,
@@ -54,7 +54,7 @@ func (r *router) setupMiddlewares() {
 
 func (r *router) handlerFuncWithAuth(handlerFn http.HandlerFunc) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
-		user := request.Context().Value(userContextKey).(*pkg.User)
+		user := request.Context().Value(userContextKey).(*distrybute.User)
 		if user == nil {
 			r.wrapResponseWriter(writer).WriteAutomaticErrorResponse(http.StatusUnauthorized, nil, request)
 			return

@@ -1,4 +1,4 @@
-package pkg
+package distrybute
 
 import (
 	"github.com/google/uuid"

@@ -13,7 +13,7 @@ const (
 	authTokenLength = 16
 )
 
-func generatePasswordUserEntry(password []byte, algorithm pkg.PasswordHashAlgorithm) (hashedPassword []byte, salt []byte, err error) {
+func generatePasswordUserEntry(password []byte, algorithm distrybute.PasswordHashAlgorithm) (hashedPassword []byte, salt []byte, err error) {
 	salt = make([]byte, saltLength)
 	if _, err = rand.Read(salt); err != nil {
 		return
@@ -22,9 +22,9 @@ func generatePasswordUserEntry(password []byte, algorithm pkg.PasswordHashAlgori
 	return hashedPassword, salt, err
 }
 
-func generatePasswordHash(password []byte, salt []byte, algorithm pkg.PasswordHashAlgorithm) (hashedPassword []byte, err error) {
+func generatePasswordHash(password []byte, salt []byte, algorithm distrybute.PasswordHashAlgorithm) (hashedPassword []byte, err error) {
 	switch algorithm {
-	case pkg.PasswordHashArgon2ID:
+	case distrybute.PasswordHashArgon2ID:
 		hashedPassword = argon2.IDKey(password, salt, 1, 64*1024, 4, 32)
 	default:
 		return nil, errors.New("the provided hashing algorithm is unknown")

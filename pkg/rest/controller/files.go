@@ -25,7 +25,7 @@ func (r *router) HandleFileRequest(w http.ResponseWriter, req *http.Request) {
 	callReference := chi.URLParam(req, FileRequestShortIdParamName)
 	// request file entry from backend
 	entry, err := r.fileService.Request(callReference)
-	if err == pkg.ErrEntryNotFound {
+	if err == distrybute.ErrEntryNotFound {
 		writer.WriteNotFoundResponse("entry not found", nil, req)
 		return
 	} else if err != nil {
@@ -33,7 +33,7 @@ func (r *router) HandleFileRequest(w http.ResponseWriter, req *http.Request) {
 		writer.WriteAutomaticErrorResponse(http.StatusInternalServerError, nil, req)
 		return
 	}
-	defer func(ReadCloseSeeker pkg.ReadCloseSeeker) {
+	defer func(ReadCloseSeeker distrybute.ReadCloseSeeker) {
 		if err := ReadCloseSeeker.Close(); err != nil {
 			hlog.FromRequest(req).Err(err).Str("callReference", callReference).Msg("could not close file entry")
 		}
@@ -43,4 +43,14 @@ func (r *router) HandleFileRequest(w http.ResponseWriter, req *http.Request) {
 	hlog.FromRequest(req).Debug().Str("id", entry.Id.String()).Msg("serving file entry")
 	// serve content
 	http.ServeContent(writer, req, entry.Filename, entry.UploadDate, entry.ReadCloseSeeker)
+}
+
+// handleFileUpload handles an incoming file upload.
+// @Summary Upload a file using a POST request.
+// @Accept multipart/form-data
+// @Produce json
+// @Success 200
+// @Router /api/file [post]
+func (r *router) handleFileUpload(w http.ResponseWriter, req *http.Request) {
+
 }
