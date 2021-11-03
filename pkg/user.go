@@ -68,6 +68,8 @@ type UserService interface {
 	// GetUserByAuthorizationToken retrieves the user by using the passed authorization token. It returns an error (err)
 	// if something went wrong.
 	GetUserByAuthorizationToken(token string) (ok bool, user *User, err error)
+	// GetUserByUsername retrieves the user by using the provided username. It returns an error (err) if something goes wrong.
+	GetUserByUsername(username string) (user *User, err error)
 	// DeleteUser deletes the user by searching for the user`s ID. It returns an error (err) if
 	// something went wrong.
 	DeleteUser(id uuid.UUID) (err error)

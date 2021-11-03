@@ -129,5 +129,27 @@ func userServiceIntegrationTest(userService distrybute.UserService) func(t *test
 				assert.Equal(t, retrievedToken, token)
 			})
 		})
+		t.Run("user retrieved by username tests", func(t *testing.T) {
+			const username = "usertest-retrieve-by-username"
+			password := []byte("Sommer2019")
+			user, err := userService.CreateNewUser(username, password)
+			assert.NoError(t, err)
+			t.Run("user can be retrieved by using the username", func(t *testing.T) {
+				retrievedUser, err := userService.GetUserByUsername(username)
+				assert.NoError(t, err, "user could not be resolved")
+				assert.Equal(t, user.ID, retrievedUser.ID)
+			})
+			t.Run("user can be retrieved by using a username case insensitively", func(t *testing.T) {
+				retrievedUser, err := userService.GetUserByUsername(strings.ToUpper(username))
+				assert.NoError(t, err, "user could not be resolved case insensitively")
+				assert.Equal(t, user.ID, retrievedUser.ID)
+				assert.Equal(t, user.Username, retrievedUser.Username)
+			})
+			t.Run("no user can be found using a non-existent username", func(t *testing.T) {
+				retrievedUser, err := userService.GetUserByUsername("this-user-does-not-exist")
+				assert.ErrorIs(t, distrybute.ErrUserNotFound, err, "no error was returned when searching for non-existent user")
+				assert.Nil(t, retrievedUser, "returned user is not nil")
+			})
+		})
 	}
 }

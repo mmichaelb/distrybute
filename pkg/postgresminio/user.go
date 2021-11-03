@@ -120,6 +120,18 @@ func (s *Service) GetUserByAuthorizationToken(token string) (bool, *distrybute.U
 	return true, &distrybute.User{ID: id, Username: username}, nil
 }
 
+func (s *Service) GetUserByUsername(username string) (user *distrybute.User, err error) {
+	row := s.connection.QueryRow(context.Background(), `SELECT id, username FROM distrybute.users WHERE UPPER(username)=UPPER($1)`, username)
+	var id uuid.UUID
+	err = row.Scan(&id, &username)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, distrybute.ErrUserNotFound
+	} else if err != nil {
+		return nil, err
+	}
+	return &distrybute.User{ID: id, Username: username}, nil
+}
+
 func (s *Service) DeleteUser(id uuid.UUID) (err error) {
 	row := s.connection.QueryRow(context.Background(), `DELETE FROM distrybute.users WHERE id=$1 RETURNING username`, id)
 	var username string
