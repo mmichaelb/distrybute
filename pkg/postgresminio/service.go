@@ -1,6 +1,7 @@
 package postgresminio
 
 import (
+	"context"
 	"database/sql"
 	"embed"
 	"github.com/golang-migrate/migrate/v4"
@@ -37,11 +38,17 @@ func (w wrappedLogger) Verbose() bool {
 	return w.logger.GetLevel() <= zerolog.DebugLevel
 }
 
-func (s Service) InitDDL() error {
+func (s Service) Init() error {
 	m, err := s.instantiateMigrateInstance()
 	if err != nil {
 		return err
 	}
+	log.Info().Msg("initializing storage...")
+	err = s.minioClient.MakeBucket(context.Background(), s.bucketName, minio.MakeBucketOptions{})
+	if err != nil {
+		return errors.Wrap(err, "could not create bucket")
+	}
+	log.Info().Msg("running database migrations...")
 	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
 		return errors.Wrap(err, "could not run database migrations")
 	}
