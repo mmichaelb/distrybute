@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/jackc/pgx/v4"
+	"github.com/mmichaelb/distrybute/internal/util"
 	"github.com/mmichaelb/distrybute/pkg/postgresminio"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
@@ -13,48 +14,6 @@ import (
 	"os"
 )
 
-var postgresUser, postgresPassword, postgresHost string
-var postgresPort int
-var postgresDatabase string
-
-var postgresFlags = []cli.Flag{
-	&cli.StringFlag{
-		Name:        "postgresuser",
-		Aliases:     []string{"pu"},
-		Value:       "postgres",
-		EnvVars:     []string{"DISTRYBUTE_POSTGRES_USER"},
-		Destination: &postgresUser,
-	},
-	&cli.StringFlag{
-		Name:        "postgrespassword",
-		Aliases:     []string{"pp"},
-		Value:       "postgres",
-		EnvVars:     []string{"DISTRYBUTE_POSTGRES_PASSWORD"},
-		Destination: &postgresPassword,
-	},
-	&cli.StringFlag{
-		Name:        "postgreshost",
-		Aliases:     []string{"ph"},
-		Value:       "localhost",
-		EnvVars:     []string{"DISTRYBUTE_POSTGRES_HOST"},
-		Destination: &postgresHost,
-	},
-	&cli.IntFlag{
-		Name:        "postgresport",
-		Aliases:     []string{"ppo"},
-		Value:       5432,
-		EnvVars:     []string{"DISTRYBUTE_POSTGRES_PORT"},
-		Destination: &postgresPort,
-	},
-	&cli.StringFlag{
-		Name:        "postgresdatabase",
-		Aliases:     []string{"pd"},
-		Value:       "postgres",
-		EnvVars:     []string{"DISTRYBUTE_POSTGRES_DB"},
-		Destination: &postgresDatabase,
-	},
-}
-
 func RunApp() {
 	prepareLogger()
 	app := &cli.App{
@@ -63,7 +22,7 @@ func RunApp() {
 		Commands: []*cli.Command{
 			userCommand,
 		},
-		Flags:  postgresFlags,
+		Flags:  util.PostgresFlags,
 		Before: prepareService,
 	}
 	if err := app.Run(os.Args); err != nil {
@@ -81,9 +40,11 @@ func prepareLogger() {
 	}, logFile))
 }
 
-func prepareService(_ *cli.Context) error {
+func prepareService(c *cli.Context) error {
 	connString := fmt.Sprintf("postgres://%s:%s@%s:%d/%s",
-		postgresUser, postgresPassword, postgresHost, postgresPort, postgresDatabase)
+		c.String("postgresuser"), c.String("postgrespassword"),
+		c.String("postgreshost"), c.Int("postgresport"),
+		c.String("postgresdatabase"))
 	conn, err := pgx.Connect(context.Background(), connString)
 	if err != nil {
 		return errors.Wrap(err, "could not connect to postgres database")
