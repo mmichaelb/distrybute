@@ -43,7 +43,9 @@ func (s Service) Init() error {
 		return err
 	}
 	log.Info().Msg("running database migrations...")
-	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
+	if err := m.Up(); err == migrate.ErrNoChange {
+		log.Info().Msg("no database migration to run")
+	} else if err != nil {
 		return errors.Wrap(err, "could not run database migrations")
 	}
 	return nil
