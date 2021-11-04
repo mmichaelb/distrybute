@@ -35,6 +35,7 @@ var appFlags = []cli.Flag{
 		Aliases:     []string{"endpoint"},
 		EnvVars:     []string{"DISTRYBUTE_MINIO_ENDPOINT"},
 		Destination: &minioEndpoint,
+		Required:    true,
 	},
 	&cli.StringFlag{
 		Name:        "minioId",
@@ -56,6 +57,7 @@ var appFlags = []cli.Flag{
 		Name:        "minioBucket",
 		EnvVars:     []string{"DISTRYBUTE_MINIO_BUCKET"},
 		Destination: &minioBucket,
+		Required:    true,
 	},
 	&cli.StringFlag{
 		Name:        "minioObjectPrefix",
