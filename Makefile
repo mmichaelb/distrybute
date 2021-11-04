@@ -3,7 +3,7 @@ PROJECT_NAME=distrybute
 GIT_VERSION=$(shell git describe --always)
 GIT_BRANCH=$(shell git branch --show-current)
 
-LD_FLAGS = -X main.GitVersion=${GIT_VERSION} -X main.GitBranch=${GIT_BRANCH}
+LD_FLAGS = -X github.com/mmichaelb/distrybute/internal/app.GitVersion=${GIT_VERSION} -X github.com/mmichaelb/distrybute/internal/app.GitBranch=${GIT_BRANCH}
 
 OUTPUT_SUFFIX=$(shell go env GOEXE)
 GOOS=$(shell go env GOOS)
