@@ -69,7 +69,7 @@ func (writer responseWriter) WriteSuccessfulResponse(data interface{}, r *http.R
 }
 
 func (writer responseWriter) WriteNotFoundResponse(message string, data interface{}, r *http.Request) {
-	writer.WriteResponse(http.StatusOK, message, data, r)
+	writer.WriteResponse(http.StatusNotFound, message, data, r)
 }
 
 func (writer responseWriter) WriteAutomaticErrorResponse(statusCode int, data interface{}, r *http.Request) {
