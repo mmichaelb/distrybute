@@ -26,14 +26,14 @@ func (r *router) loggingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 		hlog.FromRequest(request).Info().
 			Str("addr", request.RemoteAddr).
-			Str("userAgent", request.Header.Get("User-Agent")).
+			Interface("headers", request.Header).
 			Str("method", request.Method).
 			Str("path", request.RequestURI).
-			Send()
+			Msg("request.incoming")
 		wrappedWriter := r.wrapResponseWriter(writer)
 		defer func() {
 			hlog.FromRequest(request).Info().
-				Int("responseCode", wrappedWriter.statusCode).Send()
+				Int("responseCode", wrappedWriter.statusCode).Msg("request.result")
 		}()
 		next.ServeHTTP(wrappedWriter, request)
 	})
