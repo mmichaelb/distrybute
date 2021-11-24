@@ -1,6 +1,7 @@
 package postgresminio
 
 import (
+	"context"
 	"database/sql"
 	"embed"
 	"github.com/golang-migrate/migrate/v4"
@@ -47,6 +48,10 @@ func (s Service) Init() error {
 		log.Info().Msg("no database migration to run")
 	} else if err != nil {
 		return errors.Wrap(err, "could not run database migrations")
+	}
+	_, err = s.minioClient.BucketExists(context.Background(), s.bucketName)
+	if err != nil {
+		return errors.Wrap(err, "could not check if bucket exists")
 	}
 	return nil
 }
