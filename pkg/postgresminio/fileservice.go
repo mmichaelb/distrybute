@@ -52,7 +52,7 @@ func (s *Service) Store(filename, contentType string, size int64, author uuid.UU
 	if err := row.Scan(); !errors.Is(err, pgx.ErrNoRows) {
 		return nil, err
 	}
-	_, err = s.minioClient.PutObject(context.Background(), s.bucketName, s.objectPrefix+id.String(), reader, size, minio.PutObjectOptions{})
+	_, err = s.minioClient.PutObject(context.Background(), s.bucketName, s.objectPrefix+id.String(), reader, size, minio.PutObjectOptions{ContentType: contentType})
 	if err != nil {
 		return nil, err
 	}
