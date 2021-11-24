@@ -50,6 +50,7 @@ func (writer *responseWriter) WriteHeader(statusCode int) {
 
 func (writer responseWriter) WriteResponse(statusCode int, errorMessage string, data interface{}, request *http.Request) {
 	writer.WriteHeader(statusCode)
+	writer.Header().Set("Content-Type", "application/json")
 	resp := &Response{
 		StatusCode:   statusCode,
 		ErrorMessage: errorMessage,
