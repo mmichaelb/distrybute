@@ -32,3 +32,9 @@ build-cli:
 # installs and formats the project with the built-in Golang tool
 install:
 	@go install -trimpath -ldflags '${LD_FLAGS}' ./cmd/distrybute/main.go
+
+swagger:
+	@swag init --parseInternal --generatedTime -g pkg/rest/controller/router.go
+
+deps:
+	@go mod download
