@@ -49,9 +49,15 @@ func (s Service) Init() error {
 	} else if err != nil {
 		return errors.Wrap(err, "could not run database migrations")
 	}
-	_, err = s.minioClient.BucketExists(context.Background(), s.bucketName)
+	ok, err := s.minioClient.BucketExists(context.Background(), s.bucketName)
 	if err != nil {
 		return errors.Wrap(err, "could not check if bucket exists")
+	} else if !ok {
+		err = s.minioClient.MakeBucket(context.Background(), s.bucketName, minio.MakeBucketOptions{})
+		if err != nil {
+			return errors.Wrap(err, "could not make new bucket")
+		}
+		log.Info().Str("bucketName", s.bucketName).Msg("created new bucket")
 	}
 	return nil
 }
