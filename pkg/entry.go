@@ -8,8 +8,8 @@ import (
 
 // ReadCloseSeeker combines both, io.ReaderCloser and io.Seeker into one interface. It is used within
 // the FileEntry type.
+// Allow access via the built in interface and implement the Read, Close and Seek methods.
 type ReadCloseSeeker interface {
-	// Allow access via the built in interface and implement the Read, Close and Seek methods.
 	io.ReadCloser
 	io.Seeker
 }
