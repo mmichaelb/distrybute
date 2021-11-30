@@ -40,7 +40,7 @@ func (r *router) HandleFileRequest(w http.ResponseWriter, req *http.Request) {
 	}(entry.ReadCloseSeeker)
 	// set content type from file entry
 	w.Header().Set("Content-Type", entry.ContentType)
-	hlog.FromRequest(req).Debug().Str("id", entry.Id.String()).Msg("serving file entry")
+	hlog.FromRequest(req).Info().Str("id", entry.Id.String()).Msg("serving file entry")
 	// serve content
 	http.ServeContent(writer, req, entry.Filename, entry.UploadDate, entry.ReadCloseSeeker)
 }
