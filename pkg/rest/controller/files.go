@@ -6,7 +6,6 @@ import (
 	"github.com/rs/zerolog/hlog"
 	"mime/multipart"
 	"net/http"
-	"strings"
 )
 
 const (
@@ -58,13 +57,11 @@ func (r *router) HandleFileRequest(w http.ResponseWriter, req *http.Request) {
 // @success 200 {object} controller.Response{data=controller.FileUploadResponse} "The response which contains the callReference"
 // @Router /api/file [post]
 func (r *router) handleFileUpload(w *responseWriter, req *http.Request) {
-	authValue := req.Header.Get(AuthorizationHeaderKey)
-	tokenSplit := strings.Split(authValue, " ")
-	if len(tokenSplit) != 2 || tokenSplit[0] != "Bearer" {
+	token := req.Header.Get(AuthorizationHeaderKey)
+	if token == "" {
 		w.WriteAutomaticErrorResponse(http.StatusUnauthorized, nil, req)
 		return
 	}
-	token := tokenSplit[1]
 	ok, user, err := r.userService.GetUserByAuthorizationToken(token)
 	if !ok {
 		w.WriteAutomaticErrorResponse(http.StatusUnauthorized, nil, req)
