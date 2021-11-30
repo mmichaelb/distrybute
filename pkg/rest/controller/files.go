@@ -16,13 +16,14 @@ const (
 )
 
 // HandleFileRequest handles an incoming file request (e.g. /v/{callReference})
-// @Router   /v/{callReference} [get]
-// @ID       retrieveFile
-// @Tags     files
-// @Summary  Retrieve a file by using the callReference parameter.
-// @Param    callReference  path  int  true  "Call Reference"
-// @Produce  octet-stream
-// @Success  200
+// @Router    /v/{callReference} [get]
+// @ID        retrieveFile
+// @Tags      files
+// @Summary   Retrieve a file by using the callReference parameter.
+// @Param     callReference  path  int  true  "Call Reference"
+// @Produce   octet-stream,json
+// @Success   200
+// @Response  default  {object}  controller.Response
 func (r *router) HandleFileRequest(w http.ResponseWriter, req *http.Request) {
 	writer := r.wrapResponseWriter(w)
 	// retrieve file reference from request
@@ -58,7 +59,8 @@ func (r *router) HandleFileRequest(w http.ResponseWriter, req *http.Request) {
 // @Accept    multipart/form-data
 // @Param     file  formData  string  true  "Contains the file content which should be uploaded"  binary
 // @Produce   json
-// @success   200  {object}  controller.Response{data=controller.FileUploadResponse}  "The response which contains the callReference"
+// @success   200      {object}  controller.Response{data=controller.FileUploadResponse}  "The response which contains the callReference"
+// @Response  default  {object}  controller.Response
 func (r *router) handleFileUpload(w *responseWriter, req *http.Request) {
 	token := req.Header.Get(AuthorizationHeaderKey)
 	if token == "" {
@@ -112,13 +114,14 @@ type FileUploadResponse struct {
 }
 
 // handleFileDeletion handles an incoming file deletion request.
-// @Router   /api/file/delete/{deleteReference} [get]
-// @ID       deleteFile
-// @Tags     files
-// @Summary  Deletes a specific file using the provided delete reference.
-// @Param    deleteReference  path  int  true  "Call Reference"
-// @Produce  octet-stream
-// @Success  200
+// @Router    /api/file/delete/{deleteReference} [get]
+// @ID        deleteFile
+// @Tags      files
+// @Summary   Deletes a specific file using the provided delete reference.
+// @Param     deleteReference  path  int  true  "Call Reference"
+// @Produce   json
+// @Success   200      {object}  controller.Response
+// @Response  default  {object}  controller.Response
 func (r *router) handleFileDeletion(w *responseWriter, req *http.Request) {
 	deleteReference := chi.URLParam(req, "deleteReference")
 	if deleteReference == "" {

@@ -46,6 +46,10 @@ paths:
                 data:
                   $ref: '#/definitions/controller.FileUploadResponse'
               type: object
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/controller.Response'
       security:
       - ApiKeyAuth: []
       summary: Upload a file using a POST request.
@@ -61,10 +65,16 @@ paths:
         required: true
         type: integer
       produces:
-      - application/octet-stream
+      - application/json
       responses:
         "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.Response'
+        default:
           description: ""
+          schema:
+            $ref: '#/definitions/controller.Response'
       summary: Deletes a specific file using the provided delete reference.
       tags:
       - files
@@ -79,9 +89,14 @@ paths:
         type: integer
       produces:
       - application/octet-stream
+      - application/json
       responses:
         "200":
           description: ""
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/controller.Response'
       summary: Retrieve a file by using the callReference parameter.
       tags:
       - files
