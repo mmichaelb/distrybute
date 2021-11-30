@@ -60,11 +60,34 @@
                 }
             }
         },
+        "/api/file/delete/{deleteReference}": {
+            "get": {
+                "produces": [
+                    "application/octet-stream"
+                ],
+                "tags": [
+                    "files"
+                ],
+                "summary": "Deletes a specific file using the provided delete reference.",
+                "operationId": "deleteFile",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Call Reference",
+                        "name": "deleteReference",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/v/{callReference}": {
             "get": {
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/octet-stream"
                 ],
@@ -96,6 +119,9 @@
             "properties": {
                 "callReference": {
                     "type": "string"
+                },
+                "deleteReference": {
+                    "type": "string"
                 }
             }
         },
@@ -116,7 +142,7 @@
         "ApiKeyAuth": {
             "type": "apiKey",
             "name": "Authorization",
-            "in": "Header"
+            "in": "header"
         }
     }
 }

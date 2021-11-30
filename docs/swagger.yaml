@@ -3,6 +3,8 @@ definitions:
     properties:
       callReference:
         type: string
+      deleteReference:
+        type: string
     type: object
   controller.Response:
     properties:
@@ -49,10 +51,25 @@ paths:
       summary: Upload a file using a POST request.
       tags:
       - files
+  /api/file/delete/{deleteReference}:
+    get:
+      operationId: deleteFile
+      parameters:
+      - description: Call Reference
+        in: path
+        name: deleteReference
+        required: true
+        type: integer
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: ""
+      summary: Deletes a specific file using the provided delete reference.
+      tags:
+      - files
   /v/{callReference}:
     get:
-      consumes:
-      - application/json
       operationId: retrieveFile
       parameters:
       - description: Call Reference
@@ -70,7 +87,7 @@ paths:
       - files
 securityDefinitions:
   ApiKeyAuth:
-    in: Header
+    in: header
     name: Authorization
     type: apiKey
 swagger: "2.0"

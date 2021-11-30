@@ -14,7 +14,7 @@ import (
 // @license.url   https://github.com/mmichaelb/distrybute/blob/master/LICENSE
 
 // @securityDefinitions.apikey  ApiKeyAuth
-// @in                          Header
+// @in                          header
 // @name                        Authorization
 // @description                 The basic auth token provided by distrybute and used to upload files.
 
@@ -34,5 +34,6 @@ func NewRouter(logger zerolog.Logger, fileService distrybute.FileService, userSe
 	}
 	router.setupMiddlewares()
 	router.Post("/file", router.wrapStandardHttpMethod(router.handleFileUpload))
+	router.Get("/file/delete/{deleteReference}", router.wrapStandardHttpMethod(router.handleFileDeletion))
 	return router
 }

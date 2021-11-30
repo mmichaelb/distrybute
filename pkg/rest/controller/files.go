@@ -20,7 +20,6 @@ const (
 // @ID       retrieveFile
 // @Tags     files
 // @Summary  Retrieve a file by using the callReference parameter.
-// @Accept   json
 // @Param    callReference  path  int  true  "Call Reference"
 // @Produce  octet-stream
 // @Success  200
@@ -103,9 +102,36 @@ func (r *router) handleFileUpload(w *responseWriter, req *http.Request) {
 		Int64("size", multipartFileHeader.Size).
 		Msg("created new entry")
 	// send json response
-	w.WriteSuccessfulResponse(&FileUploadResponse{CallReference: entry.CallReference}, req)
+	w.WriteSuccessfulResponse(&FileUploadResponse{CallReference: entry.CallReference, DeleteReference: entry.DeleteReference}, req)
 }
 
+// FileUploadResponse is used to return information about an uploaded file.
 type FileUploadResponse struct {
-	CallReference string `json:"callReference"`
+	CallReference   string `json:"callReference"`
+	DeleteReference string `json:"deleteReference"`
+}
+
+// handleFileDeletion handles an incoming file deletion request.
+// @Router   /api/file/delete/{deleteReference} [get]
+// @ID       deleteFile
+// @Tags     files
+// @Summary  Deletes a specific file using the provided delete reference.
+// @Param    deleteReference  path  int  true  "Call Reference"
+// @Produce  octet-stream
+// @Success  200
+func (r *router) handleFileDeletion(w *responseWriter, req *http.Request) {
+	deleteReference := chi.URLParam(req, "deleteReference")
+	if deleteReference == "" {
+		w.WriteAutomaticErrorResponse(http.StatusBadRequest, nil, req)
+		return
+	}
+	err := r.fileService.Delete(deleteReference)
+	if err == distrybute.ErrEntryNotFound {
+		w.WriteNotFoundResponse("not entry associated with the given delete reference", nil, req)
+		return
+	} else if err != nil {
+		hlog.FromRequest(req).Err(err).Msg("could not delete entry using delete reference")
+	}
+	hlog.FromRequest(req).Info().Str("deleteReference", deleteReference).Msg("file entry deleted")
+	w.WriteSuccessfulResponse(nil, req)
 }
