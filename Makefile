@@ -36,5 +36,8 @@ install:
 swagger:
 	@swag init --parseInternal --generatedTime -g pkg/rest/controller/router.go
 
+swagger-format:
+	@swag fmt -g router.go -d pkg/rest/controller/
+
 deps:
 	@go mod download

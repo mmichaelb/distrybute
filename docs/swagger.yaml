@@ -14,8 +14,7 @@ definitions:
     type: object
 info:
   contact: {}
-  description: API documentation for the REST API of distrybute, a lightweight image
-    upload server.
+  description: The basic auth token provided by distrybute and used to upload files.
   license:
     name: MIT
     url: https://github.com/mmichaelb/distrybute/blob/master/LICENSE
@@ -26,6 +25,7 @@ paths:
     post:
       consumes:
       - multipart/form-data
+      operationId: uploadFile
       parameters:
       - description: Contains the file content which should be uploaded
         in: formData
@@ -44,12 +44,16 @@ paths:
                 data:
                   $ref: '#/definitions/controller.FileUploadResponse'
               type: object
+      security:
+      - ApiKeyAuth: []
       summary: Upload a file using a POST request.
+      tags:
+      - files
   /v/{callReference}:
     get:
       consumes:
       - application/json
-      operationId: uploadFile
+      operationId: retrieveFile
       parameters:
       - description: Call Reference
         in: path
@@ -62,4 +66,11 @@ paths:
         "200":
           description: ""
       summary: Retrieve a file by using the callReference parameter.
+      tags:
+      - files
+securityDefinitions:
+  ApiKeyAuth:
+    in: Header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

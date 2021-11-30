@@ -1,7 +1,7 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "API documentation for the REST API of distrybute, a lightweight image upload server.",
+        "description": "The basic auth token provided by distrybute and used to upload files.",
         "title": "distrybute API",
         "contact": {},
         "license": {
@@ -13,13 +13,22 @@
     "paths": {
         "/api/file": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "consumes": [
                     "multipart/form-data"
                 ],
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "files"
+                ],
                 "summary": "Upload a file using a POST request.",
+                "operationId": "uploadFile",
                 "parameters": [
                     {
                         "type": "string",
@@ -59,8 +68,11 @@
                 "produces": [
                     "application/octet-stream"
                 ],
+                "tags": [
+                    "files"
+                ],
                 "summary": "Retrieve a file by using the callReference parameter.",
-                "operationId": "uploadFile",
+                "operationId": "retrieveFile",
                 "parameters": [
                     {
                         "type": "integer",
@@ -98,6 +110,13 @@
                     "type": "integer"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "ApiKeyAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "Header"
         }
     }
 }

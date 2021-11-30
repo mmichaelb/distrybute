@@ -16,13 +16,14 @@ const (
 )
 
 // HandleFileRequest handles an incoming file request (e.g. /v/{callReference})
-// @Summary Retrieve a file by using the callReference parameter.
-// @ID uploadFile
-// @Accept json
-// @Produce octet-stream
-// @Param callReference path int true "Call Reference"
-// @Success 200
-// @Router /v/{callReference} [get]
+// @Router   /v/{callReference} [get]
+// @ID       retrieveFile
+// @Tags     files
+// @Summary  Retrieve a file by using the callReference parameter.
+// @Accept   json
+// @Param    callReference  path  int  true  "Call Reference"
+// @Produce  octet-stream
+// @Success  200
 func (r *router) HandleFileRequest(w http.ResponseWriter, req *http.Request) {
 	writer := r.wrapResponseWriter(w)
 	// retrieve file reference from request
@@ -50,12 +51,15 @@ func (r *router) HandleFileRequest(w http.ResponseWriter, req *http.Request) {
 }
 
 // handleFileUpload handles an incoming file upload.
-// @Summary Upload a file using a POST request.
-// @Accept multipart/form-data
-// @Param file formData string true "Contains the file content which should be uploaded" binary
-// @Produce json
-// @success 200 {object} controller.Response{data=controller.FileUploadResponse} "The response which contains the callReference"
-// @Router /api/file [post]
+// @Router    /api/file [post]
+// @Security  ApiKeyAuth
+// @ID        uploadFile
+// @Tags      files
+// @Summary   Upload a file using a POST request.
+// @Accept    multipart/form-data
+// @Param     file  formData  string  true  "Contains the file content which should be uploaded"  binary
+// @Produce   json
+// @success   200  {object}  controller.Response{data=controller.FileUploadResponse}  "The response which contains the callReference"
 func (r *router) handleFileUpload(w *responseWriter, req *http.Request) {
 	token := req.Header.Get(AuthorizationHeaderKey)
 	if token == "" {

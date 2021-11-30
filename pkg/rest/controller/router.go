@@ -6,12 +6,17 @@ import (
 	"github.com/rs/zerolog"
 )
 
-// @title distrybute API
-// @version 0.0.1
-// @description API documentation for the REST API of distrybute, a lightweight image upload server.
+// @title        distrybute API
+// @version      0.0.1
+// @description  API documentation for the REST API of distrybute, a lightweight image upload server.
 
-// @license.name MIT
-// @license.url https://github.com/mmichaelb/distrybute/blob/master/LICENSE
+// @license.name  MIT
+// @license.url   https://github.com/mmichaelb/distrybute/blob/master/LICENSE
+
+// @securityDefinitions.apikey  ApiKeyAuth
+// @in                          Header
+// @name                        Authorization
+// @description                 The basic auth token provided by distrybute and used to upload files.
 
 type router struct {
 	*chi.Mux
