@@ -1,3 +1,17 @@
+definitions:
+  controller.FileUploadResponse:
+    properties:
+      callReference:
+        type: string
+    type: object
+  controller.Response:
+    properties:
+      data: {}
+      errorMessage:
+        type: string
+      statusCode:
+        type: integer
+    type: object
 info:
   contact: {}
   description: API documentation for the REST API of distrybute, a lightweight image
@@ -8,6 +22,29 @@ info:
   title: distrybute API
   version: 0.0.1
 paths:
+  /api/file:
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: Contains the file content which should be uploaded
+        in: formData
+        name: file
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: The response which contains the callReference
+          schema:
+            allOf:
+            - $ref: '#/definitions/controller.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/controller.FileUploadResponse'
+              type: object
+      summary: Upload a file using a POST request.
   /v/{callReference}:
     get:
       consumes:

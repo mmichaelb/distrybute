@@ -11,6 +11,46 @@
         "version": "0.0.1"
     },
     "paths": {
+        "/api/file": {
+            "post": {
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Upload a file using a POST request.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Contains the file content which should be uploaded",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The response which contains the callReference",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/controller.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/controller.FileUploadResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/v/{callReference}": {
             "get": {
                 "consumes": [
@@ -34,6 +74,28 @@
                     "200": {
                         "description": ""
                     }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "controller.FileUploadResponse": {
+            "type": "object",
+            "properties": {
+                "callReference": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.Response": {
+            "type": "object",
+            "properties": {
+                "data": {},
+                "errorMessage": {
+                    "type": "string"
+                },
+                "statusCode": {
+                    "type": "integer"
                 }
             }
         }

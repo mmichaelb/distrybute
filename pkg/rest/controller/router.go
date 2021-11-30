@@ -28,5 +28,6 @@ func NewRouter(logger zerolog.Logger, fileService distrybute.FileService, userSe
 		userService: userService,
 	}
 	router.setupMiddlewares()
+	router.Post("/file", router.wrapStandardHttpMethod(router.handleFileUpload))
 	return router
 }
