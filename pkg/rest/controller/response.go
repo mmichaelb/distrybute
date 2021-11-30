@@ -7,8 +7,8 @@ import (
 )
 
 type Response struct {
-	StatusCode   int         `json:"status_code"`
-	ErrorMessage string      `json:"error_message,omitempty"`
+	StatusCode   int         `json:"statusCode"`
+	ErrorMessage string      `json:"errorMessage,omitempty"`
 	Data         interface{} `json:"data,omitempty"`
 }
 
