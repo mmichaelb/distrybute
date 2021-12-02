@@ -41,3 +41,6 @@ swagger-format:
 
 deps:
 	@go mod download
+
+mockery:
+	@mockery --dir pkg/ --name ".*" --keeptree
