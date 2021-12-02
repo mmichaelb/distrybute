@@ -68,13 +68,13 @@ func (r *router) handleFileUpload(w *responseWriter, req *http.Request) {
 		return
 	}
 	ok, user, err := r.userService.GetUserByAuthorizationToken(token)
-	if !ok {
-		w.WriteAutomaticErrorResponse(http.StatusUnauthorized, nil, req)
-		return
-	}
 	if err != nil {
 		hlog.FromRequest(req).Err(err).Str("tokenHeader", token).Msg("could not get user by auth token")
 		w.WriteAutomaticErrorResponse(http.StatusInternalServerError, nil, req)
+		return
+	}
+	if !ok {
+		w.WriteAutomaticErrorResponse(http.StatusUnauthorized, nil, req)
 		return
 	}
 	// parse multipart form file and if something goes wrong return an internal server error response code
