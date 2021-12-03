@@ -134,6 +134,8 @@ func (r *router) handleFileDeletion(w *responseWriter, req *http.Request) {
 		return
 	} else if err != nil {
 		hlog.FromRequest(req).Err(err).Msg("could not delete entry using delete reference")
+		w.WriteAutomaticErrorResponse(http.StatusInternalServerError, nil, req)
+		return
 	}
 	hlog.FromRequest(req).Info().Str("deleteReference", deleteReference).Msg("file entry deleted")
 	w.WriteSuccessfulResponse(nil, req)
