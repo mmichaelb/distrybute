@@ -1,0 +1,15 @@
+image::assets/logo.svg[]
+
+image::https://img.shields.io/badge/License-MIT-yellow.svg[License: MIT, link="https://opensource.org/licenses/MIT", float=left]
+image::https://img.shields.io/badge/stability-wip-lightgrey.svg[stability-wip, link="https://github.com/mkenney/software-guides/blob/master/STABILITY-BADGES.md#work-in-progress", float=left]
+image::https://codecov.io/gh/mmichaelb/distrybute/branch/main/graph/badge.svg?token=QFCS6cSJ2J[Code Coverage, link="https://codecov.io/gh/mmichaelb/distrybute", float=left]
+image::https://github.com/mmichaelb/distrybute/actions/workflows/integration_tests.yml/badge.svg[Integration Tests (Postgres & Minio), link="https://github.com/mmichaelb/distrybute/actions/workflows/integration_tests.yml", float=left]
+image::https://github.com/mmichaelb/distrybute/actions/workflows/unit_tests.yml/badge.svg[Unit Tests, link="https://github.com/mmichaelb/distrybute/actions/workflows/unit_tests.yml", float=left]
+image::https://pkg.go.dev/badge/github.com/mmichaelb/distrybute.svg[GoDoc Reference, link="https://pkg.go.dev/github.com/mmichaelb/distrybute", float=left]
+'''
+
+== About this project
+
+Lightweight upload server for the ShareX client (<https://getsharex.com/>) - more clients will follow.
+
+This repository will be filled with updated code soon.
