@@ -169,5 +169,25 @@ func prepareTestMultipart(t *testing.T, body string, contentType string) (io.Rea
 }
 
 func TestRouter_handleFileDeletion(t *testing.T) {
-	// TODO
+	t.Run("unknown delete reference does not lead to action", func(t *testing.T) {
+		fileService.On("Delete", "notfound").Return(distrybute.ErrEntryNotFound)
+		recorder := httptest.NewRecorder()
+		req := httptest.NewRequest(http.MethodGet, "/file/delete/notfound", nil)
+		r.ServeHTTP(recorder, req)
+		assert.Equal(t, http.StatusNotFound, recorder.Code)
+	})
+	t.Run("internal error leads to 500 status code", func(t *testing.T) {
+		fileService.On("Delete", "servererror").Return(errors.New("some unknown error"))
+		recorder := httptest.NewRecorder()
+		req := httptest.NewRequest(http.MethodGet, "/file/delete/servererror", nil)
+		r.ServeHTTP(recorder, req)
+		assert.Equal(t, http.StatusInternalServerError, recorder.Code)
+	})
+	t.Run("valid delete reference leads to deletion", func(t *testing.T) {
+		fileService.On("Delete", "validref").Return(nil)
+		recorder := httptest.NewRecorder()
+		req := httptest.NewRequest(http.MethodGet, "/file/delete/validref", nil)
+		r.ServeHTTP(recorder, req)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+	})
 }
