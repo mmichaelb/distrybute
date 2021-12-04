@@ -1,12 +1,28 @@
-name: Integration tests (Postgres & Minio)
+name: Test, build, deploy
 on:
   push:
   pull_request:
-env:
-  DISTRYBUTE_TEST_DB: ${{ format('distrybute_{0}', github.run_id) }}
-  MINIO_TEST_BUCKET_NAME: ${{ format('distrybute-{0}', github.run_id) }}
 jobs:
-  test:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.17.x
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Test code
+        run: make unit-test
+      - uses: codecov/codecov-action@v2
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage.txt
+          flags: unittests
+  postgres-minio-integration-tests:
+    env:
+      DISTRYBUTE_TEST_DB: ${{ format('distrybute_{0}', github.run_id) }}
+      MINIO_TEST_BUCKET_NAME: ${{ format('distrybute-{0}', github.run_id) }}
     runs-on: ubuntu-latest
     services:
       postgres:
