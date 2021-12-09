@@ -1,5 +1,19 @@
 {
   "extends": [
     "config:base"
+  ],
+  "pinDigests": true,
+  "dependencyDashboard": true,
+  "packageRules": [
+    {
+      "matchUpdateTypes": [
+        "minor",
+        "patch",
+        "digest",
+        "pin"
+      ],
+      "automerge": true,
+      "stabilityDays": 3
+    }
   ]
 }
