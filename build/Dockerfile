@@ -1,9 +1,8 @@
-ARG build_git_branch
-ARG build_git_tag
-ARG build_git_commit_sha
-
 # build golang image
 FROM golang:alpine AS builder
+ARG build_git_branch=<unknown>
+ARG build_git_tag=<unknown>
+ARG build_git_commit_sha=<unknown>
 LABEL stage=distrybute-builder
 RUN apk update && apk add --no-cache git tzdata
 ENV USER=appuser
@@ -25,6 +24,9 @@ RUN GOOS=linux GOARCH=amd64 go build -trimpath \
 
 # build real image
 FROM scratch
+ARG build_git_branch=<unknown>
+ARG build_git_tag=<unknown>
+ARG build_git_commit_sha=<unknown>
 COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
 COPY --from=builder /go/bin/distrybute /usr/bin/distrybute
 COPY --from=builder /etc/passwd /etc/passwd
