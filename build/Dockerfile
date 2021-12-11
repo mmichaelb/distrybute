@@ -4,7 +4,7 @@ ARG build_git_branch=<unknown>
 ARG build_git_tag=<unknown>
 ARG build_git_commit_sha=<unknown>
 LABEL stage=distrybute-builder
-RUN apk update && apk add --no-cache git tzdata
+RUN apk update && apk add --no-cache git tzdata gcc libc-dev
 ENV USER=appuser
 ENV UID=10001
 RUN adduser \
