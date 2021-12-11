@@ -1,9 +1,10 @@
 PROJECT_NAME=distrybute
 
-GIT_VERSION=$(shell git describe --always)
 GIT_BRANCH=$(shell git branch --show-current)
+GIT_TAG=$(shell git describe --tags --always)
+GIT_COMMIT_SHA=$(shell git rev-parse HEAD)
 
-LD_FLAGS = -X github.com/mmichaelb/distrybute/internal/app.GitVersion=${GIT_VERSION} -X github.com/mmichaelb/distrybute/internal/app.GitBranch=${GIT_BRANCH}
+LD_FLAGS = -X github.com/mmichaelb/distrybute/internal/app.GitBranch=${GIT_BRANCH} -X github.com/mmichaelb/distrybute/internal/app.GitTag=${GIT_TAG} -X github.com/mmichaelb/distrybute/internal/app.GitCommitSha=${GIT_COMMIT_SHA}
 
 OUTPUT_SUFFIX=$(shell go env GOEXE)
 GOOS=$(shell go env GOOS)
@@ -45,3 +46,12 @@ deps:
 
 mockery:
 	@mockery --dir pkg/ --name ".*" --keeptree
+
+build-docker:
+	@docker build -f "build/Dockerfile" \
+		-t ghcr.io/mmichaelb/distrybute:${GIT_TAG} -t ghcr.io/mmichaelb/distrybute:latest \
+		--build-arg build_git_branch=${GIT_BRANCH} --build-arg build_git_tag=${GIT_TAG} --build-arg build_git_commit_sha=${GIT_COMMIT_SHA} \
+		.
+
+remove-docker-helper-images:
+	@docker image prune --force --filter label=stage=distrybute-builder
