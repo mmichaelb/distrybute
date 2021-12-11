@@ -38,3 +38,4 @@ ENTRYPOINT ["/usr/bin/distrybute"]
 LABEL build_git_branch=${build_git_branch}
 LABEL build_git_tag=${build_git_tag}
 LABEL build_git_commit_sha=${build_git_commit_sha}
+LABEL repository=https://github.com/mmichaelb/distrybute
