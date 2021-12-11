@@ -92,7 +92,7 @@ jobs:
           password: ${{ github.token }}
       - name: Build docker image
         run: |
-          make build-build
+          make build-docker
       - name: Push docker image to Docker Hub
         run: |
           docker image push --all-tags mmichaelb/distrybute
