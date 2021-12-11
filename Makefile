@@ -50,6 +50,7 @@ mockery:
 build-docker:
 	@docker build -f "build/Dockerfile" \
 		-t ghcr.io/mmichaelb/distrybute:${GIT_TAG} -t ghcr.io/mmichaelb/distrybute:latest \
+		-t mmichaelb/distrybute:${GIT_TAG} -t mmichaelb/distrybute:latest \
 		--build-arg build_git_branch=${GIT_BRANCH} --build-arg build_git_tag=${GIT_TAG} --build-arg build_git_commit_sha=${GIT_COMMIT_SHA} \
 		.
 
