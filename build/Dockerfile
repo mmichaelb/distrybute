@@ -17,6 +17,7 @@ RUN adduser \
     "${USER}"
 WORKDIR $GOPATH/src/distrybute
 COPY . .
+RUN go mod download
 RUN go mod verify
 RUN GOOS=linux GOARCH=amd64 go build -trimpath \
     -ldflags="-X github.com/mmichaelb/distrybute/internal/app.GitBranch=${build_git_branch} -X github.com/mmichaelb/distrybute/internal/app.GitTag=${build_git_tag} -X github.com/mmichaelb/distrybute/internal/app.GitCommitSha=${build_git_commit_sha} -w -s" \
