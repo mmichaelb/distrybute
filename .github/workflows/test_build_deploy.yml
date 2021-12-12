@@ -5,14 +5,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install Go
-        uses: actions/setup-go@331ce1d993939866bb63c32c6cbbfd48fa76fc57 # renovate: tag=v2
+        uses: actions/setup-go@v2
         with:
           go-version: 1.17.x
       - name: Checkout code
         uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # renovate: tag=v2
       - name: Test code
         run: make unit-test
-      - uses: codecov/codecov-action@f32b3a3741e1053eb607407145bc9619351dc93b # renovate: tag=v2
+      - uses: codecov/codecov-action@v2
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.txt
@@ -47,11 +47,11 @@ jobs:
           --health-retries 5
     steps:
       - name: Install Go
-        uses: actions/setup-go@331ce1d993939866bb63c32c6cbbfd48fa76fc57 # renovate: tag=v2
+        uses: actions/setup-go@v2
         with:
           go-version: 1.17.x
       - name: Checkout code
-        uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # renovate: tag=v2
+        uses: actions/checkout@v2
       - name: Test code
         run: make postgres-minio-integration-test
         env:
@@ -61,7 +61,7 @@ jobs:
           TEST_MINIO_HOST: localhost
           TEST_MINIO_PORT: ${{ job.services.minio.ports[9000] }}
           TEST_MINIO_BUCKET_NAME: ${{ env.MINIO_TEST_BUCKET_NAME }}
-      - uses: codecov/codecov-action@f32b3a3741e1053eb607407145bc9619351dc93b # renovate: tag=v2
+      - uses: codecov/codecov-action@v2
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.txt
@@ -73,21 +73,21 @@ jobs:
       packages: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # renovate: tag=v2
+        uses: actions/checkout@v2
       - name: Set up Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@94ab11c41e45d028884a99163086648e898eed25 # renovate: tag=v1
+        uses: docker/setup-buildx-action@v2
       - name: Build docker image
         run: |
           make build-docker
       - name: Login to DockerHub
-        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9 # renovate: tag=v1
+        uses: docker/login-action@v1
         with:
           username: mmichaelb
           password: ${{ secrets.DOCKERHUB_SECRET }}
         if: ${{ github.ref_type == 'tag' }}
       - name: Login to Github Packages
-        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9 # renovate: tag=v1
+        uses: docker/login-action@v1
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
