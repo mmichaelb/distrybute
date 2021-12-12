@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/rs/zerolog/hlog"
+	"net"
 	"net/http"
 )
 
@@ -31,6 +32,14 @@ func (r *router) loggingMiddleware(next http.Handler) http.Handler {
 			Str("path", request.RequestURI).
 			Msg("request.incoming")
 		wrappedWriter := r.wrapResponseWriter(writer)
+		go func() {
+			rDns, err := net.LookupAddr(request.RemoteAddr)
+			if err != nil {
+				hlog.FromRequest(request).Err(err).Msg("could not look for reverse dns entry")
+				return
+			}
+			hlog.FromRequest(request).Info().Interface("reverseDns", rDns).Msg("resolved reverse dns entries")
+		}()
 		defer func() {
 			hlog.FromRequest(request).Info().
 				Int("responseCode", wrappedWriter.statusCode).Msg("request.result")
