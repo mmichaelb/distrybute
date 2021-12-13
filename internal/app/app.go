@@ -19,8 +19,9 @@ import (
 )
 
 var (
-	GitBranch  string
-	GitVersion string
+	GitBranch    string
+	GitTag       string
+	GitCommitSha string
 )
 
 var host string
@@ -33,7 +34,7 @@ func RunApp() {
 		Name:    "distrybute",
 		Usage:   "This application can be used to administrate a distrybute application.",
 		Authors: []*cli.Author{{Name: "mmichaelb", Email: "me@mmichaelb.pw"}},
-		Version: fmt.Sprintf("%s/%s", GitBranch, GitVersion),
+		Version: fmt.Sprintf("%s/%s/%s", GitBranch, GitTag, GitCommitSha),
 		Flags:   append(appFlags, util.PostgresFlags...),
 		Action:  start,
 	}
