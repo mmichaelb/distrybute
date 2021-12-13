@@ -19,6 +19,7 @@ ARG build_git_tag=<unknown>
 ARG build_git_commit_sha=<unknown>
 COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
 COPY --from=builder /go/bin/distrybute /usr/bin/distrybute
+EXPOSE 10711
 #RUN chmod +x /app/distrybute/bin/distrybute
 ENTRYPOINT ["/usr/bin/distrybute"]
 
