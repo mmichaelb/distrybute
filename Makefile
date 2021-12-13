@@ -44,11 +44,21 @@ swagger-format:
 deps:
 	@go mod download
 
+vendor:
+	@go mod vendor
+
 mockery:
 	@mockery --dir pkg/ --name ".*" --keeptree
 
-build-docker:
-	@docker buildx build --platform linux/amd64,linux/arm64,kinux/arm/v7,linux/arm/v8 -f "build/Dockerfile" \
+docker-build: vendor
+	@docker build -f "build/Dockerfile" \
+		-t ghcr.io/mmichaelb/distrybute:${GIT_TAG} -t ghcr.io/mmichaelb/distrybute:latest \
+		-t mmichaelb/distrybute:${GIT_TAG} -t mmichaelb/distrybute:latest \
+		--build-arg build_git_branch=${GIT_BRANCH} --build-arg build_git_tag=${GIT_TAG} --build-arg build_git_commit_sha=${GIT_COMMIT_SHA} \
+		.
+
+docker-cross-platform-buildx-push: vendor
+	@docker buildx build --platform linux/amd64,linux/arm/v7,linux/arm64/v8 -f "build/Dockerfile" --push \
 		-t ghcr.io/mmichaelb/distrybute:${GIT_TAG} -t ghcr.io/mmichaelb/distrybute:latest \
 		-t mmichaelb/distrybute:${GIT_TAG} -t mmichaelb/distrybute:latest \
 		--build-arg build_git_branch=${GIT_BRANCH} --build-arg build_git_tag=${GIT_TAG} --build-arg build_git_commit_sha=${GIT_COMMIT_SHA} \

@@ -1,5 +1,5 @@
 # build golang image
-FROM golang:alpine@alpine AS builder
+FROM golang:1.17.5-alpine3.15 AS builder
 ARG build_git_branch=<unknown>
 ARG build_git_tag=<unknown>
 ARG build_git_commit_sha=<unknown>
@@ -17,7 +17,6 @@ RUN adduser \
     "${USER}"
 WORKDIR $GOPATH/src/distrybute
 COPY . .
-RUN go mod download
 RUN go mod verify
 RUN go build -trimpath \
     -ldflags="-X github.com/mmichaelb/distrybute/internal/app.GitBranch=${build_git_branch} -X github.com/mmichaelb/distrybute/internal/app.GitTag=${build_git_tag} -X github.com/mmichaelb/distrybute/internal/app.GitCommitSha=${build_git_commit_sha} -w -s" \
