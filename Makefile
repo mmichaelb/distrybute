@@ -1,6 +1,6 @@
 PROJECT_NAME=distrybute
 
-GIT_BRANCH=$(shell git branch --show-current)
+GIT_BRANCH=$(shell git rev-parse --abbrev-ref HEAD)
 GIT_TAG=$(shell git describe --tags --always)
 GIT_COMMIT_SHA=$(shell git rev-parse HEAD)
 
@@ -10,7 +10,7 @@ OUTPUT_SUFFIX=$(shell go env GOEXE)
 GOOS=$(shell go env GOOS)
 GOARCH=$(shell go env GOARCH)
 
-OUTPUT_PREFIX=./bin/${PROJECT_NAME}-${GIT_VERSION}
+OUTPUT_PREFIX=./bin/${PROJECT_NAME}-${GIT_TAG}
 
 OUTPUT_FILE_ENDING=$(shell go env GOEXE)
 
