@@ -8,7 +8,7 @@ RUN apk update && apk add --no-cache git tzdata gcc libc-dev
 WORKDIR $GOPATH/src/distrybute
 COPY . .
 RUN go mod verify
-RUN GOARCH=amd64 go build -trimpath \
+RUN CGO_ENABLED=0 go build -trimpath \
     -ldflags="-X github.com/mmichaelb/distrybute/internal/app.GitBranch=${build_git_branch} -X github.com/mmichaelb/distrybute/internal/app.GitTag=${build_git_tag} -X github.com/mmichaelb/distrybute/internal/app.GitCommitSha=${build_git_commit_sha} -w -s" \
      -o /go/bin/distrybute ./cmd/distrybute/main.go
 
