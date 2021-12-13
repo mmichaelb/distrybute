@@ -1,0 +1,35 @@
+version: '3.8'
+services:
+  distrybute:
+    image: ghcr.io/mmichaelb/distrybute:latest
+    ports:
+      - "127.0.0.1:10711:10711"
+    environment:
+      DISTRYBUTE_LOG_FILE: /var/log/distrybute/log.json
+      DISTRYBUTE_MINIO_ENDPOINT: minio:9000
+      DISTRYBUTE_MINIO_ID: distrybute
+      DISTRYBUTE_MINIO_SECRET: distrybute
+      DISTRYBUTE_MINIO_BUCKET: distrybute
+      DISTRYBUTE_POSTGRES_USER: distrybute
+      DISTRYBUTE_POSTGRES_PASSWORD: distrybute
+      DISTRYBUTE_POSTGRES_HOST: postgres
+      DISTRYBUTE_POSTGRES_DB: distrybute
+    volumes:
+      - ./log:/var/log/distrybute/
+  postgres:
+    image: postgres:14
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: distrybute
+      POSTGRES_USER: distrybute
+      POSTGRES_DB: distrybute
+  minio:
+    image: minio/minio:latest
+    command: server /data
+    restart: always
+    environment:
+      MINIO_BROWSER: off
+      MINIO_ROOT_USER: distrybute
+      MINIO_ROOT_PASSWORD: distrybute
+    volumes:
+      - ./data:/data
