@@ -130,7 +130,7 @@ func (r *router) handleFileDeletion(w *responseWriter, req *http.Request) {
 	}
 	err := r.fileService.Delete(deleteReference)
 	if err == distrybute.ErrEntryNotFound {
-		w.WriteNotFoundResponse("not entry associated with the given delete reference", nil, req)
+		w.WriteNotFoundResponse("no entry associated with the given delete reference", nil, req)
 		return
 	} else if err != nil {
 		hlog.FromRequest(req).Err(err).Msg("could not delete entry using delete reference")
