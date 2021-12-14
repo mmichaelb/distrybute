@@ -14,6 +14,12 @@ import (
 	"os"
 )
 
+var (
+	GitBranch    string
+	GitTag       string
+	GitCommitSha string
+)
+
 func RunApp() {
 	prepareLogger()
 	app := &cli.App{
@@ -22,8 +28,9 @@ func RunApp() {
 		Commands: []*cli.Command{
 			userCommand,
 		},
-		Flags:  util.PostgresFlags,
-		Before: prepareService,
+		Version: fmt.Sprintf("%s/%s/%s", GitBranch, GitTag, GitCommitSha),
+		Flags:   util.PostgresFlags,
+		Before:  prepareService,
 	}
 	if err := app.Run(os.Args); err != nil {
 		panic(err)

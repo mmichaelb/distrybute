@@ -1,0 +1,45 @@
+name: [CLI] Build, deploy
+on: [ push, pull_request ]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.17.x
+      - name: Checkout code
+        uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # renovate: tag=v2
+      - name: Build code
+        run: make build-cli
+  docker-build:
+    needs: [ build ]
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Build docker image
+        run: |
+          make docker-build-cli
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: mmichaelb
+          password: ${{ secrets.DOCKERHUB_SECRET }}
+        if: ${{ github.ref_type == 'tag' }}
+      - name: Login to Github Packages
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+        if: ${{ github.ref_type == 'tag' }}
+      - name: Build and push cross-platform images
+        run: |
+          make docker-cross-platform-buildx-push-cli
+        if: ${{ github.ref_type == 'tag' }}

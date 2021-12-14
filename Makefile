@@ -64,5 +64,19 @@ docker-cross-platform-buildx-push: vendor
 		--build-arg build_git_branch=${GIT_BRANCH} --build-arg build_git_tag=${GIT_TAG} --build-arg build_git_commit_sha=${GIT_COMMIT_SHA} \
 		.
 
+docker-build-cli: vendor
+	@docker build -f "build/Dockerfile-cli" \
+		-t ghcr.io/mmichaelb/distrybute-cli:${GIT_TAG} -t ghcr.io/mmichaelb/distrybute-cli:latest \
+		-t mmichaelb/distrybute-cli:${GIT_TAG} -t mmichaelb/distrybute-cli:latest \
+		--build-arg build_git_branch=${GIT_BRANCH} --build-arg build_git_tag=${GIT_TAG} --build-arg build_git_commit_sha=${GIT_COMMIT_SHA} \
+		.
+
+docker-cross-platform-buildx-push-cli: vendor
+	@docker buildx build --platform linux/amd64,linux/arm/v7,linux/arm64/v8 -f "build/Dockerfile-cli" --push \
+		-t ghcr.io/mmichaelb/distrybute-cli:${GIT_TAG} -t ghcr.io/mmichaelb/distrybute-cli:latest \
+		-t mmichaelb/distrybute-cli:${GIT_TAG} -t mmichaelb/distrybute-cli:latest \
+		--build-arg build_git_branch=${GIT_BRANCH} --build-arg build_git_tag=${GIT_TAG} --build-arg build_git_commit_sha=${GIT_COMMIT_SHA} \
+		.
+
 remove-docker-helper-images:
 	@docker image prune --force --filter label=stage=distrybute-builder
