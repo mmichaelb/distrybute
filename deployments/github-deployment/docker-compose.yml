@@ -25,6 +25,8 @@ services:
       POSTGRES_PASSWORD: distrybute
       POSTGRES_USER: distrybute
       POSTGRES_DB: distrybute
+    volumes:
+      - ./postgres:/var/lib/postgresql
     networks:
       - distrybute_compose
   minio:
