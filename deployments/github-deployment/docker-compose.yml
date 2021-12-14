@@ -38,7 +38,7 @@ services:
       MINIO_ROOT_USER: distrybute
       MINIO_ROOT_PASSWORD: distrybute
     volumes:
-      - ./data:/data
+      - ./minio:/data
     networks:
       - distrybute_compose
 networks:
