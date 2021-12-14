@@ -1,4 +1,4 @@
-name: [CLI] Build, deploy
+name: "[cli] Build, deploy"
 on: [ push, pull_request ]
 jobs:
   build:
