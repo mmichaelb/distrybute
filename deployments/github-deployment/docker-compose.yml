@@ -2,6 +2,7 @@ version: '3.8'
 services:
   distrybute:
     image: ghcr.io/mmichaelb/distrybute:latest
+    restart: always
     ports:
       - "127.0.0.1:10711:10711"
     environment:
