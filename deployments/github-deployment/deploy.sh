@@ -49,5 +49,5 @@ PAYLOAD_DEPLOYMENT_STATUSES_URL=$(echo "$PAYLOAD" | jq -r '.deployment.statuses_
 send_deployment_status 'in_progress' 'pulling docker image...'
 docker-compose pull distrybute || check_exit_code
 send_deployment_status 'in_progress' 'restarting docker container'
-docker-compose restart distrybute || check_exit_code
+docker-compose up -d distrybute || check_exit_code
 send_deployment_status 'success' 'deployment done'
