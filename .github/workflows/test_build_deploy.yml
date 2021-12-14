@@ -108,5 +108,6 @@ jobs:
         with:
           ref: ${{ github.ref }}
           auto_merge: false
+          required_contexts: ""
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
