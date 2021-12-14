@@ -97,3 +97,16 @@ jobs:
         run: |
           make docker-cross-platform-buildx-push
         if: ${{ github.ref_type == 'tag' }}
+  deploy:
+    needs: [ docker-build ]
+    if: ${{ github.ref_type == 'tag' &&  }}
+    runs-on: ubuntu-latest
+    permissions:
+      deployments: write
+    steps:
+      - uses: avakar/create-deployment@v1
+        with:
+          ref: ${{ github.ref }}
+          auto_merge: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
