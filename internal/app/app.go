@@ -18,26 +18,17 @@ import (
 	"os"
 )
 
-var (
-	GitBranch    string
-	GitTag       string
-	GitCommitSha string
-)
-
 var host string
 var port int
 var logFile, logLevel string
 var minioEndpoint, minioId, minioSecret, minioToken, minioBucket, minioObjectPrefix string
 
 func RunApp() {
-	app := &cli.App{
-		Name:    "distrybute",
-		Usage:   "This application can be used to administrate a distrybute application.",
-		Authors: []*cli.Author{{Name: "mmichaelb", Email: "me@mmichaelb.pw"}},
-		Version: fmt.Sprintf("%s/%s/%s", GitBranch, GitTag, GitCommitSha),
-		Flags:   append(appFlags, util.PostgresFlags...),
-		Action:  start,
-	}
+	app := util.GeneralApp
+	app.Name = "distrybute"
+	app.Description = "This application can be used to administrate a distrybute application."
+	app.Flags = append(appFlags, util.PostgresFlags...)
+	app.Action = start
 	if err := app.Run(os.Args); err != nil {
 		panic(err)
 	}

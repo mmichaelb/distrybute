@@ -9,7 +9,7 @@ WORKDIR $GOPATH/src/distrybute
 COPY . .
 RUN go mod verify
 RUN CGO_ENABLED=0 go build -trimpath \
-    -ldflags="-X github.com/mmichaelb/distrybute/internal/cli.GitBranch=${build_git_branch} -X github.com/mmichaelb/distrybute/cli/app.GitTag=${build_git_tag} -X github.com/mmichaelb/distrybute/cli/app.GitCommitSha=${build_git_commit_sha} -w -s" \
+    -ldflags="-X github.com/mmichaelb/distrybute/internal/util.GitBranch=${build_git_branch} -X github.com/mmichaelb/distrybute/internal/util.GitTag=${build_git_tag} -X github.com/mmichaelb/distrybute/internal/util.GitCommitSha=${build_git_commit_sha} -w -s" \
      -o /go/bin/distrybute-cli ./cmd/distrybute-cli/main.go
 
 # build real image

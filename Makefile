@@ -4,7 +4,7 @@ GIT_BRANCH=$(shell git rev-parse --abbrev-ref HEAD)
 GIT_TAG=$(shell git describe --tags --always)
 GIT_COMMIT_SHA=$(shell git rev-parse HEAD)
 
-LD_FLAGS = -X github.com/mmichaelb/distrybute/internal/app.GitBranch=${GIT_BRANCH} -X github.com/mmichaelb/distrybute/internal/app.GitTag=${GIT_TAG} -X github.com/mmichaelb/distrybute/internal/app.GitCommitSha=${GIT_COMMIT_SHA}
+LD_FLAGS = -X github.com/mmichaelb/distrybute/internal/util.GitBranch=${GIT_BRANCH} -X github.com/mmichaelb/distrybute/internal/util.GitTag=${GIT_TAG} -X github.com/mmichaelb/distrybute/internal/util.GitCommitSha=${GIT_COMMIT_SHA}
 
 OUTPUT_SUFFIX=$(shell go env GOEXE)
 GOOS=$(shell go env GOOS)

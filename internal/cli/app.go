@@ -14,24 +14,16 @@ import (
 	"os"
 )
 
-var (
-	GitBranch    string
-	GitTag       string
-	GitCommitSha string
-)
-
 func RunApp() {
 	prepareLogger()
-	app := &cli.App{
-		Name:  "distrybute-cli",
-		Usage: "This CLI application can be used to administrate a distrybute application.",
-		Commands: []*cli.Command{
-			userCommand,
-		},
-		Version: fmt.Sprintf("%s/%s/%s", GitBranch, GitTag, GitCommitSha),
-		Flags:   util.PostgresFlags,
-		Before:  prepareService,
+	app := util.GeneralApp
+	app.Name = "distrybute-cli"
+	app.Description = "This CLI application can be used to administrate a distrybute application."
+	app.Commands = []*cli.Command{
+		userCommand,
 	}
+	app.Flags = util.PostgresFlags
+	app.Before = prepareService
 	if err := app.Run(os.Args); err != nil {
 		panic(err)
 	}
