@@ -102,8 +102,16 @@ func start(c *cli.Context) error {
 }
 
 func hookRealIpMiddleware(router *chi.Mux) {
-	router.Middlewares().Handler(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
-		realIp := request.Header.Get(realIpHeader)
-		request.RemoteAddr = realIp
-	}))
+	router.Use(func(handler http.Handler) http.Handler {
+		return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+			realIp := request.Header.Get(realIpHeader)
+			if realIp == "" {
+				log.Warn().Str("remoteAddr", request.RemoteAddr).Str("expectedRealIpHeader", realIp).
+					Msg("request contained no valid real ip header")
+			} else {
+				request.RemoteAddr = realIp
+			}
+			handler.ServeHTTP(writer, request)
+		})
+	})
 }
