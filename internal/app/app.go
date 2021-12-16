@@ -51,7 +51,8 @@ func start(c *cli.Context) error {
 	if err != nil {
 		panic(err)
 	}
-	log.Level(level)
+	zerolog.SetGlobalLevel(level)
+	log.Info().Str("version", util.Version).Msg("starting distrybute main application")
 	connString := fmt.Sprintf("postgres://%s:%s@%s:%d/%s",
 		c.String("postgresuser"), c.String("postgrespassword"),
 		c.String("postgreshost"), c.Int("postgresport"),
