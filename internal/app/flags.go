@@ -19,6 +19,11 @@ var appFlags = []cli.Flag{
 		Destination: &port,
 	},
 	&cli.StringFlag{
+		Name:        "realIpHeader",
+		EnvVars:     []string{"DISTRYBUTE_REAL_IP_HEADER"},
+		Destination: &realIpHeader,
+	},
+	&cli.StringFlag{
 		Name:        "logFile",
 		EnvVars:     []string{"DISTRYBUTE_LOG_FILE"},
 		Value:       "log.json",
