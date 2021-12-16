@@ -82,11 +82,12 @@ func start(c *cli.Context) error {
 	apiRouter := controller.NewRouter(log.With().Str("service", "rest").Logger(), service, service)
 	router.Mount("/api/", apiRouter)
 	router.Get(fmt.Sprintf("/v/{%s}", controller.FileRequestShortIdParamName), apiRouter.HandleFileRequest)
-	address := fmt.Sprintf("%s:%d", host, port)
 	signalChannel := make(chan os.Signal, 1)
 	signal.Notify(signalChannel, os.Interrupt)
+	address := fmt.Sprintf("%s:%d", host, port)
 	server := &http.Server{
 		Handler: router,
+		Addr:    address,
 	}
 	go func() {
 		log.Info().Str("address", address).Msg("starting server process")
