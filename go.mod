@@ -10,12 +10,12 @@ require (
 	github.com/jackc/pgx/v4 v4.14.1
 	github.com/minio/minio-go/v7 v7.0.18
 	github.com/pkg/errors v0.9.1
-	github.com/rs/zerolog v1.26.0
+	github.com/rs/zerolog v1.26.1
 	github.com/stretchr/testify v1.7.0
 	github.com/swaggo/http-swagger v1.1.2
 	github.com/swaggo/swag v1.7.6
 	github.com/urfave/cli/v2 v2.3.0
-	golang.org/x/crypto v0.0.0-20211215153901-e495a2d5b3d3
+	golang.org/x/crypto v0.0.0-20211215165025-cf75a172585e
 )
 
 require (
