@@ -53,15 +53,13 @@ func start(c *cli.Context) error {
 	}
 	zerolog.SetGlobalLevel(level)
 	log.Info().Str("version", util.Version).Msg("starting distrybute main application")
-	connString := fmt.Sprintf("postgres://%s:%s@%s:%d/%s",
-		c.String("postgresuser"), c.String("postgrespassword"),
-		c.String("postgreshost"), c.Int("postgresport"),
-		c.String("postgresdatabase"))
+	connString := buildPostgresConnString(c)
 	log.Info().Msg("connecting to postgres database...")
 	conn, err := pgx.Connect(context.Background(), connString)
 	if err != nil {
 		log.Fatal().Err(err).Msg("could not connect to postgres database")
 	}
+	log.Debug().Msg("postgresql connection attempt successful")
 	log.Info().Msg("connecting to minio server...")
 	minioClient, err := minio.New(c.String("minioEndpoint"), &minio.Options{
 		Creds: credentials.NewStaticV4(c.String("minioId"), c.String("minioSecret"), ""),
@@ -74,24 +72,32 @@ func start(c *cli.Context) error {
 	if err = service.Init(); err != nil {
 		log.Fatal().Err(err).Msg("could not initialize postgres/minio service")
 	}
+	log.Debug().Msg("instantiating new chi router")
 	router := chi.NewRouter()
+	log.Debug().Str("realIpHeader", realIpHeader).Msg("real ip header output")
 	if realIpHeader != "" {
 		log.Debug().Str("realIpHeader", realIpHeader).Msg("enabling real ip header detection")
 		hookRealIpMiddleware(router)
 	}
+	log.Debug().Msg("instantiating api router")
 	apiRouter := controller.NewRouter(log.With().Str("service", "rest").Logger(), service, service)
 	router.Mount("/api/", apiRouter)
 	router.Get(fmt.Sprintf("/v/{%s}", controller.FileRequestShortIdParamName), apiRouter.HandleFileRequest)
+	log.Debug().Msg("creating channel to listen for interrupts")
 	signalChannel := make(chan os.Signal, 1)
 	signal.Notify(signalChannel, os.Interrupt)
 	address := fmt.Sprintf("%s:%d", host, port)
+	log.Debug().Str("address", address).Msg("built web server address")
 	server := &http.Server{
 		Handler: router,
 		Addr:    address,
 	}
+	log.Debug().Msg("starting web server process in separate go routine")
 	go func() {
 		log.Info().Str("address", address).Msg("starting server process")
-		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		err := server.ListenAndServe()
+		log.Debug().Err(err).Msg("stopped listening and serving web server")
+		if err != nil && err != http.ErrServerClosed {
 			log.Err(err).Msg("could not listen and serve web app")
 			signalChannel <- os.Interrupt
 		}
@@ -107,11 +113,25 @@ func hookRealIpMiddleware(router *chi.Mux) {
 			realIp := request.Header.Get(realIpHeader)
 			if realIp == "" {
 				log.Warn().Str("remoteAddr", request.RemoteAddr).Str("expectedRealIpHeader", realIp).
-					Msg("request contained no valid real ip header")
+					Msg("request contains no valid real ip header")
 			} else {
+				sourceIp := request.RemoteAddr
+				log.Debug().Str("sourceIp", sourceIp).Str("realIpFromHeader", realIp).Msg("manipulating remote addr field")
 				request.RemoteAddr = realIp
 			}
+			log.Debug().Msg("real ip middleware done - handing request over to further handlers")
 			handler.ServeHTTP(writer, request)
 		})
 	})
+}
+
+func buildPostgresConnString(c *cli.Context) string {
+	pgUser := c.String("postgresuser")
+	pgPassword := c.String("postgrespassword")
+	pgHost := c.String("postgreshost")
+	pgPort := c.Int("postgresport")
+	pgDatabase := c.String("postgresdatabase")
+	log.Debug().Str("pgUser", pgUser).Str("pgHost", pgHost).Int("pgPort", pgPort).
+		Str("pgDatabase", pgDatabase).Msg("using configured values")
+	return fmt.Sprintf("postgres://%s:%s@%s:%d/%s", pgUser, pgPassword, pgHost, pgPort, pgDatabase)
 }
