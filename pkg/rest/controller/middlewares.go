@@ -33,9 +33,15 @@ func (r *router) loggingMiddleware(next http.Handler) http.Handler {
 			Msg("request.incoming")
 		wrappedWriter := r.wrapResponseWriter(writer)
 		go func() {
-			rDns, err := net.LookupAddr(request.RemoteAddr)
+			host, _, err := net.SplitHostPort(request.RemoteAddr)
 			if err != nil {
-				hlog.FromRequest(request).Warn().Err(err).Msg("could not look for reverse dns entry")
+				hlog.FromRequest(request).Warn().Err(err).Msg("could not split request address")
+				return
+			}
+			rDns, err := net.LookupAddr(host)
+			if err != nil {
+				hlog.FromRequest(request).Warn().Err(err).Str("remoteAddr", request.RemoteAddr).Str("host", host).
+					Msg("could not look for reverse dns entry")
 				return
 			}
 			hlog.FromRequest(request).Info().Interface("reverseDns", rDns).Msg("resolved reverse dns entries")
