@@ -10,6 +10,7 @@ import (
 	"github.com/mmichaelb/distrybute/internal/util"
 	"github.com/mmichaelb/distrybute/pkg/postgresminio"
 	"github.com/mmichaelb/distrybute/pkg/rest/controller"
+	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
@@ -40,18 +41,10 @@ func RunApp() {
 }
 
 func start(c *cli.Context) error {
-	logFile, err := os.Create(logFile)
+	err := setupLogging()
 	if err != nil {
-		panic(err)
+		return err
 	}
-	log.Logger = log.Output(io.MultiWriter(zerolog.ConsoleWriter{
-		Out: os.Stdout,
-	}, logFile))
-	level, err := zerolog.ParseLevel(logLevel)
-	if err != nil {
-		panic(err)
-	}
-	zerolog.SetGlobalLevel(level)
 	log.Info().Str("version", util.Version).Msg("starting distrybute main application")
 	connString := buildPostgresConnString(c)
 	log.Info().Msg("connecting to postgres database...")
@@ -104,6 +97,22 @@ func start(c *cli.Context) error {
 	}()
 	<-signalChannel
 	log.Info().Msg("received signal to shut down application")
+	return nil
+}
+
+func setupLogging() error {
+	logFile, err := os.Create(logFile)
+	if err != nil {
+		return errors.Wrap(err, "could not create logging output file")
+	}
+	log.Logger = log.Output(io.MultiWriter(zerolog.ConsoleWriter{
+		Out: os.Stdout,
+	}, logFile))
+	level, err := zerolog.ParseLevel(logLevel)
+	if err != nil {
+		return errors.Wrap(err, "could not parse logging level: "+logLevel)
+	}
+	zerolog.SetGlobalLevel(level)
 	return nil
 }
 
