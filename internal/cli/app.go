@@ -2,7 +2,6 @@ package cli
 
 import (
 	"context"
-	"fmt"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/mmichaelb/distrybute/internal/util"
 	"github.com/mmichaelb/distrybute/pkg/postgresminio"
@@ -22,7 +21,7 @@ func RunApp() {
 	app.Commands = []*cli.Command{
 		userCommand,
 	}
-	app.Flags = util.PostgresFlags
+	app.Flags = []cli.Flag{util.PostgresConnectUriFlag}
 	app.Before = prepareService
 	if err := app.Run(os.Args); err != nil {
 		panic(err)
@@ -40,10 +39,7 @@ func prepareLogger() {
 }
 
 func prepareService(c *cli.Context) error {
-	connString := fmt.Sprintf("postgres://%s:%s@%s:%d/%s",
-		c.String("postgresuser"), c.String("postgrespassword"),
-		c.String("postgreshost"), c.Int("postgresport"),
-		c.String("postgresdatabase"))
+	connString := c.String("postgresconnecturi")
 	pool, err := pgxpool.Connect(context.Background(), connString)
 	if err != nil {
 		return errors.Wrap(err, "could not connect to postgres database")

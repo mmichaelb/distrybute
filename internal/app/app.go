@@ -4,8 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-chi/chi/v5"
-	"github.com/jackc/pgconn"
-	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
@@ -37,7 +35,7 @@ func RunApp() {
 	app := util.GeneralApp
 	app.Name = "distrybute"
 	app.Description = "This application can be used to administrate a distrybute application."
-	app.Flags = append(appFlags, util.PostgresFlags...)
+	app.Flags = append(appFlags, util.PostgresConnectUriFlag)
 	app.Action = start
 	if err := app.Run(os.Args); err != nil {
 		panic(err)
@@ -52,11 +50,11 @@ func start(c *cli.Context) error {
 	log.Info().Str("version", util.Version).Msg("starting distrybute main application")
 	log.Info().Msg("connecting to postgresql server...")
 	start := time.Now()
-	pool, err = pgxpool.ConnectConfig(context.Background(), &pgxpool.Config{
-		ConnConfig: &pgx.ConnConfig{
-			Config: buildPostgresConnString(c),
-		},
-	})
+	config, err := pgxpool.ParseConfig(c.String("postgresconnecturi"))
+	if err != nil {
+		log.Fatal().Err(err).Msg("could not parse postgres connect uri")
+	}
+	pool, err = pgxpool.ConnectConfig(context.Background(), config)
 	if err != nil {
 		log.Fatal().Err(err).Msg("could not connect to postgres database")
 	} else {
@@ -141,23 +139,4 @@ func hookRealIpMiddleware(router *chi.Mux) {
 			handler.ServeHTTP(writer, request)
 		})
 	})
-}
-
-func buildPostgresConnString(c *cli.Context) pgconn.Config {
-	pgUser := c.String("postgresuser")
-	pgPassword := c.String("postgrespassword")
-	pgHost := c.String("postgreshost")
-	pgPort := c.Uint("postgresport")
-	pgDatabase := c.String("postgresdatabase")
-	pgTimeout := c.Duration("postgrestimeout")
-	log.Debug().Str("pgUser", pgUser).Str("pgHost", pgHost).Uint("pgPort", pgPort).
-		Str("pgDatabase", pgDatabase).Dur("pgTimeout", pgTimeout).Msg("using configured values")
-	return pgconn.Config{
-		User:           pgUser,
-		Password:       pgPassword,
-		Host:           pgHost,
-		Port:           uint16(pgPort),
-		Database:       pgDatabase,
-		ConnectTimeout: pgTimeout,
-	}
 }
