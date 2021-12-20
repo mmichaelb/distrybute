@@ -1,6 +1,9 @@
 package util
 
-import "github.com/urfave/cli/v2"
+import (
+	"github.com/urfave/cli/v2"
+	"time"
+)
 
 var PostgresFlags = []cli.Flag{
 	&cli.StringFlag{
@@ -21,7 +24,7 @@ var PostgresFlags = []cli.Flag{
 		Value:   "localhost",
 		EnvVars: []string{"DISTRYBUTE_POSTGRES_HOST"},
 	},
-	&cli.IntFlag{
+	&cli.UintFlag{
 		Name:    "postgresport",
 		Aliases: []string{"ppo"},
 		Value:   5432,
@@ -32,5 +35,10 @@ var PostgresFlags = []cli.Flag{
 		Aliases: []string{"pd"},
 		Value:   "postgres",
 		EnvVars: []string{"DISTRYBUTE_POSTGRES_DB"},
+	},
+	&cli.DurationFlag{
+		Name:    "postgrestimeout",
+		Aliases: []string{"pt"},
+		Value:   time.Second * 30,
 	},
 }

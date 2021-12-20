@@ -23,7 +23,12 @@ const (
 )
 
 func (s *Service) Store(filename, contentType string, size int64, author uuid.UUID, reader io.Reader) (entry *distrybute.FileEntry, err error) {
-	tx, err := s.connection.Begin(context.Background())
+	conn, err := s.pool.Acquire(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	defer deferCloseConnFunc(conn)()
+	tx, err := conn.Begin(context.Background())
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +79,12 @@ func (s *Service) Store(filename, contentType string, size int64, author uuid.UU
 }
 
 func (s *Service) Request(callReference string) (entry *distrybute.FileEntry, err error) {
-	row := s.connection.QueryRow(context.Background(),
+	conn, err := s.pool.Acquire(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	defer deferCloseConnFunc(conn)()
+	row := conn.QueryRow(context.Background(),
 		`SELECT id, author, delete_reference, content_type, filename, size, upload_date FROM distrybute.entries WHERE call_reference=$1`, callReference)
 	var id, author uuid.UUID
 	var deleteReference, contentType, filename string
@@ -106,7 +116,15 @@ func (s *Service) Request(callReference string) (entry *distrybute.FileEntry, er
 }
 
 func (s *Service) Delete(deleteReference string) (err error) {
-	tx, err := s.connection.Begin(context.Background())
+	conn, err := s.pool.Acquire(context.Background())
+	if err != nil {
+		return err
+	}
+	defer deferCloseConnFunc(conn)()
+	tx, err := conn.Begin(context.Background())
+	if err != nil {
+		return err
+	}
 	defer func() {
 		err := tx.Rollback(context.Background())
 		if !errors.Is(err, pgx.ErrTxClosed) && err != nil {

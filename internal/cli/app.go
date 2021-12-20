@@ -3,7 +3,7 @@ package cli
 import (
 	"context"
 	"fmt"
-	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/mmichaelb/distrybute/internal/util"
 	"github.com/mmichaelb/distrybute/pkg/postgresminio"
 	"github.com/pkg/errors"
@@ -44,10 +44,10 @@ func prepareService(c *cli.Context) error {
 		c.String("postgresuser"), c.String("postgrespassword"),
 		c.String("postgreshost"), c.Int("postgresport"),
 		c.String("postgresdatabase"))
-	conn, err := pgx.Connect(context.Background(), connString)
+	pool, err := pgxpool.Connect(context.Background(), connString)
 	if err != nil {
 		return errors.Wrap(err, "could not connect to postgres database")
 	}
-	service = postgresminio.NewService(conn, nil, "distrybute", "file-")
+	service = postgresminio.NewService(pool, nil, "distrybute", "file-")
 	return nil
 }

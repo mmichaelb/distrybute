@@ -4,7 +4,9 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-chi/chi/v5"
+	"github.com/jackc/pgconn"
 	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	"github.com/mmichaelb/distrybute/internal/util"
@@ -18,6 +20,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"time"
 )
 
 var host string
@@ -25,6 +28,7 @@ var port int
 var realIpHeader string
 var logFile, logLevel string
 var minioEndpoint, minioId, minioSecret, minioToken, minioBucket, minioObjectPrefix string
+var pool *pgxpool.Pool
 
 const asciiArt = "\n     _  _       _                 _             _        \n    | |(_)     | |               | |           | |       \n  __| | _  ___ | |_  _ __  _   _ | |__   _   _ | |_  ___ \n / _` || |/ __|| __|| '__|| | | || '_ \\ | | | || __|/ _ \\\n| (_| || |\\__ \\| |_ | |   | |_| || |_) || |_| || |_|  __/\n \\__,_||_||___/ \\__||_|    \\__, ||_.__/  \\__,_| \\__|\\___|\n                            __/ |                        \n                           |___/                         \n"
 
@@ -46,13 +50,18 @@ func start(c *cli.Context) error {
 		return err
 	}
 	log.Info().Str("version", util.Version).Msg("starting distrybute main application")
-	connString := buildPostgresConnString(c)
-	log.Info().Msg("connecting to postgres database...")
-	conn, err := pgx.Connect(context.Background(), connString)
+	log.Info().Msg("connecting to postgresql server...")
+	start := time.Now()
+	pool, err = pgxpool.ConnectConfig(context.Background(), &pgxpool.Config{
+		ConnConfig: &pgx.ConnConfig{
+			Config: buildPostgresConnString(c),
+		},
+	})
 	if err != nil {
 		log.Fatal().Err(err).Msg("could not connect to postgres database")
+	} else {
+		log.Info().Dur("duration", time.Since(start)).Msg("connected to postgresql server")
 	}
-	log.Debug().Msg("postgresql connection attempt successful")
 	log.Info().Msg("connecting to minio server...")
 	minioClient, err := minio.New(c.String("minioEndpoint"), &minio.Options{
 		Creds: credentials.NewStaticV4(c.String("minioId"), c.String("minioSecret"), ""),
@@ -61,7 +70,7 @@ func start(c *cli.Context) error {
 		log.Fatal().Err(err).Msg("could connect to minio server")
 	}
 	log.Info().Msg("initializing postgres/minio service...")
-	service := postgresminio.NewService(conn, minioClient, minioBucket, c.String("minioObjectPrefix"))
+	service := postgresminio.NewService(pool, minioClient, minioBucket, c.String("minioObjectPrefix"))
 	if err = service.Init(); err != nil {
 		log.Fatal().Err(err).Msg("could not initialize postgres/minio service")
 	}
@@ -134,13 +143,21 @@ func hookRealIpMiddleware(router *chi.Mux) {
 	})
 }
 
-func buildPostgresConnString(c *cli.Context) string {
+func buildPostgresConnString(c *cli.Context) pgconn.Config {
 	pgUser := c.String("postgresuser")
 	pgPassword := c.String("postgrespassword")
 	pgHost := c.String("postgreshost")
-	pgPort := c.Int("postgresport")
+	pgPort := c.Uint("postgresport")
 	pgDatabase := c.String("postgresdatabase")
-	log.Debug().Str("pgUser", pgUser).Str("pgHost", pgHost).Int("pgPort", pgPort).
-		Str("pgDatabase", pgDatabase).Msg("using configured values")
-	return fmt.Sprintf("postgres://%s:%s@%s:%d/%s", pgUser, pgPassword, pgHost, pgPort, pgDatabase)
+	pgTimeout := c.Duration("postgrestimeout")
+	log.Debug().Str("pgUser", pgUser).Str("pgHost", pgHost).Uint("pgPort", pgPort).
+		Str("pgDatabase", pgDatabase).Dur("pgTimeout", pgTimeout).Msg("using configured values")
+	return pgconn.Config{
+		User:           pgUser,
+		Password:       pgPassword,
+		Host:           pgHost,
+		Port:           uint16(pgPort),
+		Database:       pgDatabase,
+		ConnectTimeout: pgTimeout,
+	}
 }

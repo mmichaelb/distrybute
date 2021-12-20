@@ -8,7 +8,7 @@ import (
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/golang-migrate/migrate/v4/source/iofs"
-	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v4/pgxpool"
 	_ "github.com/jackc/pgx/v4/stdlib"
 	"github.com/minio/minio-go/v7"
 	"github.com/pkg/errors"
@@ -20,7 +20,7 @@ import (
 var migrations embed.FS
 
 type Service struct {
-	connection   *pgx.Conn
+	pool         *pgxpool.Pool
 	minioClient  *minio.Client
 	bucketName   string
 	objectPrefix string
@@ -63,7 +63,7 @@ func (s Service) Init() error {
 }
 
 func (s Service) instantiateMigrateInstance() (*migrate.Migrate, error) {
-	db, err := sql.Open("pgx", s.connection.Config().ConnString())
+	db, err := sql.Open("pgx", s.pool.Config().ConnString())
 	if err != nil {
 		return nil, errors.Wrap(err, "could not connect to postgres database using pgx driver")
 	}
@@ -83,6 +83,6 @@ func (s Service) instantiateMigrateInstance() (*migrate.Migrate, error) {
 	return m, nil
 }
 
-func NewService(connection *pgx.Conn, minioClient *minio.Client, bucketName string, objectPrefix string) *Service {
-	return &Service{connection: connection, minioClient: minioClient, bucketName: bucketName, objectPrefix: objectPrefix}
+func NewService(pool *pgxpool.Pool, minioClient *minio.Client, bucketName string, objectPrefix string) *Service {
+	return &Service{pool: pool, minioClient: minioClient, bucketName: bucketName, objectPrefix: objectPrefix}
 }

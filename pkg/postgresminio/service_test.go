@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	"github.com/stretchr/testify/assert"
@@ -11,7 +12,7 @@ import (
 	"testing"
 )
 
-var connection *pgx.Conn
+var pool *pgxpool.Pool
 var minioClient *minio.Client
 
 var testBucketName = os.Getenv("TEST_MINIO_BUCKET_NAME")
@@ -23,7 +24,7 @@ func Test_PostgresMinio_Service(t *testing.T) {
 	}
 	setupPostgresConnection(t)
 	setupMinioClient(t)
-	service := NewService(connection, minioClient, testBucketName, "")
+	service := NewService(pool, minioClient, testBucketName, "")
 	err := service.Init()
 	assert.NoError(t, err)
 	t.Run("user Service", userServiceIntegrationTest(service))
@@ -35,14 +36,16 @@ func setupPostgresConnection(t *testing.T) {
 	port := os.Getenv("TEST_POSTGRES_PORT")
 	db := os.Getenv("TEST_POSTGRES_DB")
 	var err error
-	connection, err = pgx.Connect(context.Background(), fmt.Sprintf("postgres://postgres:postgres@%s:%s/%s", host, port, db))
+	pool, err = pgxpool.Connect(context.Background(), fmt.Sprintf("postgres://postgres:postgres@%s:%s/%s", host, port, db))
 	assert.NoError(t, err, "could not establish test connection")
-	err = connection.QueryRow(context.Background(), "CREATE SCHEMA IF NOT EXISTS distrybute").Scan()
+	conn, err := pool.Acquire(context.Background())
+	assert.NoError(t, err, "could not acquire a new database connection from postgresql pool")
+	err = conn.QueryRow(context.Background(), "CREATE SCHEMA IF NOT EXISTS distrybute").Scan()
 	assert.ErrorIs(t, err, pgx.ErrNoRows, "could not create distrybute schema")
 	t.Cleanup(func() {
-		err = connection.QueryRow(context.Background(), "DROP SCHEMA distrybute CASCADE").Scan()
+		err = conn.QueryRow(context.Background(), "DROP SCHEMA distrybute CASCADE").Scan()
 		assert.ErrorIs(t, err, pgx.ErrNoRows, "could not delete distrybute schema")
-		err = connection.Close(context.Background())
+		err = conn.Conn().Close(context.Background())
 		assert.NoError(t, err, "could not close postgres connection")
 	})
 }

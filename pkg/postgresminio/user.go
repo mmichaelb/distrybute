@@ -25,7 +25,12 @@ func (s *Service) CreateNewUser(username string, password []byte) (user *distryb
 	if err != nil {
 		return nil, err
 	}
-	row := s.connection.QueryRow(context.Background(),
+	conn, err := s.pool.Acquire(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	defer deferCloseConnFunc(conn)()
+	row := conn.QueryRow(context.Background(),
 		`INSERT INTO distrybute.users (id, username, auth_token, password_alg, password_salt, password) VALUES ($1, $2, $3, $4, $5, $6)`,
 		id, username, authToken, string(passwordAlgorithm), salt, hashedPassword)
 	if err = row.Scan(); isViolatingUniqueConstraintErr(err) {
@@ -42,7 +47,12 @@ func (s *Service) CreateNewUser(username string, password []byte) (user *distryb
 }
 
 func (s *Service) CheckPassword(username string, password []byte) (ok bool, user *distrybute.User, err error) {
-	row := s.connection.QueryRow(context.Background(),
+	conn, err := s.pool.Acquire(context.Background())
+	if err != nil {
+		return false, nil, err
+	}
+	defer deferCloseConnFunc(conn)()
+	row := conn.QueryRow(context.Background(),
 		`SELECT id, username, password, password_alg, password_salt FROM distrybute.users WHERE username ILIKE $1`, username)
 	var id uuid.UUID
 	var fetchedUsername string
@@ -69,7 +79,12 @@ func (s *Service) CheckPassword(username string, password []byte) (ok bool, user
 }
 
 func (s *Service) UpdateUsername(id uuid.UUID, newUsername string) (err error) {
-	row := s.connection.QueryRow(context.Background(), `UPDATE distrybute.users SET username=$1 WHERE id=$2`, newUsername, id)
+	conn, err := s.pool.Acquire(context.Background())
+	if err != nil {
+		return err
+	}
+	defer deferCloseConnFunc(conn)()
+	row := conn.QueryRow(context.Background(), `UPDATE distrybute.users SET username=$1 WHERE id=$2`, newUsername, id)
 	err = row.Scan()
 	if isViolatingUniqueConstraintErr(err) {
 		return distrybute.ErrUserAlreadyExists
@@ -80,7 +95,12 @@ func (s *Service) UpdateUsername(id uuid.UUID, newUsername string) (err error) {
 }
 
 func (s *Service) ResolveAuthorizationToken(id uuid.UUID) (token string, err error) {
-	row := s.connection.QueryRow(context.Background(), `SELECT auth_token FROM distrybute.users WHERE id=$1`, id)
+	conn, err := s.pool.Acquire(context.Background())
+	if err != nil {
+		return "nil", err
+	}
+	defer deferCloseConnFunc(conn)()
+	row := conn.QueryRow(context.Background(), `SELECT auth_token FROM distrybute.users WHERE id=$1`, id)
 	err = row.Scan(&token)
 	if err == nil {
 		return
@@ -92,11 +112,16 @@ func (s *Service) ResolveAuthorizationToken(id uuid.UUID) (token string, err err
 }
 
 func (s *Service) RefreshAuthorizationToken(id uuid.UUID) (token string, err error) {
+	conn, err := s.pool.Acquire(context.Background())
+	if err != nil {
+		return "", err
+	}
+	defer deferCloseConnFunc(conn)()
 	token, err = generateAuthToken()
 	if err != nil {
 		return "", err
 	}
-	row := s.connection.QueryRow(context.Background(), `UPDATE distrybute.users SET auth_token=$1 WHERE id=$2`, token, id)
+	row := conn.QueryRow(context.Background(), `UPDATE distrybute.users SET auth_token=$1 WHERE id=$2`, token, id)
 	err = row.Scan(&token)
 	if isViolatingUniqueConstraintErr(err) {
 		return "", distrybute.ErrAuthTokenAlreadyPresent
@@ -108,7 +133,12 @@ func (s *Service) RefreshAuthorizationToken(id uuid.UUID) (token string, err err
 }
 
 func (s *Service) ListUsers() (users []*distrybute.User, err error) {
-	rows, err := s.connection.Query(context.Background(), `SELECT id, username FROM distrybute.users`)
+	conn, err := s.pool.Acquire(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	defer deferCloseConnFunc(conn)()
+	rows, err := conn.Query(context.Background(), `SELECT id, username FROM distrybute.users`)
 	if err != nil {
 		return nil, err
 	}
@@ -128,10 +158,15 @@ func (s *Service) ListUsers() (users []*distrybute.User, err error) {
 }
 
 func (s *Service) GetUserByAuthorizationToken(token string) (bool, *distrybute.User, error) {
-	row := s.connection.QueryRow(context.Background(), `SELECT id, username FROM distrybute.users WHERE auth_token=$1`, token)
+	conn, err := s.pool.Acquire(context.Background())
+	if err != nil {
+		return false, nil, err
+	}
+	defer deferCloseConnFunc(conn)()
+	row := conn.QueryRow(context.Background(), `SELECT id, username FROM distrybute.users WHERE auth_token=$1`, token)
 	var id uuid.UUID
 	var username string
-	err := row.Scan(&id, &username)
+	err = row.Scan(&id, &username)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return false, nil, nil
 	} else if err != nil {
@@ -141,7 +176,12 @@ func (s *Service) GetUserByAuthorizationToken(token string) (bool, *distrybute.U
 }
 
 func (s *Service) GetUserByUsername(username string) (user *distrybute.User, err error) {
-	row := s.connection.QueryRow(context.Background(), `SELECT id, username FROM distrybute.users WHERE UPPER(username)=UPPER($1)`, username)
+	conn, err := s.pool.Acquire(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	defer deferCloseConnFunc(conn)()
+	row := conn.QueryRow(context.Background(), `SELECT id, username FROM distrybute.users WHERE UPPER(username)=UPPER($1)`, username)
 	var id uuid.UUID
 	err = row.Scan(&id, &username)
 	if errors.Is(err, pgx.ErrNoRows) {
@@ -153,7 +193,12 @@ func (s *Service) GetUserByUsername(username string) (user *distrybute.User, err
 }
 
 func (s *Service) DeleteUser(id uuid.UUID) (err error) {
-	row := s.connection.QueryRow(context.Background(), `DELETE FROM distrybute.users WHERE id=$1 RETURNING username`, id)
+	conn, err := s.pool.Acquire(context.Background())
+	if err != nil {
+		return err
+	}
+	defer deferCloseConnFunc(conn)()
+	row := conn.QueryRow(context.Background(), `DELETE FROM distrybute.users WHERE id=$1 RETURNING username`, id)
 	var username string
 	err = row.Scan(&username)
 	if err == pgx.ErrNoRows {
@@ -164,7 +209,12 @@ func (s *Service) DeleteUser(id uuid.UUID) (err error) {
 }
 
 func (s *Service) UpdatePassword(id uuid.UUID, password []byte) (err error) {
-	row := s.connection.QueryRow(context.Background(), `SELECT password_alg, password_salt FROM distrybute.users WHERE id=$1`, id)
+	conn, err := s.pool.Acquire(context.Background())
+	if err != nil {
+		return err
+	}
+	defer deferCloseConnFunc(conn)()
+	row := conn.QueryRow(context.Background(), `SELECT password_alg, password_salt FROM distrybute.users WHERE id=$1`, id)
 	var passwordAlgorithm distrybute.PasswordHashAlgorithm
 	var passwordSalt []byte
 	err = row.Scan(&passwordAlgorithm, &passwordSalt)
@@ -177,7 +227,7 @@ func (s *Service) UpdatePassword(id uuid.UUID, password []byte) (err error) {
 	if !errors.Is(err, pgx.ErrNoRows) {
 		return err
 	}
-	row = s.connection.QueryRow(context.Background(),
+	row = conn.QueryRow(context.Background(),
 		`UPDATE distrybute.users SET password=$1 WHERE id=$2`, hashedPassword, id)
 	return row.Scan()
 }
