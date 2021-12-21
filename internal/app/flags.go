@@ -3,6 +3,7 @@ package app
 import (
 	"github.com/rs/zerolog"
 	"github.com/urfave/cli/v2"
+	"time"
 )
 
 var appFlags = []cli.Flag{
@@ -68,5 +69,17 @@ var appFlags = []cli.Flag{
 		EnvVars:     []string{"DISTRYBUTE_MINIO_OBJECT_PREFIX"},
 		Value:       "file-",
 		Destination: &minioObjectPrefix,
+	},
+	&cli.IntFlag{
+		Name:        "postgresretries",
+		EnvVars:     []string{"DISTRYBUTE_POSTGRES_RETRIES"},
+		Value:       12,
+		Destination: &postgresRetries,
+	},
+	&cli.DurationFlag{
+		Name:        "postgresretryinterval",
+		EnvVars:     []string{"DISTRYBUTE_POSTGRES_RETRIES_INTERVAL"},
+		Value:       time.Second * 5,
+		Destination: &postgresRetriesInterval,
 	},
 }

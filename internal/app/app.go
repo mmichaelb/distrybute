@@ -27,6 +27,8 @@ var realIpHeader string
 var logFile, logLevel string
 var minioEndpoint, minioId, minioSecret, minioToken, minioBucket, minioObjectPrefix string
 var pool *pgxpool.Pool
+var postgresRetries int
+var postgresRetriesInterval time.Duration
 
 const asciiArt = "\n     _  _       _                 _             _        \n    | |(_)     | |               | |           | |       \n  __| | _  ___ | |_  _ __  _   _ | |__   _   _ | |_  ___ \n / _` || |/ __|| __|| '__|| | | || '_ \\ | | | || __|/ _ \\\n| (_| || |\\__ \\| |_ | |   | |_| || |_) || |_| || |_|  __/\n \\__,_||_||___/ \\__||_|    \\__, ||_.__/  \\__,_| \\__|\\___|\n                            __/ |                        \n                           |___/                         \n"
 
@@ -48,17 +50,30 @@ func start(c *cli.Context) error {
 		return err
 	}
 	log.Info().Str("version", util.Version).Msg("starting distrybute main application")
-	log.Info().Msg("connecting to postgresql server...")
-	start := time.Now()
 	config, err := pgxpool.ParseConfig(c.String("postgresconnecturi"))
 	if err != nil {
 		log.Fatal().Err(err).Msg("could not parse postgres connect uri")
 	}
-	pool, err = pgxpool.ConnectConfig(context.Background(), config)
-	if err != nil {
-		log.Fatal().Err(err).Msg("could not connect to postgres database")
-	} else {
-		log.Info().Dur("duration", time.Since(start)).Msg("connected to postgresql server")
+	log.Debug().Int("retries", postgresRetries).Dur("interval", postgresRetriesInterval).
+		Msg("starting postgres connect attempts")
+	for i := 0; i < postgresRetries; i++ {
+		log.Debug().Int("currentAttempt", i).Send()
+		log.Info().Msg("connecting to postgres database server...")
+		start := time.Now()
+		pool, err = pgxpool.ConnectConfig(context.Background(), config)
+		if err != nil {
+			log.Warn().Err(err).Msg("could not connect to postgres server")
+		} else {
+			log.Info().Dur("duration", time.Since(start)).Msg("connected to postgresql server")
+			break
+		}
+		if i != postgresRetries-1 {
+			log.Debug().Dur("interval", postgresRetriesInterval).Msg("waiting until next connect attempt...")
+			time.Sleep(postgresRetriesInterval)
+		} else {
+			log.Fatal().Int("retries", postgresRetries).Dur("interval", postgresRetriesInterval).
+				Msg("failed to connect to the postgres server within the specified range")
+		}
 	}
 	log.Info().Msg("connecting to minio server...")
 	minioClient, err := minio.New(c.String("minioEndpoint"), &minio.Options{

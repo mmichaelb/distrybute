@@ -6,6 +6,6 @@ var PostgresConnectUriFlag = &cli.StringFlag{
 	Name:    "postgresconnecturi",
 	Aliases: []string{"postgresuri"},
 	// postgres://<user>:<password>@<host>:<port>/<database>?<flags>
-	Value:   "postgres://postgres:postgres@localhost:5432/postgres?connect_timeout=30",
+	Value:   "postgres://postgres:postgres@localhost:5432/postgres",
 	EnvVars: []string{"DISTRYBUTE_POSTGRES_CONNECT_URI"},
 }
