@@ -29,7 +29,7 @@ func (s *Service) CreateNewUser(username string, password []byte) (user *distryb
 	if err != nil {
 		return nil, err
 	}
-	defer deferCloseConnFunc(conn)()
+	defer deferReleaseConnFunc(conn)()
 	row := conn.QueryRow(context.Background(),
 		`INSERT INTO distrybute.users (id, username, auth_token, password_alg, password_salt, password) VALUES ($1, $2, $3, $4, $5, $6)`,
 		id, username, authToken, string(passwordAlgorithm), salt, hashedPassword)
@@ -51,7 +51,7 @@ func (s *Service) CheckPassword(username string, password []byte) (ok bool, user
 	if err != nil {
 		return false, nil, err
 	}
-	defer deferCloseConnFunc(conn)()
+	defer deferReleaseConnFunc(conn)()
 	row := conn.QueryRow(context.Background(),
 		`SELECT id, username, password, password_alg, password_salt FROM distrybute.users WHERE username ILIKE $1`, username)
 	var id uuid.UUID
@@ -83,7 +83,7 @@ func (s *Service) UpdateUsername(id uuid.UUID, newUsername string) (err error) {
 	if err != nil {
 		return err
 	}
-	defer deferCloseConnFunc(conn)()
+	defer deferReleaseConnFunc(conn)()
 	row := conn.QueryRow(context.Background(), `UPDATE distrybute.users SET username=$1 WHERE id=$2`, newUsername, id)
 	err = row.Scan()
 	if isViolatingUniqueConstraintErr(err) {
@@ -99,7 +99,7 @@ func (s *Service) ResolveAuthorizationToken(id uuid.UUID) (token string, err err
 	if err != nil {
 		return "nil", err
 	}
-	defer deferCloseConnFunc(conn)()
+	defer deferReleaseConnFunc(conn)()
 	row := conn.QueryRow(context.Background(), `SELECT auth_token FROM distrybute.users WHERE id=$1`, id)
 	err = row.Scan(&token)
 	if err == nil {
@@ -116,7 +116,7 @@ func (s *Service) RefreshAuthorizationToken(id uuid.UUID) (token string, err err
 	if err != nil {
 		return "", err
 	}
-	defer deferCloseConnFunc(conn)()
+	defer deferReleaseConnFunc(conn)()
 	token, err = generateAuthToken()
 	if err != nil {
 		return "", err
@@ -137,7 +137,7 @@ func (s *Service) ListUsers() (users []*distrybute.User, err error) {
 	if err != nil {
 		return nil, err
 	}
-	defer deferCloseConnFunc(conn)()
+	defer deferReleaseConnFunc(conn)()
 	rows, err := conn.Query(context.Background(), `SELECT id, username FROM distrybute.users`)
 	if err != nil {
 		return nil, err
@@ -162,7 +162,7 @@ func (s *Service) GetUserByAuthorizationToken(token string) (bool, *distrybute.U
 	if err != nil {
 		return false, nil, err
 	}
-	defer deferCloseConnFunc(conn)()
+	defer deferReleaseConnFunc(conn)()
 	row := conn.QueryRow(context.Background(), `SELECT id, username FROM distrybute.users WHERE auth_token=$1`, token)
 	var id uuid.UUID
 	var username string
@@ -180,7 +180,7 @@ func (s *Service) GetUserByUsername(username string) (user *distrybute.User, err
 	if err != nil {
 		return nil, err
 	}
-	defer deferCloseConnFunc(conn)()
+	defer deferReleaseConnFunc(conn)()
 	row := conn.QueryRow(context.Background(), `SELECT id, username FROM distrybute.users WHERE UPPER(username)=UPPER($1)`, username)
 	var id uuid.UUID
 	err = row.Scan(&id, &username)
@@ -197,7 +197,7 @@ func (s *Service) DeleteUser(id uuid.UUID) (err error) {
 	if err != nil {
 		return err
 	}
-	defer deferCloseConnFunc(conn)()
+	defer deferReleaseConnFunc(conn)()
 	row := conn.QueryRow(context.Background(), `DELETE FROM distrybute.users WHERE id=$1 RETURNING username`, id)
 	var username string
 	err = row.Scan(&username)
@@ -213,7 +213,7 @@ func (s *Service) UpdatePassword(id uuid.UUID, password []byte) (err error) {
 	if err != nil {
 		return err
 	}
-	defer deferCloseConnFunc(conn)()
+	defer deferReleaseConnFunc(conn)()
 	row := conn.QueryRow(context.Background(), `SELECT password_alg, password_salt FROM distrybute.users WHERE id=$1`, id)
 	var passwordAlgorithm distrybute.PasswordHashAlgorithm
 	var passwordSalt []byte

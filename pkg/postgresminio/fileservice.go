@@ -27,7 +27,7 @@ func (s *Service) Store(filename, contentType string, size int64, author uuid.UU
 	if err != nil {
 		return nil, err
 	}
-	defer deferCloseConnFunc(conn)()
+	defer deferReleaseConnFunc(conn)()
 	tx, err := conn.Begin(context.Background())
 	if err != nil {
 		return nil, err
@@ -83,7 +83,7 @@ func (s *Service) Request(callReference string) (entry *distrybute.FileEntry, er
 	if err != nil {
 		return nil, err
 	}
-	defer deferCloseConnFunc(conn)()
+	defer deferReleaseConnFunc(conn)()
 	row := conn.QueryRow(context.Background(),
 		`SELECT id, author, delete_reference, content_type, filename, size, upload_date FROM distrybute.entries WHERE call_reference=$1`, callReference)
 	var id, author uuid.UUID
@@ -120,7 +120,7 @@ func (s *Service) Delete(deleteReference string) (err error) {
 	if err != nil {
 		return err
 	}
-	defer deferCloseConnFunc(conn)()
+	defer deferReleaseConnFunc(conn)()
 	tx, err := conn.Begin(context.Background())
 	if err != nil {
 		return err
