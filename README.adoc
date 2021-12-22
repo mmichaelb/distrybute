@@ -5,6 +5,7 @@ image:https://img.shields.io/badge/stability-wip-lightgrey.svg[stability-wip, li
 image:https://codecov.io/gh/mmichaelb/distrybute/branch/main/graph/badge.svg?token=QFCS6cSJ2J[Code Coverage, link="https://codecov.io/gh/mmichaelb/distrybute"]
 image:https://pkg.go.dev/badge/github.com/mmichaelb/distrybute.svg[GoDoc Reference, link="https://pkg.go.dev/github.com/mmichaelb/distrybute"]
 image:https://github.com/mmichaelb/distrybute/actions/workflows/test_build_deploy.yml/badge.svg[Test, build, deploy, link="https://github.com/mmichaelb/distrybute/actions/workflows/test_build_deploy.yml"]
+image:https://goreportcard.com/badge/github.com/mmichaelb/distrybute[Go Report, link="https://goreportcard.com/report/github.com/mmichaelb/distrybute"]
 
 Lightweight S3-compatible upload server for various upload clients.
 
