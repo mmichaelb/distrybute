@@ -954,6 +954,8 @@ github.com/swaggo/http-swagger v1.1.2/go.mod h1:mX5nhypDmoSt4iw2mc5aKXxRFvp1CLLc
 github.com/swaggo/swag v1.7.0/go.mod h1:BdPIL73gvS9NBsdi7M1JOxLvlbfvNRaBP8m6WT6Aajo=
 github.com/swaggo/swag v1.7.6 h1:UbAqHyXkW2J+cDjs5S43MkuYR7a6stB7Am7SK8NBmRg=
 github.com/swaggo/swag v1.7.6/go.mod h1:7vLqNYEtYoIsD14wXgy9oDS65MNiDANrPtbk9rnLuj0=
+github.com/swaggo/swag v1.7.8 h1:w249t0l/kc/DKMGlS0fppNJQxKyJ8heNaUWB6nsH3zc=
+github.com/swaggo/swag v1.7.8/go.mod h1:gZ+TJ2w/Ve1RwQsA2IRoSOTidHz6DX+PIG8GWvbnoLU=
 github.com/syndtr/gocapability v0.0.0-20170704070218-db04d3cc01c8/go.mod h1:hkRG7XYTFWNJGYcbNJQlaLq0fg1yr4J4t/NcTQtrfww=
 github.com/syndtr/gocapability v0.0.0-20180916011248-d98352740cb2/go.mod h1:hkRG7XYTFWNJGYcbNJQlaLq0fg1yr4J4t/NcTQtrfww=
 github.com/syndtr/gocapability v0.0.0-20200815063812-42c35b437635/go.mod h1:hkRG7XYTFWNJGYcbNJQlaLq0fg1yr4J4t/NcTQtrfww=
