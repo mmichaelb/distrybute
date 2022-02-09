@@ -12,7 +12,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.26.1
 	github.com/stretchr/testify v1.7.0
-	github.com/swaggo/http-swagger v1.2.0
+	github.com/swaggo/http-swagger v1.2.5
 	github.com/swaggo/swag v1.7.9
 	github.com/urfave/cli/v2 v2.3.0
 	golang.org/x/crypto v0.0.0-20220209195652-db638375bc3a
