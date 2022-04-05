@@ -12,7 +12,7 @@ jobs:
         uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # renovate: tag=v2
       - name: Test code
         run: make unit-test
-      - uses: codecov/codecov-action@v2
+      - uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.txt
@@ -61,7 +61,7 @@ jobs:
           TEST_MINIO_HOST: localhost
           TEST_MINIO_PORT: ${{ job.services.minio.ports[9000] }}
           TEST_MINIO_BUCKET_NAME: ${{ env.MINIO_TEST_BUCKET_NAME }}
-      - uses: codecov/codecov-action@v2
+      - uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.txt
