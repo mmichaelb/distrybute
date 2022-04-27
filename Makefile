@@ -16,11 +16,12 @@ OUTPUT_FILE_ENDING=$(shell go env GOEXE)
 
 # unit test go program
 unit-test:
-	@go test -race -coverpkg=./pkg/... -coverprofile=coverage.txt -covermode=atomic -v ./...
-	@sed -i '/github.com\/mmichaelb\/distrybute\/pkg\/mocks\//d' coverage.txt
+	@go test -race -coverpkg=./pkg/... -coverprofile=coverage_unit.txt -covermode=atomic -v ./...
+	@sed -i '/github.com\/mmichaelb\/distrybute\/pkg\/mocks\//d' coverage_unit.txt
 
 postgres-minio-integration-test:
-	@POSTGRES_MINIO_INTEGRATION_TEST=true go test -race -coverprofile=coverage.txt -covermode=atomic -v -run Test_PostgresMinio_Service ./...
+	@POSTGRES_MINIO_INTEGRATION_TEST=true go test -race -coverprofile=coverage_integration.txt -covermode=atomic -v -run Test_PostgresMinio_Service ./...
+	@sed -i '/github.com\/mmichaelb\/distrybute\/pkg\/mocks\//d' coverage_integration.txt
 
 # builds and formats the project with the built-in Golang tool
 .PHONY: build

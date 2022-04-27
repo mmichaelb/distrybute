@@ -15,7 +15,7 @@ jobs:
       - uses: codecov/codecov-action@v2
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./coverage.txt
+          files: ./coverage_unit.txt
           flags: unittests
   postgres-minio-integration-tests:
     env:
@@ -64,7 +64,7 @@ jobs:
       - uses: codecov/codecov-action@v2
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./coverage.txt
+          files: ./coverage_integration.txt
           flags: integrationtests
   docker-build:
     needs: [ postgres-minio-integration-tests, unit-tests ]
