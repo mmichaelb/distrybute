@@ -15,7 +15,7 @@ require (
 	github.com/swaggo/http-swagger v1.2.6
 	github.com/swaggo/swag v1.8.1
 	github.com/urfave/cli/v2 v2.4.0
-	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4
+	golang.org/x/crypto v0.0.0-20220427172511-eb4f295cb31f
 )
 
 require (
