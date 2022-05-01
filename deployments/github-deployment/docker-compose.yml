@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   distrybute:
-    image: ghcr.io/mmichaelb/distrybute:latest
+    image: ghcr.io/mmichaelb/distrybute:latest@sha256:3ba26ad77b6a59727bef6d1e87bdb08fa2ee50ba103382510b2f5a73d4240239
     restart: always
     ports:
       - "127.0.0.1:10711:10711"
@@ -20,7 +20,7 @@ services:
     networks:
       - distrybute_compose
   postgres:
-    image: postgres:14
+    image: postgres:14@sha256:ab0be6280ada8549f45e6662ab4f00b7f601886fcd55c5976565d4636d87c8b2
     restart: always
     environment:
       POSTGRES_PASSWORD: distrybute
@@ -31,7 +31,7 @@ services:
     networks:
       - distrybute_compose
   minio:
-    image: minio/minio:latest
+    image: minio/minio:latest@sha256:e2b8f44d13b03a661c754b23583b72d51347608952070adcdd929a0dfadd2002
     command: server /data
     restart: always
     environment:

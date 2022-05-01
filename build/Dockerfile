@@ -1,5 +1,5 @@
 # build golang image
-FROM golang:1.17.8-alpine3.15 AS builder
+FROM golang:1.17.8-alpine3.15@sha256:95abb5d5c780126d12a63401acddc9fe0748fab7c5bd498f9961ed5736393049 AS builder
 ARG build_git_branch=<unknown>
 ARG build_git_tag=<unknown>
 ARG build_git_commit_sha=<unknown>
