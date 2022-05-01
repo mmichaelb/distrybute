@@ -24,7 +24,7 @@
       "matchUpdateTypes": [
         "minor"
       ],
-      "dependencyDashboardApproval": true
+      "automerge": false
     }
   ]
 }
