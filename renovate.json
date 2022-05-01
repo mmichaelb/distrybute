@@ -13,6 +13,18 @@
       ],
       "automerge": true,
       "stabilityDays": 3
+    },
+    {
+      "matchPackageNames": [
+        "golang"
+      ],
+      "matchManagers": [
+        "dockerfile"
+      ],
+      "matchUpdateTypes": [
+        "minor"
+      ],
+      "dependencyDashboardApproval": true
     }
   ]
 }
