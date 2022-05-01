@@ -26,5 +26,11 @@
       ],
       "enabled": false
     }
-  ]
+  ],
+  "dockerfile": {
+    "fileMatch": ["build/Dockerfile-cli"]
+  },
+  "docker": {
+    "pinDigests": true
+  }
 }
