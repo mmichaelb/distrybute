@@ -24,7 +24,7 @@
       "matchUpdateTypes": [
         "minor"
       ],
-      "automerge": false
+      "enabled": false
     }
   ]
 }
