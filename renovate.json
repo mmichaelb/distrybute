@@ -9,7 +9,8 @@
         "minor",
         "patch",
         "digest",
-        "pin"
+        "pin",
+        "pinDigest"
       ],
       "automerge": true,
       "stabilityDays": 3
