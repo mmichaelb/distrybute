@@ -30,5 +30,8 @@
   ],
   "docker": {
     "pinDigests": true
-  }
+  },
+  "postUpdateOptions": [
+    "gomodTidy"
+  ]
 }
