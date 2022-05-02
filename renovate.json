@@ -16,16 +16,16 @@
       "stabilityDays": 3
     },
     {
-      "matchUpdateTypes": [
-        "minor"
+      "matchManagers": [
+        "dockerfile"
       ],
       "matchPackageNames": [
         "golang"
       ],
-      "matchManagers": [
-        "dockerfile"
-      ],
-      "enabled": false
+      "minor": {
+        "enabled": false
+      },
+      "separateMinorPatch": true
     }
   ],
   "docker": {
