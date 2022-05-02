@@ -23,7 +23,7 @@
         "golang"
       ],
       "minor": {
-        "enabled": false
+        "automerge": false
       },
       "separateMinorPatch": true
     }
