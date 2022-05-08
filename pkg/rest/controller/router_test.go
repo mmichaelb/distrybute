@@ -151,6 +151,22 @@ func TestRouter_handleFileUpload(t *testing.T) {
 		assert.Equal(t, testCallReference, respJsonBody.Data.(*FileUploadResponse).CallReference)
 		assert.Equal(t, testDeleteReference, respJsonBody.Data.(*FileUploadResponse).DeleteReference)
 	})
+	t.Run("invalid post request is being handled normally", func(t *testing.T) {
+		testUuid, _ := uuid.Parse("c0bb684a-ecb4-4211-a31e-dc878bc001c7")
+		userService.On("GetUserByAuthorizationToken", "authorizedtoken").
+			Return(true, &distrybute.User{ID: testUuid}, nil)
+		recorder := httptest.NewRecorder()
+		req := httptest.NewRequest(http.MethodPost, "/file", nil)
+		req.Header.Set("Authorization", "authorizedtoken")
+		req.Header.Set("Content-Type", "invalid/contenttype")
+		r.ServeHTTP(recorder, req)
+		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+		receivedContent, err := io.ReadAll(recorder.Result().Body)
+		assert.NoError(t, err)
+		respJsonBody := &Response{Data: &FileUploadResponse{}}
+		err = json.Unmarshal(receivedContent, respJsonBody)
+		assert.NoError(t, err)
+	})
 }
 
 func prepareTestMultipart(t *testing.T, body string, contentType string) (io.Reader, *multipart.Writer) {
