@@ -92,7 +92,7 @@ func (r *router) handleFileUpload(w *responseWriter, req *http.Request) {
 		return
 	}
 	mimeType := multipartFileHeader.Header.Get("Content-Type")
-	entry, err := r.fileService.Store("", mimeType, multipartFileHeader.Size, user.ID, file)
+	entry, err := r.fileService.Store(multipartFileHeader.Filename, mimeType, multipartFileHeader.Size, user.ID, file)
 	if err != nil {
 		hlog.FromRequest(req).Err(err).Msg("could not store file entry")
 		w.WriteAutomaticErrorResponse(http.StatusInternalServerError, nil, req)
