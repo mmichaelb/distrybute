@@ -1,0 +1,21 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:14@sha256:2c954f8c5d03da58f8b82645b783b56c1135df17e650b186b296fa1bb71f9cfd
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: distrybute
+    ports:
+      - "127.0.0.1:5432:5432"
+  minio:
+    image: minio/minio:latest@sha256:10754d1de642e2b118c42dfd7af2df4a41e7bc479185cdf4df97fcf1dbea17b4
+    command: server /data
+    restart: unless-stopped
+    environment:
+      MINIO_BROWSER: off
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "127.0.0.1:9000:9000"
