@@ -112,6 +112,7 @@ func TestRouter_handleFileUpload(t *testing.T) {
 	})
 	t.Run("upload function works", func(t *testing.T) {
 		testUuid, _ := uuid.Parse("c0bb684a-ecb4-4211-a31e-dc878bc001c7")
+		testFilename := "testfile.json"
 		bodyContent := `{"object":{"a":"b","c":"d","e":"f"},"array":[1,2],"string":"Hello World"}`
 		testContentType := "application/test-content-type"
 		testCallReference := "testcallreference"
@@ -119,10 +120,10 @@ func TestRouter_handleFileUpload(t *testing.T) {
 		userService.On("GetUserByAuthorizationToken", "authorizedtoken").
 			Return(true, &distrybute.User{ID: testUuid}, nil)
 		validated := false
-		fileService.On("Store", "", mock.AnythingOfType("string"),
+		fileService.On("Store", mock.AnythingOfType("string"), mock.AnythingOfType("string"),
 			mock.AnythingOfType("int64"), testUuid, mock.Anything).
 			Return(func(filename, contentType string, size int64, author uuid.UUID, reader io.Reader) *distrybute.FileEntry {
-				assert.Empty(t, filename)
+				assert.Equal(t, testFilename, filename)
 				assert.Equal(t, testContentType, contentType)
 				assert.Equal(t, int64(len(bodyContent)), size)
 				assert.Equal(t, testUuid, author)
@@ -173,7 +174,7 @@ func prepareTestMultipart(t *testing.T, body string, contentType string) (io.Rea
 	var buffer bytes.Buffer
 	multipartWriter := multipart.NewWriter(&buffer)
 	h := make(textproto.MIMEHeader)
-	h.Set("Content-Disposition", `form-data; name="file"; filename="test.json"`)
+	h.Set("Content-Disposition", `form-data; name="file"; filename="testfile.json"`)
 	h.Set("Content-Type", contentType)
 	writer, err := multipartWriter.CreatePart(h)
 	assert.NoError(t, err)
