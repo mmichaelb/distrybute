@@ -14,7 +14,7 @@ require (
 	github.com/stretchr/testify v1.7.2
 	github.com/swaggo/http-swagger v1.3.0
 	github.com/swaggo/swag v1.8.3
-	github.com/urfave/cli/v2 v2.10.2
+	github.com/urfave/cli/v2 v2.10.3
 	golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d
 )
 
