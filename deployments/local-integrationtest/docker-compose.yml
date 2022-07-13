@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   postgres:
-    image: postgres:14@sha256:2826dafa98b0339724c6ff02a5e2aef9ca3430a665734330967002b686d73aca
+    image: postgres:14@sha256:3e2eba0a6efbeb396e086c332c5a85be06997d2cf573d34794764625f405df4e
     restart: unless-stopped
     environment:
       POSTGRES_PASSWORD: postgres
