@@ -22,6 +22,24 @@
       "matchPackageNames": [
         "golang"
       ],
+      "major": {
+        "automerge": false
+      },
+      "minor": {
+        "automerge": false
+      },
+      "separateMinorPatch": true
+    },
+    {
+      "matchManagers": [
+        "gomod"
+      ],
+      "matchDatasources": [
+        "golang-version"
+      ],
+      "major": {
+        "automerge": false
+      },
       "minor": {
         "automerge": false
       },
