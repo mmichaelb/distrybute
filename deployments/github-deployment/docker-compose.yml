@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   distrybute:
-    image: ghcr.io/mmichaelb/distrybute:latest@sha256:c72618d9a4d1fdfdab99265648c645fe5e945040c33504a68b90f826246a6200
+    image: ghcr.io/mmichaelb/distrybute:latest@sha256:ec85265adf861e5a96b36320b8c4630c5fbdba5e88b02096980c0d62bc29d800
     restart: unless-stopped
     ports:
       - "127.0.0.1:10711:10711"
