@@ -10,7 +10,7 @@ services:
     ports:
       - "127.0.0.1:5432:5432"
   minio:
-    image: minio/minio:latest@sha256:03bd681f5661eddccafc11aaff284819b288d3514471e5bd055d79d85030cee4
+    image: minio/minio:latest@sha256:030a5f97aa048051956403991044e222b1a7c572422a78ef058939c71ad1d992
     command: server /data
     restart: unless-stopped
     environment:
