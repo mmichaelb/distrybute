@@ -33,7 +33,7 @@ services:
     networks:
       - distrybute_compose
   minio:
-    image: minio/minio:latest@sha256:030a5f97aa048051956403991044e222b1a7c572422a78ef058939c71ad1d992
+    image: minio/minio:latest@sha256:9d00a1d604f914776cb4e1ffe6f0cdcb0fe002283b29e6aa8a82262bf8646856
     command: server /data
     restart: unless-stopped
     environment:
