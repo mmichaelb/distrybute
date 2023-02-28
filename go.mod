@@ -11,7 +11,7 @@ require (
 	github.com/minio/minio-go/v7 v7.0.49
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.29.0
-	github.com/stretchr/testify v1.8.1
+	github.com/stretchr/testify v1.8.2
 	github.com/swaggo/http-swagger v1.3.3
 	github.com/swaggo/swag v1.8.10
 	github.com/urfave/cli/v2 v2.24.4
