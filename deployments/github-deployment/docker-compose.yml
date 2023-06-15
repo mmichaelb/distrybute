@@ -20,7 +20,7 @@ services:
     networks:
       - distrybute_compose
   postgres:
-    image: postgres:15@sha256:475a0d447384a5353a366db110bbf8b982b825aff53cdcf39e88dc2b97d1c7e1
+    image: postgres:15@sha256:1a6b23b8a62600f52995d164132266c7ef648905b7d6e63da43d63faa574e395
     restart: unless-stopped
     environment:
       POSTGRES_PASSWORD: distrybute
