@@ -8,6 +8,7 @@ require (
 	github.com/google/uuid v1.3.1
 	github.com/jackc/pgconn v1.14.1
 	github.com/jackc/pgx/v4 v4.18.1
+	github.com/jackc/pgx/v5 v5.4.3
 	github.com/minio/minio-go/v7 v7.0.63
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.30.0
